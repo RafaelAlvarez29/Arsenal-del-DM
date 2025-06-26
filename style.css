@@ -51,6 +51,9 @@ h2 {
   margin-bottom: 20px !important;
   padding-bottom: 10px;
 }
+.leyenda {
+  text-align: center;
+}
 h4 {
   font-family: "IM Fell English SC", serif;
   color: var(--text-gold);
@@ -487,6 +490,7 @@ button.secondary:hover {
 }
 #mapImage,
 #gridCanvas,
+#wallsCanvas,
 #visionCanvas,
 #tokensLayer {
   position: absolute;
@@ -502,13 +506,17 @@ button.secondary:hover {
   z-index: 2;
   pointer-events: none;
 }
-#visionCanvas {
+#wallsCanvas {
   z-index: 3;
-  display: none;
-}
-#tokensLayer {
+  pointer-events: none;
+} /* <<< NUEVA REGLA */
+#visionCanvas {
   z-index: 4;
-}
+  display: none;
+} /* Ajustado el z-index */
+#tokensLayer {
+  z-index: 5;
+} /* Ajustado el z-index */
 .token {
   position: absolute;
   border-radius: 50%;
@@ -661,104 +669,146 @@ button.secondary:hover {
 /* --- ESTILOS PERSONALIZADOS PARA CHECKBOX Y RADIO BUTTONS (CORREGIDO) --- */
 
 /* Contenedores para el layout */
-.radio-group { display: flex; gap: 15px; align-items: center; }
-.radio-group > div, .checkbox-container { display: flex; align-items: center; }
+.radio-group {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+.radio-group > div,
+.checkbox-container {
+  display: flex;
+  align-items: center;
+}
 
 /* Ocultamos el input original */
-input[type="checkbox"], input[type="radio"] {
-    opacity: 0;
-    position: absolute;
-    width: 0;
-    height: 0;
+input[type="checkbox"],
+input[type="radio"] {
+  opacity: 0;
+  position: absolute;
+  width: 0;
+  height: 0;
 }
 
 /* El label ahora es el elemento clicable principal */
-.radio-group label, .checkbox-container label {
-    position: relative;
-    padding-left: 30px; /* Espacio para el nuevo checkbox/radio */
-    cursor: pointer;
-    user-select: none;
-    font-size: 1em;
+.radio-group label,
+.checkbox-container label {
+  position: relative;
+  padding-left: 30px; /* Espacio para el nuevo checkbox/radio */
+  cursor: pointer;
+  user-select: none;
+  font-size: 1em;
 }
 
 /* Creamos la caja/círculo base usando ::before */
-.radio-group label::before, .checkbox-container label::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    background-color: var(--input-bg);
-    border: 2px solid var(--input-border);
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
-    transition: all 0.2s ease;
+.radio-group label::before,
+.checkbox-container label::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background-color: var(--input-bg);
+  border: 2px solid var(--input-border);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s ease;
 }
 
 /* Forma de círculo para los radio buttons */
 .radio-group label::before {
-    border-radius: 50%;
+  border-radius: 50%;
 }
 
 /* Forma de cuadrado para los checkboxes */
 .checkbox-container label::before {
-    border-radius: 3px;
+  border-radius: 3px;
 }
 
 /* Cuando el input (que ahora es hermano) está seleccionado, cambiamos el borde del label adyacente */
 input[type="checkbox"]:checked + label::before,
 input[type="radio"]:checked + label::before {
-    border-color: var(--text-gold);
-    background-color: #4a3f3c;
+  border-color: var(--text-gold);
+  background-color: #4a3f3c;
 }
 
 /* Creamos la marca interior usando ::after */
-.radio-group label::after, .checkbox-container label::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%) scale(0); /* Empieza invisible */
-    opacity: 0;
-    transition: all 0.2s ease-in-out;
+.radio-group label::after,
+.checkbox-container label::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) scale(0); /* Empieza invisible */
+  opacity: 0;
+  transition: all 0.2s ease-in-out;
 }
 
 /* Estilo para la marca del radio button (círculo dorado) */
 input[type="radio"] + label::after {
-    left: 5px; /* Centrado en la caja de 20px */
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: var(--text-gold);
+  left: 5px; /* Centrado en la caja de 20px */
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--text-gold);
 }
 
 /* Estilo para la marca del checkbox (checkmark) */
 input[type="checkbox"] + label::after {
-    left: 7px;
-    top: 40%; /* Ajuste para centrar visualmente el checkmark */
-    width: 6px;
-    height: 12px;
-    border: solid var(--text-gold);
-    border-width: 0 3px 3px 0;
-    transform: translateY(-50%) rotate(45deg) scale(0);
+  left: 7px;
+  top: 40%; /* Ajuste para centrar visualmente el checkmark */
+  width: 6px;
+  height: 12px;
+  border: solid var(--text-gold);
+  border-width: 0 3px 3px 0;
+  transform: translateY(-50%) rotate(45deg) scale(0);
 }
 
 /* Cuando el input está seleccionado, hacemos visible la marca interior */
 input[type="checkbox"]:checked + label::after,
 input[type="radio"]:checked + label::after {
-    opacity: 1;
-    transform: translateY(-50%) scale(1); /* La escala se anima desde 0 a 1 */
+  opacity: 1;
+  transform: translateY(-50%) scale(1); /* La escala se anima desde 0 a 1 */
 }
 
 /* Regla específica para el checkmark para mantener la rotación */
 input[type="checkbox"]:checked + label::after {
-    transform: translateY(-50%) rotate(45deg) scale(1);
+  transform: translateY(-50%) rotate(45deg) scale(1);
 }
 
 /* Efecto de foco para accesibilidad */
 input[type="checkbox"]:focus-visible + label::before,
 input[type="radio"]:focus-visible + label::before {
-    outline: 2px solid var(--text-gold);
-    outline-offset: 2px;
+  outline: 2px solid var(--text-gold);
+  outline-offset: 2px;
+}
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #3a2e2a;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #966331;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+/* --- ESTILOS PARA EL MODO DE DIBUJO DE MUROS --- */
+body.wall-drawing-mode .map-area {
+  cursor: crosshair; /* Cambia el cursor cuando el modo está activo */
+}
+
+#toggleWallModeBtn.active {
+  background: var(--button-vision-bg);
+  border-color: #5dc66f;
+  color: #fff;
+  box-shadow: 0 0 10px #5dc66f;
 }

@@ -4,19 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa Táctico Avanzado</title>
+    <title>Arsenal del DM</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=IM+Fell+English+SC&display=swap"
         rel="stylesheet">
+    <link rel="shortcut icon"
+        href="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/i/465e4532-5430-4be7-b49c-acf81087d8bd/dk17bz4-f9c81319-b029-4470-9675-b67c2fd91bf0.png"
+        type="image/x-icon">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div class="container">
         <div class="controls-panel">
-
-            <!-- IMAGEN AÑADIDA -->
             <div class="panel-logo-container">
                 <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk16kcf-77b0443f-cc50-45d6-a19d-de78a6dcb6e6.png/v1/fill/w_894,h_894/logo1_by_rafaelalvarez29_dk16kcf-pre.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTAyNCIsInBhdGgiOiJcL2ZcLzQ2NWU0NTMyLTU0MzAtNGJlNy1iNDljLWFjZjgxMDg3ZDhiZFwvZGsxNmtjZi03N2IwNDQzZi1jYzUwLTQ1ZDYtYTE5ZC1kZTc4YTZkY2I2ZTYucG5nIiwid2lkdGgiOiI8PTEwMjQifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.YtjWIIde6uE-Q4uflRtmthgIoWGsVSYs6MqcARV12B8"
                     alt="Logo de la Aplicación" class="panel-logo">
@@ -58,7 +59,7 @@
                     <input type="color" id="gridColor" value="#000000">
                     <label for="gridOpacity">Opacidad:</label>
                     <input type="range" id="gridOpacity" min="0" max="1" step="0.1" value="0.5">
-                    
+
                     <label for="cellSize">Tamaño de Casilla (px):</label>
                     <input type="number" id="cellSize" value="50" min="10">
 
@@ -78,6 +79,20 @@
                 </div>
             </section>
 
+            <section class="collapsible">
+                <h3 class="collapsible-header">Muros (Línea de Visión) </h3>
+                <div class="collapsible-content">
+                                    <p>En desarrollo</p>
+
+                    <p class="help-text">Dibuja muros para bloquear la visión de los jugadores antes de iniciar la
+                        niebla.</p>
+                    <button id="toggleWallModeBtn">Activar Modo Muros</button>
+                    <div class="button-group">
+                        <button id="undoWallBtn" class="secondary">Deshacer Último</button>
+                        <button id="clearWallsBtn" class="secondary">Limpiar Muros</button>
+                    </div>
+                </div>
+            </section>
 
             <!-- FORMULARIO AÑADIR FICHA (con etiqueta de vida actualizada) -->
             <section class="collapsible">
@@ -101,7 +116,8 @@
                     <label for="tokenTurn">Turno (Iniciativa):</label><input type="number" id="tokenTurn" value="10">
                     <label for="tokenHealth">Vida Inicial:</label> <!-- CAMBIO DE ETIQUETA -->
                     <input type="number" id="tokenHealth" value="100">
-                    <label for="tokenNotes">Notas:</label><textarea id="tokenNotes" rows="3"></textarea>
+                    <label for="tokenNotes">Notas:</label><textarea id="tokenNotes" rows="3"
+                        placeholder="Describe características especiales, habilidades o notas importantes..."></textarea>
                     <label for="tokenColor">Color Relleno:*</label><input type="color" id="tokenColor" value="#4a90e2">
                     <label for="tokenBorderColor">Color Borde:*</label><input type="color" id="tokenBorderColor"
                         value="#000000">
@@ -171,7 +187,9 @@
                         </div>
 
                         <h4>Notas</h4>
-                        <div class="form-group"><textarea id="editTokenNotes" rows="4"></textarea></div>
+                        <div class="form-group"><textarea id="editTokenNotes" rows="4"
+                                placeholder="Describe características especiales, habilidades o notas importantes..."></textarea>
+                        </div>
 
                         <div class="form-row button-group">
                             <button id="updateTokenBtn">Actualizar Ficha</button>
@@ -192,12 +210,16 @@
                 <button id="toggleVisionBtn">Iniciar Visión Dinámica</button>
                 <button id="resetFogBtn" title="Reiniciar toda la niebla de guerra">R</button>
             </div>
+            <br>
+            <p class="panel-subtitle leyenda">~ Creado por Rafael Alvarez ~</p>
+
         </div>
 
         <div class="map-area">
             <div id="mapContainer">
-                <img id="mapImage" src="" alt="Mapa del Dungeon">
+                <img id="mapImage" src="" alt="Mapa" style="  -webkit-user-drag: none;">
                 <canvas id="gridCanvas"></canvas>
+                <canvas id="wallsCanvas"></canvas>
                 <canvas id="visionCanvas"></canvas>
                 <div id="tokensLayer"></div>
             </div>
