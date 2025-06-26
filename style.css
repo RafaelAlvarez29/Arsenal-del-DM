@@ -1,0 +1,764 @@
+/* --- ESTILOS GENERALES Y FUENTES --- */
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=IM+Fell+English+SC&display=swap");
+:root {
+  --bg-dark: #1a1a1a;
+  --panel-bg: #1f1614;
+  --panel-border: #e6c253;
+  --text-light: #e0e0e0;
+  --text-gold: #e6c253;
+  --header-bg: #3a2e2a;
+  --header-hover: #4a3f3c;
+  --content-bg: #2a221f;
+  --input-bg: #1a1a1a;
+  --input-border: #4a3f3c;
+  --button-primary-bg: linear-gradient(to bottom, #8c5a2d, #593a1d);
+  --button-primary-hover: linear-gradient(to bottom, #a16a35, #6b4623);
+  --button-vision-bg: linear-gradient(to bottom, #2d8c3e, #1d5927);
+  --button-vision-hover: linear-gradient(to bottom, #35a14a, #236b2f);
+}
+
+body {
+  margin: 0;
+  font-family: "Cinzel", serif;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  overflow: hidden;
+}
+.container {
+  display: flex;
+  height: 100vh;
+}
+.controls-panel {
+  width: 450px;
+  background: var(--panel-bg);
+  padding: 20px;
+  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+  flex-shrink: 0;
+  border-right: 2px solid var(--panel-border);
+}
+h2 {
+  font-family: "IM Fell English SC", serif;
+  font-size: 2em;
+  text-align: center;
+  color: var(--text-gold);
+  margin: 0 0;
+  text-shadow: 1px 1px 3px #000;
+}
+.divisor {
+  border-bottom: 1px solid var(--text-gold);
+  text-align: center;
+  margin-bottom: 20px !important;
+  padding-bottom: 10px;
+}
+h4 {
+  font-family: "IM Fell English SC", serif;
+  color: var(--text-gold);
+  border-bottom: 1px dotted var(--input-border);
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+h4.top-margin {
+  margin-top: 20px;
+}
+.collapsible {
+  margin-bottom: 10px;
+  border: 1px solid var(--input-border);
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+.collapsible-header {
+  background: var(--header-bg);
+  color: #d4b574;
+  padding: 12px 15px;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  transition: background-color 0.3s;
+  margin: 0;
+  font-size: 1.1em;
+  font-family: "Cinzel", serif;
+}
+.collapsible-header:hover {
+  background: var(--header-hover);
+}
+.collapsible-header::after {
+  content: "+";
+  font-weight: bold;
+  color: var(--text-gold);
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  font-size: 1.2em;
+  transform: translateY(-50%);
+  transition: transform 0.3s ease-out;
+}
+.collapsible.active .collapsible-header::after {
+  transform: translateY(-50%) rotate(45deg);
+}
+.collapsible-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+  padding: 0 15px;
+  background-color: var(--content-bg);
+}
+.collapsible.active .collapsible-content {
+  max-height: 1200px; /* Valor alto para permitir contenido grande */
+  padding: 15px;
+}
+
+/* --- FORMULARIOS Y BOTONES (con textarea) --- */
+label {
+  display: block;
+  margin: 10px 0 5px;
+  font-size: 0.9em;
+}
+label.inline-label {
+  display: flex;
+  align-items: center;
+  margin: 5px 0;
+}
+input[type="text"],
+input[type="number"],
+input[type="file"],
+textarea {
+  width: calc(100% - 22px);
+  padding: 8px 10px;
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 3px;
+  color: var(--text-light);
+  font-family: "Cinzel", serif;
+  margin-bottom: 5px;
+}
+textarea {
+  resize: vertical;
+}
+input[type="color"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 30px;
+  background-color: transparent;
+  border: 1px solid var(--input-border);
+  cursor: pointer;
+  padding: 0;
+}
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+input[type="color"]::-moz-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+input[type="checkbox"],
+input[type="radio"] {
+  margin-right: 8px;
+}
+.radio-group {
+  display: flex;
+  gap: 15px;
+  margin: 5px 0 10px;
+}
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  font-family: "IM Fell English SC", serif;
+  font-size: 1.2em;
+  color: var(--text-gold);
+  border: 1px solid var(--text-gold);
+  border-radius: 5px;
+  cursor: pointer;
+  text-shadow: 1px 1px 2px #000;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 2px 3px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s;
+  background: var(--button-primary-bg);
+}
+button:hover {
+  background: var(--button-primary-hover);
+  color: #fff;
+}
+button.secondary {
+  background: var(--header-hover);
+  border-color: var(--input-border);
+}
+button.secondary:hover {
+  background: var(--header-bg);
+}
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+.button-group button {
+  width: 50%;
+  margin-top: 0;
+}
+
+/* --- GRUPO DE BOTONES DE VISIÓN --- */
+.vision-controls-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  align-items: stretch;
+}
+#toggleVisionBtn {
+  flex-grow: 1;
+  margin-top: 0;
+  background: var(--button-vision-bg);
+  border-color: #5dc66f;
+  color: #5dc66f;
+}
+#toggleVisionBtn:hover {
+  background: var(--button-vision-hover);
+  color: #fff;
+}
+#resetFogBtn {
+  flex-grow: 0;
+  flex-shrink: 0;
+  width: 45px;
+  margin-top: 0;
+  padding: 0;
+  font-size: 1.5em;
+  font-family: "IM Fell English SC", serif;
+  background: linear-gradient(to bottom, #8c2d2d, #591d1d);
+  border-color: #c65d5d;
+  color: #c65d5d;
+}
+#resetFogBtn:hover {
+  background: linear-gradient(to bottom, #a13535, #6b2323);
+  color: #fff;
+  border-color: #ff8a8a;
+}
+
+/* --- EDITOR DE FICHA SELECCIONADA --- */
+#tokenEditor {
+  display: none;
+}
+#selectedTokenSection.has-selection #noTokenSelected {
+  display: none;
+}
+#selectedTokenSection.has-selection #tokenEditor {
+  display: block;
+}
+.token-editor-form {
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+}
+.token-editor-form .form-header h3 {
+  text-align: center;
+  margin: 0 0 15px;
+  color: #c0c0c0;
+  font-size: 1em;
+}
+.token-editor-form h4 {
+  font-family: "IM Fell English SC", serif;
+  color: var(--text-gold);
+  border-bottom: 1px dotted var(--input-border);
+  padding-bottom: 5px;
+  margin: 20px 0 10px;
+  font-size: 1.2em;
+}
+.form-row {
+  display: flex;
+  gap: 10px;
+}
+.form-group {
+  flex-grow: 1;
+  margin-bottom: 10px;
+}
+.form-group label {
+  margin-top: 0;
+}
+.token-editor-form .button-group {
+  margin-top: 20px;
+}
+
+/* Controles de Vida */
+.health-controls {
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 15px;
+  text-align: center;
+}
+.health-controls label {
+  font-size: 0.8em;
+  color: #a0a0a0;
+}
+.health-display-container {
+  position: relative;
+  margin-bottom: 15px;
+}
+.health-display {
+  font-size: 32px;
+  font-weight: bold;
+  font-family: "Cinzel", serif;
+  transition: color 0.3s ease;
+}
+.health-high {
+  color: #5dff8b;
+  text-shadow: 0 0 8px rgba(93, 255, 139, 0.7);
+}
+.health-mid {
+  color: #ffee5d;
+  text-shadow: 0 0 8px rgba(255, 238, 93, 0.7);
+}
+.health-low {
+  color: #ff5d5d;
+  text-shadow: 0 0 8px rgba(255, 93, 93, 0.7);
+}
+.health-critical {
+  animation: blink-red 1s infinite;
+}
+@keyframes blink-red {
+  0%,
+  100% {
+    color: #ff5d5d;
+    text-shadow: 0 0 8px rgba(255, 93, 93, 0.7);
+  }
+  50% {
+    color: #a93232;
+    text-shadow: none;
+  }
+}
+.health-modifier-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+.health-modifier-btn {
+  width: 40px;
+  height: 30px;
+  padding: 0;
+  font-family: "Cinzel", serif;
+  font-size: 1em;
+  background: #3a3a3a;
+  border-radius: 3px;
+  box-shadow: none;
+}
+.health-modifier-btn.negative {
+  border: 1px solid #c65d5d;
+  color: #c65d5d;
+}
+.health-modifier-btn.negative:hover {
+  background: #4a3f3c;
+  color: #ff8a8a;
+}
+.health-modifier-btn.positive {
+  border: 1px solid #5dc66f;
+  color: #5dc66f;
+}
+.health-modifier-btn.positive:hover {
+  background: #4a3f3c;
+  color: #8affad;
+}
+.health-modifier-input {
+  width: 60px;
+  text-align: center;
+  font-size: 1.1em;
+  padding: 4px;
+  margin: 0;
+}
+.help-text {
+  font-size: 0.8em;
+  color: #888;
+  font-style: italic;
+  margin-top: 10px;
+}
+
+/* Animación de número flotante */
+.damage-float {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  font-weight: bold;
+  pointer-events: none;
+  animation: float-and-fade 1s ease-out forwards;
+  z-index: 101;
+}
+.damage-float.heal {
+  color: #5dff8b;
+}
+.damage-float.damage {
+  color: #ff5d5d;
+}
+@keyframes float-and-fade {
+  to {
+    transform: translate(-50%, -150%);
+    opacity: 0;
+  }
+}
+
+/* --- LISTA DE FICHAS REDISEÑADA --- */
+#tokenList {
+  list-style: none;
+  padding: 0;
+  max-height: 350px;
+  overflow-y: auto;
+}
+#tokenList li {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--input-border);
+  padding: 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 2px 10px;
+  align-items: center;
+}
+#tokenList li:hover {
+  background-color: var(--header-hover);
+}
+.token-list-preview {
+  grid-row: 1 / 3;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  box-sizing: border-box;
+}
+.token-list-header {
+  grid-column: 2 / 3;
+  display: flex;
+  align-items: center;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: var(--text-light);
+}
+.token-list-header span {
+  margin-right: 8px;
+}
+.token-list-details {
+  grid-column: 2 / 3;
+  font-size: 0.8em;
+  color: #b0b0b0;
+  display: flex;
+  gap: 15px;
+}
+.delete-token-btn {
+  grid-column: 3 / 4;
+  grid-row: 1 / 3;
+  align-self: center;
+  background: #8c2d2d;
+  color: white;
+  border: 1px solid #c65d5d;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 1.5em;
+  line-height: 28px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: monospace;
+}
+.delete-token-btn:hover {
+  background-color: #a13535;
+}
+
+/* --- ÁREA DEL MAPA Y FICHAS --- */
+.map-area {
+  flex-grow: 1;
+  position: relative;
+  overflow: auto;
+  background-color: var(--bg-dark);
+}
+#mapContainer {
+  position: relative;
+  display: inline-block;
+}
+#mapImage,
+#gridCanvas,
+#visionCanvas,
+#tokensLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+}
+#mapImage {
+  position: relative;
+  z-index: 1;
+}
+#gridCanvas {
+  z-index: 2;
+  pointer-events: none;
+}
+#visionCanvas {
+  z-index: 3;
+  display: none;
+}
+#tokensLayer {
+  z-index: 4;
+}
+.token {
+  position: absolute;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: white;
+  cursor: grab;
+  user-select: none;
+  box-sizing: border-box;
+  transition: opacity 0.3s ease, box-shadow 0.2s ease;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+.token:active {
+  cursor: grabbing;
+  z-index: 100;
+}
+.token.hidden-enemy {
+  opacity: 0;
+  pointer-events: none;
+}
+.token.selected {
+  box-shadow: 0 0 15px 5px #fffa86, 0 0 5px 2px #fff;
+  z-index: 50;
+}
+
+/* FEATURE: Animaciones de daño/curación en la ficha */
+.token.token-damaged {
+  animation: token-flash-red 0.4s, token-shake 0.4s;
+}
+.token.token-healed {
+  animation: token-pulse-green 0.5s;
+}
+
+@keyframes token-shake {
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+@keyframes token-flash-red {
+  0%,
+  100% {
+    box-shadow: inherit;
+  }
+  50% {
+    box-shadow: 0 0 20px 10px rgba(255, 0, 0, 0.8);
+  }
+}
+@keyframes token-pulse-green {
+  0%,
+  100% {
+    box-shadow: inherit;
+  }
+  50% {
+    box-shadow: 0 0 20px 10px rgba(0, 255, 100, 0.7);
+  }
+}
+/* --- ESTILOS PARA EL LOGO DEL PANEL --- */
+.panel-logo-container {
+  text-align: center; /* Centra la imagen horizontalmente */
+  padding: 5px 0; /* Añade un poco de espacio vertical */
+  margin-bottom: 8px; /* Espacio entre el logo y el título h2 */
+}
+
+.panel-logo {
+  max-width: 150px; /* Define el ancho máximo del logo. Ajústalo a tu gusto. */
+  height: auto; /* Mantiene la proporción de la imagen */
+}
+/* Estilos para el nuevo contenedor de título del panel */
+.panel-title-container {
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--text-gold);
+}
+
+.panel-title-container h2 {
+  margin: 0;
+  padding: 0;
+  border: none; /* Quitamos el borde que tenía antes h2 */
+}
+
+.panel-subtitle {
+  margin: 5px 0 0 0;
+  color: #c0c0c0; /* Un gris claro para no competir con el título */
+  font-size: 0.9em;
+  font-style: italic;
+  font-family: "Cinzel", serif;
+}
+/* --- ESTILOS PARA EL INPUT DE ARCHIVO PERSONALIZADO --- */
+
+/* Ocultamos el input de archivo por defecto de forma accesible */
+.hidden-file-input {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+/* Damos al label la apariencia de un botón */
+.custom-file-upload-btn {
+  display: inline-block; /* Para que respete el padding y margen */
+  width: calc(100% - 24px); /* Ocupa todo el ancho menos el padding */
+  padding: 12px;
+  margin: 0 0 10px 0; /* Margen inferior para separarlo del nombre del archivo */
+  font-family: "IM Fell English SC", serif;
+  font-size: 1.1em;
+  color: var(--text-gold);
+  border: 1px dashed var(--input-border);
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  background: var(--header-bg);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.custom-file-upload-btn:hover {
+  background: var(--header-hover);
+  color: #fff;
+}
+
+/* Estilo para el texto que muestra el nombre del archivo */
+.file-name-display {
+  display: block; /* Para que ocupe su propia línea */
+  font-size: 0.8em;
+  font-style: italic;
+  color: #a0a0a0;
+  margin-bottom: 15px; /* Espacio antes del siguiente grupo de botones */
+  white-space: nowrap; /* Evita que el nombre del archivo se parta en varias líneas */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Añade "..." si el nombre es muy largo */
+}
+/* --- ESTILOS PERSONALIZADOS PARA CHECKBOX Y RADIO BUTTONS (CORREGIDO) --- */
+
+/* Contenedores para el layout */
+.radio-group { display: flex; gap: 15px; align-items: center; }
+.radio-group > div, .checkbox-container { display: flex; align-items: center; }
+
+/* Ocultamos el input original */
+input[type="checkbox"], input[type="radio"] {
+    opacity: 0;
+    position: absolute;
+    width: 0;
+    height: 0;
+}
+
+/* El label ahora es el elemento clicable principal */
+.radio-group label, .checkbox-container label {
+    position: relative;
+    padding-left: 30px; /* Espacio para el nuevo checkbox/radio */
+    cursor: pointer;
+    user-select: none;
+    font-size: 1em;
+}
+
+/* Creamos la caja/círculo base usando ::before */
+.radio-group label::before, .checkbox-container label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background-color: var(--input-bg);
+    border: 2px solid var(--input-border);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+    transition: all 0.2s ease;
+}
+
+/* Forma de círculo para los radio buttons */
+.radio-group label::before {
+    border-radius: 50%;
+}
+
+/* Forma de cuadrado para los checkboxes */
+.checkbox-container label::before {
+    border-radius: 3px;
+}
+
+/* Cuando el input (que ahora es hermano) está seleccionado, cambiamos el borde del label adyacente */
+input[type="checkbox"]:checked + label::before,
+input[type="radio"]:checked + label::before {
+    border-color: var(--text-gold);
+    background-color: #4a3f3c;
+}
+
+/* Creamos la marca interior usando ::after */
+.radio-group label::after, .checkbox-container label::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%) scale(0); /* Empieza invisible */
+    opacity: 0;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Estilo para la marca del radio button (círculo dorado) */
+input[type="radio"] + label::after {
+    left: 5px; /* Centrado en la caja de 20px */
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--text-gold);
+}
+
+/* Estilo para la marca del checkbox (checkmark) */
+input[type="checkbox"] + label::after {
+    left: 7px;
+    top: 40%; /* Ajuste para centrar visualmente el checkmark */
+    width: 6px;
+    height: 12px;
+    border: solid var(--text-gold);
+    border-width: 0 3px 3px 0;
+    transform: translateY(-50%) rotate(45deg) scale(0);
+}
+
+/* Cuando el input está seleccionado, hacemos visible la marca interior */
+input[type="checkbox"]:checked + label::after,
+input[type="radio"]:checked + label::after {
+    opacity: 1;
+    transform: translateY(-50%) scale(1); /* La escala se anima desde 0 a 1 */
+}
+
+/* Regla específica para el checkmark para mantener la rotación */
+input[type="checkbox"]:checked + label::after {
+    transform: translateY(-50%) rotate(45deg) scale(1);
+}
+
+/* Efecto de foco para accesibilidad */
+input[type="checkbox"]:focus-visible + label::before,
+input[type="radio"]:focus-visible + label::before {
+    outline: 2px solid var(--text-gold);
+    outline-offset: 2px;
+}

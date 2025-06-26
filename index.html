@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Táctico Avanzado</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=IM+Fell+English+SC&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="controls-panel">
+
+            <!-- IMAGEN AÑADIDA -->
+            <div class="panel-logo-container">
+                <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk16kcf-77b0443f-cc50-45d6-a19d-de78a6dcb6e6.png/v1/fill/w_894,h_894/logo1_by_rafaelalvarez29_dk16kcf-pre.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTAyNCIsInBhdGgiOiJcL2ZcLzQ2NWU0NTMyLTU0MzAtNGJlNy1iNDljLWFjZjgxMDg3ZDhiZFwvZGsxNmtjZi03N2IwNDQzZi1jYzUwLTQ1ZDYtYTE5ZC1kZTc4YTZkY2I2ZTYucG5nIiwid2lkdGgiOiI8PTEwMjQifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.YtjWIIde6uE-Q4uflRtmthgIoWGsVSYs6MqcARV12B8"
+                    alt="Logo de la Aplicación" class="panel-logo">
+            </div>
+
+            <h2>Arsenal del DM </h2>
+            <p class="panel-subtitle divisor">Herramientas para Forjar tu Aventura</p>
+
+
+            <section class="collapsible active">
+                <h3 class="collapsible-header">Mapa y Escena</h3>
+                <div class="collapsible-content">
+                    <!-- El input ahora está oculto, pero funcional -->
+                    <input type="file" id="mapImageInput" accept="image/*" class="hidden-file-input">
+
+                    <!-- Este label actúa como nuestro nuevo botón visible -->
+                    <label for="mapImageInput" class="custom-file-upload-btn">
+                        Cargar Mapa de Fondo
+                    </label>
+
+                    <!-- También mostraremos el nombre del archivo cargado -->
+                    <span id="fileNameDisplay" class="file-name-display">Ningún archivo seleccionado</span>
+
+                    <div class="button-group">
+                        <button id="saveStateBtn">Guardar Escena</button>
+                        <button id="loadStateBtn">Cargar Escena</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="collapsible">
+                <h3 class="collapsible-header">Herramientas del DM</h3>
+                <div class="collapsible-content">
+                    <h4>Rejilla</h4>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="gridToggle">
+                        <label for="gridToggle">Mostrar Rejilla</label>
+                    </div> <label for="gridColor">Color:</label>
+                    <input type="color" id="gridColor" value="#000000">
+                    <label for="gridOpacity">Opacidad:</label>
+                    <input type="range" id="gridOpacity" min="0" max="1" step="0.1" value="0.5">
+                    
+                    <label for="cellSize">Tamaño de Casilla (px):</label>
+                    <input type="number" id="cellSize" value="50" min="10">
+
+                    <h4 class="top-margin">Pincel de Niebla</h4>
+                    <div class="radio-group">
+                        <div> <!-- Envolvemos cada par -->
+                            <input type="radio" id="brushReveal" name="brushMode" value="reveal" checked>
+                            <label for="brushReveal">Revelar</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="brushHide" name="brushMode" value="hide">
+                            <label for="brushHide">Ocultar</label>
+                        </div>
+                    </div>
+                    <label for="brushSize">Tamaño Pincel:</label>
+                    <input type="range" id="brushSize" min="10" max="300" step="5" value="50">
+                </div>
+            </section>
+
+
+            <!-- FORMULARIO AÑADIR FICHA (con etiqueta de vida actualizada) -->
+            <section class="collapsible">
+                <h3 class="collapsible-header">Añadir Ficha Nueva</h3>
+                <div class="collapsible-content">
+                    <label>Tipo:</label>
+                    <div class="radio-group">
+                        <div> <!-- Envolvemos cada par en un div para mantenerlos juntos -->
+                            <input type="radio" id="typePlayer" name="tokenType" value="player" checked>
+                            <label for="typePlayer">🛡️Jugador</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="typeEnemy" name="tokenType" value="enemy">
+                            <label for="typeEnemy">👹Enemigo</label>
+                        </div>
+                    </div>
+                    <label for="tokenName">Nombre:*</label><input type="text" id="tokenName"
+                        placeholder="Ej: Grog Strongjaw">
+                    <label for="tokenLetter">Letra (ID Ficha):*</label><input type="text" id="tokenLetter" maxlength="2"
+                        value="A">
+                    <label for="tokenTurn">Turno (Iniciativa):</label><input type="number" id="tokenTurn" value="10">
+                    <label for="tokenHealth">Vida Inicial:</label> <!-- CAMBIO DE ETIQUETA -->
+                    <input type="number" id="tokenHealth" value="100">
+                    <label for="tokenNotes">Notas:</label><textarea id="tokenNotes" rows="3"></textarea>
+                    <label for="tokenColor">Color Relleno:*</label><input type="color" id="tokenColor" value="#4a90e2">
+                    <label for="tokenBorderColor">Color Borde:*</label><input type="color" id="tokenBorderColor"
+                        value="#000000">
+                    <div class="checkbox-container"> <!-- Usamos un contenedor similar -->
+                        <input type="checkbox" id="addBorderCheckbox">
+                        <label for="addBorderCheckbox" class="inline-label">Añadir Borde</label>
+                    </div> <label for="tokenVision">Visión (casillas):*</label><input type="number" id="tokenVision"
+                        value="6" min="0">
+                    <button id="addTokenBtn">Añadir Ficha</button>
+                </div>
+            </section>
+
+            <!-- FORMULARIO FICHA SELECCIONADA (Totalmente reconstruido) -->
+            <section id="selectedTokenSection" class="collapsible">
+                <h3 class="collapsible-header">Ficha Seleccionada</h3>
+                <div class="collapsible-content">
+                    <p id="noTokenSelected">Haz clic en una ficha en el mapa para editarla.</p>
+                    <div id="tokenEditor" class="token-editor-form">
+                        <div class="form-header">
+                            <h3>Configuración de Personaje</h3>
+                        </div>
+
+                        <h4>Información Básica</h4>
+                        <div class="form-row">
+                            <div class="form-group" style="flex-grow: 2;"><label
+                                    for="editTokenName">Nombre*</label><input type="text" id="editTokenName"></div>
+                            <div class="form-group" style="flex-grow: 1;"><label for="editTokenLetter">ID
+                                    Ficha*</label><input type="text" id="editTokenLetter" maxlength="2"></div>
+                        </div>
+
+                        <h4>Estadísticas</h4>
+                        <div class="form-row">
+                            <div class="form-group"><label for="editTokenTurn">Turno (Iniciativa)</label><input
+                                    type="number" id="editTokenTurn"></div>
+                            <div class="form-group"><label for="editTokenVision">Visión (Casillas)*</label><input
+                                    type="number" id="editTokenVision" min="0"></div>
+                        </div>
+                        <div class="form-group"><label for="editTokenHealthMax">Vida Máxima</label><input type="number"
+                                id="editTokenHealthMax" min="0"></div>
+
+                        <!-- NUEVA SECCIÓN DE CONTROLES DE VIDA -->
+                        <div class="health-controls">
+                            <label>Puntos de Vida Actuales</label>
+                            <div id="healthDisplayContainer" class="health-display-container">
+                                <span id="healthDisplay" class="health-display">100</span>
+                                <!-- Los números flotantes se añadirán aquí con JS -->
+                            </div>
+                            <div class="health-modifier-row">
+                                <button class="health-modifier-btn negative" data-amount="-10">-10</button>
+                                <button class="health-modifier-btn negative" data-amount="-5">-5</button>
+                                <button class="health-modifier-btn negative" data-amount="-1">-1</button>
+                                <input type="text" id="healthModifierInput" class="health-modifier-input"
+                                    placeholder="±">
+                                <button class="health-modifier-btn positive" data-amount="1">+1</button>
+                                <button class="health-modifier-btn positive" data-amount="5">+5</button>
+                                <button class="health-modifier-btn positive" data-amount="10">+10</button>
+                            </div>
+                            <p class="help-text">Usa los botones o escribe un número y presiona Enter.</p>
+                        </div>
+
+                        <h4>Apariencia</h4>
+                        <div class="form-row">
+                            <div class="form-group"><label for="editTokenColor">Color Relleno*</label><input
+                                    type="color" id="editTokenColor"></div>
+                            <div class="form-group"><label for="editTokenBorderColor">Color Borde*</label><input
+                                    type="color" id="editTokenBorderColor"></div>
+                        </div>
+
+                        <h4>Notas</h4>
+                        <div class="form-group"><textarea id="editTokenNotes" rows="4"></textarea></div>
+
+                        <div class="form-row button-group">
+                            <button id="updateTokenBtn">Actualizar Ficha</button>
+                            <button id="deselectTokenBtn" class="secondary">Deseleccionar</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="collapsible active"> <!-- Dejamos esta abierta por defecto -->
+                <h3 class="collapsible-header">Fichas en el Tablero (Turno)</h3>
+                <div class="collapsible-content">
+                    <ul id="tokenList"></ul>
+                </div>
+            </section>
+
+            <div class="vision-controls-group">
+                <button id="toggleVisionBtn">Iniciar Visión Dinámica</button>
+                <button id="resetFogBtn" title="Reiniciar toda la niebla de guerra">R</button>
+            </div>
+        </div>
+
+        <div class="map-area">
+            <div id="mapContainer">
+                <img id="mapImage" src="" alt="Mapa del Dungeon">
+                <canvas id="gridCanvas"></canvas>
+                <canvas id="visionCanvas"></canvas>
+                <div id="tokensLayer"></div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="damage-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_895037d330.mp3"
+        preload="auto"></audio>
+    <audio id="heal-sound" src="https://cdn.pixabay.com/download/audio/2022/02/07/audio_a54f1f5062.mp3"
+        preload="auto"></audio>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
