@@ -64,22 +64,26 @@ El corazón de la aplicación es su **mapa táctico totalmente interactivo**. Ca
 
 ### Niebla de Guerra Dinámica y Envolvente
 ![image](https://github.com/user-attachments/assets/8f164ef6-4c43-45d7-b04e-44489fa1547e)
+
 Aumenta la inmersión y el misterio con un sistema de **Niebla de Guerra dual**. La visión de los jugadores revela el mapa automáticamente a medida que exploran, mientras que los enemigos permanecen ocultos en la oscuridad hasta ser descubiertos. Además, como DM, tienes control total con un **pincel manual** para revelar áreas secretas, pasadizos ocultos o corregir la visibilidad a tu antojo.
 
 ---
 
 ### Gestión Detallada de Personajes
 ![image](https://github.com/user-attachments/assets/b435a8e5-c7d8-4388-8303-6c51b3ae5310)
+
 Cada ficha es una **hoja de personaje simplificada**. Al seleccionar una unidad, accedes a un panel de edición completo donde puedes gestionar su nombre, iniciativa, vida máxima y actual, visión y notas de campaña. Los **controles de vida interactivos**, con animaciones y efectos de sonido, hacen que la gestión del combate sea rápida, visual y satisfactoria.
 
 ---
 
 ### Lista de Combate y Orden de Turno
 ![image](https://github.com/user-attachments/assets/2124d677-c352-4047-9f40-b535c12c6cfa)
+
 Mantén el ritmo del combate sin esfuerzo. El panel lateral muestra una **lista de todas las unidades en el tablero, ordenada automáticamente por su valor de iniciativa**. De un solo vistazo, sabrás a quién le toca actuar, su estado general (vida actual/máxima) y podrás seleccionar rápidamente cualquier personaje para ver sus detalles.
 
 ---
 
 ### Herramientas y Personalización
 ![image](https://github.com/user-attachments/assets/863f7db4-0fc6-4e04-99e8-60e4c4875681)
+
 Adapta la herramienta a tu estilo de juego. Activa una **rejilla superpuesta** y personaliza su tamaño de celda, color y opacidad para facilitar el movimiento táctico. Todas las herramientas y paneles están organizados en **secciones desplegables** para mantener una interfaz limpia y enfocada en lo que más importa: la historia.
