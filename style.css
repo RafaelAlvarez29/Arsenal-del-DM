@@ -1044,3 +1044,82 @@ body.wall-drawing-mode #mapContainer {
   border-radius: 3px;
   width: 50%; /* Ocupa un espacio razonable */
 }
+/* --- ESTILOS PARA IMÁGENES DE FICHAS --- */
+
+/* 1. Botón de carga de imagen más pequeño */
+.custom-file-upload-btn.small-btn {
+  padding: 8px 12px;
+  font-size: 0.9em;
+  margin-bottom: 5px;
+  border-style: solid; /* Cambiamos a sólido para que se vea más como un botón normal */
+}
+#tokenImageName {
+  margin-bottom: 10px;
+}
+
+/* 2. Estilos para la ficha en el mapa cuando tiene imagen */
+.token.has-image {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-size: 0; /* Oculta el texto de la letra si hay imagen */
+}
+
+/* 3. Estilos para la vista previa de imagen en el editor */
+#editTokenImagePreviewContainer {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 15px; /* Centra el contenedor */
+}
+
+#editTokenImagePreview {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid var(--text-gold);
+  object-fit: cover; /* Asegura que la imagen llene el círculo sin deformarse */
+}
+
+/* Botón para cambiar la imagen */
+.change-image-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  background: var(--header-bg);
+  color: var(--text-gold);
+  border-radius: 50%;
+  border: 1px solid var(--panel-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2em;
+  transition: background-color 0.2s;
+}
+.change-image-btn:hover {
+  background: var(--header-hover);
+}
+
+/* Botón para quitar la imagen */
+.remove-image-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  background: #8c2d2d;
+  color: white;
+  border: 1px solid #c65d5d;
+  border-radius: 50%;
+  padding: 0;
+  margin: 0;
+  font-size: 1.1em;
+  line-height: 22px;
+  cursor: pointer;
+}
+.remove-image-btn:hover {
+  background: #a13535;
+}

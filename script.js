@@ -1,11 +1,11 @@
-// --- SCRIPT.JS - VERSIÓN FINAL CON PUERTAS DINÁMICAS ---
+// --- SCRIPT.JS - VERSIÓN FINAL CON IMÁGENES DE FICHA ---
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- SELECTORES DEL DOM (ORGANIZADOS) ---
+    // --- SELECTORES DEL DOM ---
     const mapImageInput = document.getElementById('mapImageInput'),
         saveStateBtn = document.getElementById('saveStateBtn'),
         loadStateBtn = document.getElementById('loadStateBtn');
-
+    
     const mapContainer = document.getElementById('mapContainer'),
         mapContentWrapper = document.getElementById('mapContentWrapper'),
         loadingState = document.querySelector('.loading-state'),
@@ -28,22 +28,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const addTokenBtn = document.getElementById('addTokenBtn'),
         tokenListUl = document.getElementById('tokenList');
-
+        
     const toggleVisionBtn = document.getElementById('toggleVisionBtn'),
         resetFogBtn = document.getElementById('resetFogBtn');
-
-    // Selectores de Muros y Puertas
+    
     const drawTypeInputs = document.querySelectorAll('input[name="drawType"]');
     const toggleWallModeBtn = document.getElementById('toggleWallModeBtn'),
         undoWallBtn = document.getElementById('undoWallBtn'),
         clearWallsBtn = document.getElementById('clearWallsBtn');
     const doorListUl = document.getElementById('doorList'),
         noDoorsMessage = document.getElementById('noDoorsMessage');
-
+        
     const fileNameDisplay = document.getElementById('fileNameDisplay');
-
+    
     const add_tokenName = document.getElementById('tokenName'),
         add_tokenLetter = document.getElementById('tokenLetter'),
+        add_tokenImageInput = document.getElementById('tokenImageInput'),
+        add_tokenImageName = document.getElementById('tokenImageName'),
         add_tokenTurn = document.getElementById('tokenTurn'),
         add_tokenHealth = document.getElementById('tokenHealth'),
         add_tokenNotes = document.getElementById('tokenNotes'),
@@ -56,6 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const edit_tokenName = document.getElementById('editTokenName'),
         edit_tokenLetter = document.getElementById('editTokenLetter'),
+        edit_tokenImageInput = document.getElementById('editTokenImageInput'),
+        edit_tokenImagePreviewContainer = document.getElementById('editTokenImagePreviewContainer'),
+        edit_tokenImagePreview = document.getElementById('editTokenImagePreview'),
+        removeTokenImageBtn = document.getElementById('removeTokenImageBtn'),
         edit_tokenTurn = document.getElementById('editTokenTurn'),
         edit_tokenHealthMax = document.getElementById('editTokenHealthMax'),
         edit_tokenNotes = document.getElementById('editTokenNotes'),
@@ -65,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updateTokenBtn = document.getElementById('updateTokenBtn'),
         deselectTokenBtn = document.getElementById('deselectTokenBtn');
-
+        
     const healthDisplay = document.getElementById('healthDisplay'),
         healthDisplayContainer = document.getElementById('healthDisplayContainer'),
         healthModifierBtns = document.querySelectorAll('.health-modifier-btn'),
@@ -76,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- VARIABLES DE ESTADO ---
     let tokens = [],
-        walls = [], // Ahora contendrá objetos
+        walls = [],
         selectedTokenId = null,
         visionModeActive = false,
         currentDraggedToken = null,
@@ -112,6 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
     cellSizeSlider.addEventListener('input', () => { cellSizeInput.value = cellSizeSlider.value; updateCellSize(); });
     cellSizeInput.addEventListener('input', () => { const val = Math.min(parseInt(cellSizeInput.value) || 10, 150); cellSizeSlider.value = val; updateCellSize(); });
     addTokenBtn.addEventListener('click', addToken);
+    add_tokenImageInput.addEventListener('change', e => { add_tokenImageName.textContent = e.target.files[0] ? e.target.files[0].name : 'Ningún archivo...'; });
+    edit_tokenImageInput.addEventListener('change', handleEditTokenImageChange);
+    removeTokenImageBtn.addEventListener('click', removeEditTokenImage);
     updateTokenBtn.addEventListener('click', updateSelectedToken);
     deselectTokenBtn.addEventListener('click', deselectToken);
     toggleVisionBtn.addEventListener('click', toggleVisionMode);
@@ -170,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- GESTIÓN DE ESTADO (GUARDAR/CARGAR) ---
     function saveState() {
         if (!mapImage.src || mapImage.src.endsWith('#')) { alert("No hay un mapa cargado para guardar."); return; }
-        const state = { mapSrc: mapImage.src, cellSize: cellSize, tokens: tokens.map(t => ({ id: t.id, type: t.type, name: t.name, letter: t.letter, turn: t.turn, health_max: t.health_max, health_current: t.health_current, notes: t.notes, color: t.color, borderColor: t.borderColor, visionRadius: t.visionRadius, x: t.x, y: t.y, size: t.size, isDiscovered: t.isDiscovered })), walls: walls, revealedFogData: revealedBufferCanvas.toDataURL(), gridSettings: { visible: gridVisible, color: gridColor, opacity: gridOpacity } };
+        const state = { mapSrc: mapImage.src, cellSize: cellSize, tokens: tokens.map(t => ({ id: t.id, type: t.type, name: t.name, letter: t.letter, image: t.image, turn: t.turn, health_max: t.health_max, health_current: t.health_current, notes: t.notes, color: t.color, borderColor: t.borderColor, visionRadius: t.visionRadius, x: t.x, y: t.y, size: t.size, isDiscovered: t.isDiscovered })), walls: walls, revealedFogData: revealedBufferCanvas.toDataURL(), gridSettings: { visible: gridVisible, color: gridColor, opacity: gridOpacity } };
         localStorage.setItem('dndMapState', JSON.stringify(state));
         alert("¡Escena guardada en el navegador!");
     }
@@ -185,24 +193,24 @@ document.addEventListener('DOMContentLoaded', () => {
         mapImage.src = state.mapSrc;
         if (mapImage.complete) { restore(); }
     }
-
+    
     function restoreSceneFromState(state) {
         showMapArea();
         const mapSection = mapImageInput.closest('.collapsible');
         if (mapSection) mapSection.classList.remove('active');
         removeAllTokens();
         resizeAllCanvas();
-        cellSize = state.cellSize;
+        cellSize = state.cellSize; 
         cellSizeInput.value = cellSize;
         cellSizeSlider.value = cellSize;
-        gridVisible = state.gridSettings.visible;
-        gridColor = state.gridSettings.color;
+        gridVisible = state.gridSettings.visible; 
+        gridColor = state.gridSettings.color; 
         gridOpacity = state.gridSettings.opacity;
-        gridToggle.checked = gridVisible;
-        gridColorInput.value = gridColor;
+        gridToggle.checked = gridVisible; 
+        gridColorInput.value = gridColor; 
         gridOpacityInput.value = gridOpacity;
-        walls = state.walls || [];
-        drawWalls();
+        walls = state.walls || []; 
+        drawWalls(); 
         updateDoorList();
         drawGrid();
         const fogImg = new Image();
@@ -216,16 +224,49 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTokenList();
         setTimeout(() => alert("Escena cargada."), 100);
     }
+    
+    // --- LÓGICA DE PROCESAMIENTO DE IMAGEN ---
+    async function processImage(file) {
+        const MAX_WIDTH = 256; // Calidad suficiente para una ficha
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/webp', 0.8)); // Calidad 80% en formato WebP
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
     // --- GESTIÓN DE FICHAS ---
-    // (Sin cambios en esta sección)
-    function addToken() {
+    async function addToken() {
         const letter = add_tokenLetter.value.trim(),
             name = add_tokenName.value.trim(),
             vision = parseInt(add_tokenVision.value);
         if (!letter || !name || isNaN(vision)) { alert("Por favor, rellena los campos obligatorios (*): Nombre, Letra y Visión."); return; }
+        
+        let imageBase64 = null;
+        if (add_tokenImageInput.files[0]) {
+            imageBase64 = await processImage(add_tokenImageInput.files[0]);
+        }
+
         const initialHealth = parseInt(add_tokenHealth.value) || 0;
-        const tokenData = { id: Date.now(), type: document.querySelector('input[name="tokenType"]:checked').value, name: name, letter: letter, turn: parseInt(add_tokenTurn.value) || 0, health_max: initialHealth, health_current: initialHealth, notes: add_tokenNotes.value, color: add_tokenColor.value, borderColor: add_addBorderCheckbox.checked ? add_tokenBorderColor.value : null, visionRadius: vision, x: 20, y: 20, size: cellSize, isDiscovered: document.querySelector('input[name="tokenType"]:checked').value === 'player' };
+        const tokenData = { id: Date.now(), type: document.querySelector('input[name="tokenType"]:checked').value, name: name, letter: letter, image: imageBase64, turn: parseInt(add_tokenTurn.value) || 0, health_max: initialHealth, health_current: initialHealth, notes: add_tokenNotes.value, color: add_tokenColor.value, borderColor: add_addBorderCheckbox.checked ? add_tokenBorderColor.value : null, visionRadius: vision, x: 20, y: 20, size: cellSize, isDiscovered: document.querySelector('input[name="tokenType"]:checked').value === 'player' };
+        
         recreateToken(tokenData);
         updateTokenList();
         if (visionModeActive) drawVision();
@@ -235,6 +276,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetAddTokenForm() {
         add_tokenName.value = '';
         add_tokenLetter.value = 'A';
+        add_tokenImageInput.value = '';
+        add_tokenImageName.textContent = 'Ningún archivo...';
         add_tokenTurn.value = '10';
         add_tokenHealth.value = '100';
         add_tokenNotes.value = '';
@@ -261,9 +304,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const el = token.element;
         el.style.left = `${token.x}px`; el.style.top = `${token.y}px`;
         el.style.width = `${token.size}px`; el.style.height = `${token.size}px`;
-        el.style.lineHeight = `${token.size}px`; el.style.backgroundColor = token.color;
+        el.style.lineHeight = `${token.size}px`;
+        el.style.backgroundColor = token.color;
         el.style.border = token.borderColor ? `3px solid ${token.borderColor}` : 'none';
-        el.textContent = token.letter;
+        
+        if (token.image) {
+            el.classList.add('has-image');
+            el.style.backgroundImage = `url(${token.image})`;
+            el.textContent = '';
+        } else {
+            el.classList.remove('has-image');
+            el.style.backgroundImage = 'none';
+            el.textContent = token.letter;
+        }
+
         if (visionModeActive && token.type === 'enemy') { el.classList.toggle('hidden-enemy', !token.isDiscovered); } else { el.classList.remove('hidden-enemy'); }
     }
 
@@ -278,7 +332,9 @@ document.addEventListener('DOMContentLoaded', () => {
             li.dataset.id = token.id;
             const typeIcon = token.type === 'player' ? '🛡️' : '👹';
             const borderStyle = token.borderColor ? `border: 3px solid ${token.borderColor};` : 'none';
-            li.innerHTML = `<div class="token-list-preview" style="background-color: ${token.color}; ${borderStyle}">${token.letter}</div><div class="token-list-header"><span>${typeIcon}</span><span>${token.name}</span></div><div class="token-list-details"><span>Turno: ${token.turn}</span><span>❤️ Vida: ${token.health_current}/${token.health_max}</span><span>👁️ Vis: ${token.visionRadius}</span></div><button class="delete-token-btn" data-id="${token.id}" title="Eliminar Ficha">X</button>`;
+            const imageStyle = token.image ? `background-image: url(${token.image}); background-size: cover; background-position: center;` : `background-color: ${token.color};`;
+            
+            li.innerHTML = `<div class="token-list-preview" style="${imageStyle} ${borderStyle}">${token.image ? '' : token.letter}</div><div class="token-list-header"><span>${typeIcon}</span><span>${token.name}</span></div><div class="token-list-details"><span>Turno: ${token.turn}</span><span>❤️ Vida: ${token.health_current}/${token.health_max}</span><span>👁️ Vis: ${token.visionRadius}</span></div><button class="delete-token-btn" data-id="${token.id}" title="Eliminar Ficha">X</button>`;
             tokenListUl.appendChild(li);
         });
         tokenListUl.querySelectorAll('.delete-token-btn').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); deleteToken(parseInt(e.target.dataset.id)); }));
@@ -293,12 +349,43 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!token) return;
         token.element.classList.add('selected');
         selectedTokenSection.classList.add('has-selection', 'active');
+        
+        // Mostrar u ocultar la vista previa de la imagen
+        if (token.image) {
+            editTokenImagePreview.src = token.image;
+            editTokenImagePreviewContainer.style.display = 'block';
+        } else {
+            editTokenImagePreviewContainer.style.display = 'none';
+        }
+
         edit_tokenName.value = token.name; edit_tokenLetter.value = token.letter; edit_tokenTurn.value = token.turn; edit_tokenVision.value = token.visionRadius; edit_tokenHealthMax.value = token.health_max; edit_tokenColor.value = token.color; edit_tokenBorderColor.value = token.borderColor || '#000000'; edit_tokenNotes.value = token.notes;
         healthDisplay.textContent = token.health_current;
         healthDisplay.className = `health-display ${getHealthColorClass(token.health_current, token.health_max)}`;
     }
 
     function deselectToken() { if (!selectedTokenId) return; const oldToken = tokens.find(t => t.id === selectedTokenId); if (oldToken) oldToken.element.classList.remove('selected'); selectedTokenId = null; selectedTokenSection.classList.remove('has-selection'); }
+    
+    async function handleEditTokenImageChange(event) {
+        if (!selectedTokenId) return;
+        const file = event.target.files[0];
+        if (file) {
+            const token = tokens.find(t => t.id === selectedTokenId);
+            token.image = await processImage(file);
+            updateTokenElementStyle(token);
+            updateTokenList();
+            selectToken(token.id); // Re-seleccionar para actualizar la vista previa
+        }
+    }
+    
+    function removeEditTokenImage() {
+        if (!selectedTokenId) return;
+        const token = tokens.find(t => t.id === selectedTokenId);
+        token.image = null;
+        updateTokenElementStyle(token);
+        updateTokenList();
+        selectToken(token.id);
+    }
+    
     function updateSelectedToken() {
         if (!selectedTokenId) return;
         const token = tokens.find(t => t.id === selectedTokenId);
@@ -313,6 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- LÓGICA DE VIDA Y DAÑO ---
+    // (Sin cambios)
     function getHealthColorClass(current, max) { if (max === 0) return 'health-mid'; const percentage = (current / max) * 100; if (percentage <= 10) return 'health-critical'; if (percentage <= 40) return 'health-low'; if (percentage <= 70) return 'health-mid'; return 'health-high'; }
     function showDamageFloat(amount, token) {
         if (amount === 0) return;
@@ -343,6 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- MANEJO DE RATÓN ---
+    // (Sin cambios)
     function handleLayerMouseDown(event) {
         const tokenElement = event.target.closest('.token');
         if (tokenElement) {
@@ -379,7 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const previewDrawType = document.querySelector('input[name="drawType"]:checked').value;
             if (previewDrawType === 'door') {
                 wallsCtx.setLineDash([10, 8]);
-                wallsCtx.strokeStyle = '#87CEEB'; // Un azul cielo para puertas
+                wallsCtx.strokeStyle = '#87CEEB';
             } else {
                 wallsCtx.setLineDash([]);
                 wallsCtx.strokeStyle = 'cyan';
@@ -408,6 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleLayerClick(event) { if (event.detail > 1) return; setTimeout(() => { if (currentDraggedToken) return; const tokenElement = event.target.closest('.token'); if (tokenElement) { selectToken(parseInt(tokenElement.dataset.id)); } else { deselectToken(); } }, 150); }
 
     // --- VISIÓN, NIEBLA Y MUROS ---
+    // (Sin cambios, pero con la última lógica correcta)
     function toggleVisionMode() {
         visionModeActive = !visionModeActive;
         toggleVisionBtn.textContent = visionModeActive ? 'Detener Visión Dinámica' : 'Iniciar Visión Dinámica';
@@ -431,7 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateAllTokenVisibility() { tokens.forEach(token => updateTokenElementStyle(token)); }
     function clearRevealedBuffer() { revealedBufferCtx.clearRect(0, 0, revealedBufferCanvas.width, revealedBufferCanvas.height); }
     function resetFog() { if (!confirm("¿Estás seguro de que quieres reiniciar toda la niebla de guerra? Esta acción no se puede deshacer.")) return; clearRevealedBuffer(); if (visionModeActive) { tokens.forEach(t => { if (t.type === 'enemy') t.isDiscovered = false; }); drawVision(); updateAllTokenVisibility(); } }
-
+    
     function paintFog(event) {
         if (!visionModeActive) return;
         const mapRect = mapContainer.getBoundingClientRect();
@@ -463,12 +553,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const visionThisFrameCtx = visionThisFrameCanvas.getContext('2d');
         const mapBoundaries = [{ x1: 0, y1: 0, x2: visionCanvas.width, y2: 0 }, { x1: visionCanvas.width, y1: 0, x2: visionCanvas.width, y2: visionCanvas.height }, { x1: visionCanvas.width, y1: visionCanvas.height, x2: 0, y2: visionCanvas.height }, { x1: 0, y1: visionCanvas.height, x2: 0, y2: 0 }];
         const activeWalls = walls.filter(w => w.type === 'wall' || (w.type === 'door' && !w.isOpen));
-
+        
         tokens.filter(t => t.type === 'player').forEach(pToken => {
             const centerX = pToken.x + pToken.size / 2;
             const centerY = pToken.y + pToken.size / 2;
             const visionRadiusPixels = pToken.visionRadius * cellSize;
-
+            
             visionThisFrameCtx.save();
             visionThisFrameCtx.beginPath();
             visionThisFrameCtx.arc(centerX, centerY, visionRadiusPixels, 0, Math.PI * 2);
@@ -483,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const allObstacles = [...activeWalls, ...mapBoundaries];
                 let points = [];
                 allObstacles.forEach(wall => { points.push({ x: wall.x1, y: wall.y1 }); points.push({ x: wall.x2, y: wall.y2 }); });
-
+                
                 let rays = [];
                 points.forEach(point => {
                     const angle = Math.atan2(point.y - centerY, point.x - centerX);
@@ -492,7 +582,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     rays.push({ angle: angle, x1: centerX, y1: centerY, x2: centerX + Math.cos(angle) * rayLength, y2: centerY + Math.sin(angle) * rayLength });
                     rays.push({ angle: angle + 0.0001, x1: centerX, y1: centerY, x2: centerX + Math.cos(angle + 0.0001) * rayLength, y2: centerY + Math.sin(angle + 0.0001) * rayLength });
                 });
-
+                
                 let intersects = [];
                 rays.forEach(ray => {
                     let closestIntersect = null;
@@ -502,9 +592,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     if (closestIntersect) { closestIntersect.angle = ray.angle; intersects.push(closestIntersect); } else { intersects.push({ angle: ray.angle, x: ray.x2, y: ray.y2 }); }
                 });
-
+                
                 intersects.sort((a, b) => a.angle - b.angle);
-
+                
                 if (intersects.length > 0) {
                     visionThisFrameCtx.fillStyle = 'white';
                     visionThisFrameCtx.beginPath();
@@ -525,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderFogFromBuffer();
         checkEnemyDiscovery();
     }
-
+    
     function checkEnemyDiscovery() {
         tokens.filter(t => t.type === 'enemy' && !t.isDiscovered).forEach(enemy => {
             const data = revealedBufferCtx.getImageData(enemy.x + enemy.size / 2, enemy.y + enemy.size / 2, 1, 1).data;
@@ -557,6 +647,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- LÓGICA DE MUROS Y PUERTAS ---
+    // (Sin cambios, pero con la última lógica correcta)
     function toggleWallMode() {
         if (visionModeActive) { alert("No se puede editar muros mientras la Visión Dinámica está activa. Desactívala primero."); return; }
         isDrawingWallMode = !isDrawingWallMode;
@@ -574,16 +665,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!wallStartPoint) {
             wallStartPoint = { x, y };
         } else {
-            const newWall = {
-                id: Date.now(),
-                x1: wallStartPoint.x,
-                y1: wallStartPoint.y,
-                x2: x,
-                y2: y,
-                type: drawType
-            };
+            const newWall = { id: Date.now(), x1: wallStartPoint.x, y1: wallStartPoint.y, x2: x, y2: y, type: drawType };
             if (newWall.type === 'door') {
-                newWall.isOpen = false; // Las puertas empiezan cerradas
+                newWall.isOpen = false;
                 const doorCount = walls.filter(w => w.type === 'door').length + 1;
                 newWall.name = `Acceso #${doorCount}`;
             }
@@ -593,7 +677,6 @@ document.addEventListener('DOMContentLoaded', () => {
             updateDoorList();
             if (visionModeActive) drawVision();
         }
-
     }
 
     function drawWalls() {
@@ -602,19 +685,19 @@ document.addEventListener('DOMContentLoaded', () => {
             wallsCtx.beginPath();
             wallsCtx.moveTo(wall.x1, wall.y1);
             wallsCtx.lineTo(wall.x2, wall.y2);
-
+            
             if (wall.type === 'door') {
-                wallsCtx.strokeStyle = wall.isOpen ? '#5dc66f' : '#c65d5d'; // Verde si está abierta, rojo si cerrada
+                wallsCtx.strokeStyle = wall.isOpen ? '#5dc66f' : '#c65d5d';
                 wallsCtx.setLineDash([10, 8]);
                 wallsCtx.lineWidth = 5;
             } else {
-                wallsCtx.strokeStyle = '#e6c253'; // Color dorado para muros sólidos
+                wallsCtx.strokeStyle = '#e6c253';
                 wallsCtx.setLineDash([]);
                 wallsCtx.lineWidth = 4;
             }
             wallsCtx.stroke();
         });
-        wallsCtx.setLineDash([]); // Reset final
+        wallsCtx.setLineDash([]);
     }
 
     function undoLastWall() {
@@ -623,7 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateDoorList();
         if (visionModeActive) drawVision();
     }
-
+    
     function clearAllWalls() {
         if (confirm("¿Estás seguro de que quieres eliminar todos los muros y puertas?")) {
             walls = [];
@@ -641,28 +724,47 @@ document.addEventListener('DOMContentLoaded', () => {
             noDoorsMessage.style.display = 'block';
             return;
         }
-
+        
         noDoorsMessage.style.display = 'none';
 
         doors.forEach((door) => {
             const li = document.createElement('li');
-            // El nombre ahora está en un span con un data-id para poder identificarlo
-            li.innerHTML = `
-            <span class="door-name" data-id="${door.id}" title="Haz clic para editar">${door.name}</span>
-            <div class="door-actions">
-                <button class="toggle-door-btn ${door.isOpen ? 'open' : ''}" data-id="${door.id}">
-                    ${door.isOpen ? 'Cerrar' : 'Abrir'}
-                </button>
-                <button class="delete-door-btn" data-id="${door.id}" title="Eliminar Acceso">X</button>
-            </div>
-        `;
+            li.innerHTML = `<span class="door-name" data-id="${door.id}" title="Haz clic para editar">${door.name}</span><div class="door-actions"><button class="toggle-door-btn ${door.isOpen ? 'open' : ''}" data-id="${door.id}">${door.isOpen ? 'Cerrar' : 'Abrir'}</button><button class="delete-door-btn" data-id="${door.id}" title="Eliminar Acceso">X</button></div>`;
             doorListUl.appendChild(li);
         });
 
-        // Añadimos los listeners a los nuevos elementos
         doorListUl.querySelectorAll('.toggle-door-btn').forEach(btn => btn.addEventListener('click', toggleDoorState));
         doorListUl.querySelectorAll('.delete-door-btn').forEach(btn => btn.addEventListener('click', deleteDoor));
         doorListUl.querySelectorAll('.door-name').forEach(nameSpan => nameSpan.addEventListener('click', makeDoorNameEditable));
+    }
+
+    function makeDoorNameEditable(event) {
+        const nameSpan = event.target;
+        const doorId = parseInt(nameSpan.dataset.id);
+        const originalName = nameSpan.textContent;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = originalName;
+        input.classList.add('door-name-edit');
+        nameSpan.replaceWith(input);
+        input.focus();
+        input.select();
+        const saveChanges = () => {
+            const door = walls.find(w => w.id === doorId);
+            if (door) {
+                const newName = input.value.trim();
+                door.name = newName === '' ? originalName : newName;
+            }
+            updateDoorList();
+        };
+        input.addEventListener('blur', saveChanges);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                input.blur();
+            } else if (e.key === 'Escape') {
+                updateDoorList();
+            }
+        });
     }
 
     function toggleDoorState(event) {
@@ -697,47 +799,5 @@ document.addEventListener('DOMContentLoaded', () => {
         const T1 = (s_px + s_dx * T2 - r_px) / r_dx;
         if (T1 < 0 || T2 < 0 || T2 > 1) return null;
         return { x: r_px + r_dx * T1, y: r_py + r_dy * T1, param: T1 };
-    }
-
-    function makeDoorNameEditable(event) {
-        const nameSpan = event.target;
-        const doorId = parseInt(nameSpan.dataset.id);
-        const originalName = nameSpan.textContent;
-
-        // Creamos un campo de input
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = originalName;
-        input.classList.add('door-name-edit'); // Le damos una clase por si queremos estilizarlo
-
-        // Reemplazamos el span por el input
-        nameSpan.replaceWith(input);
-        input.focus();
-        input.select();
-
-        // Función para guardar los cambios
-        const saveChanges = () => {
-            const door = walls.find(w => w.id === doorId);
-            if (door) {
-                // Usamos trim() para quitar espacios en blanco y nos aseguramos de que no quede vacío
-                const newName = input.value.trim();
-                door.name = newName === '' ? originalName : newName;
-            }
-            // Volvemos a renderizar la lista para mostrar el texto actualizado
-            updateDoorList();
-        };
-
-        // Guardamos cuando el input pierde el foco
-        input.addEventListener('blur', saveChanges);
-
-        // O cuando se presiona Enter
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                input.blur(); // Usamos blur() para llamar a saveChanges y evitar duplicar código
-            } else if (e.key === 'Escape') {
-                // Si se presiona Escape, cancelamos la edición y restauramos la lista
-                updateDoorList();
-            }
-        });
     }
 });

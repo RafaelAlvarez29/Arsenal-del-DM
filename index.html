@@ -135,7 +135,12 @@
                     <label for="tokenName">Nombre:*</label><input type="text" id="tokenName"
                         placeholder="Ej: Grog Strongjaw">
                     <label for="tokenLetter">Letra (ID Ficha):*</label><input type="text" id="tokenLetter" maxlength="2"
-                        value="A">
+                        value="">
+                    <label for="tokenImageInput">o Imagen de Ficha:</label>
+                    <input type="file" id="tokenImageInput" accept="image/png, image/jpeg, image/webp"
+                        class="hidden-file-input">
+                    <label for="tokenImageInput" class="custom-file-upload-btn small-btn">Cargar Imagen</label>
+                    <span id="tokenImageName" class="file-name-display">Ningún archivo...</span>
                     <label for="tokenTurn">Turno (Iniciativa):</label><input type="number" id="tokenTurn" value="10">
                     <label for="tokenHealth">Vida Inicial:</label> <!-- CAMBIO DE ETIQUETA -->
                     <input type="number" id="tokenHealth" value="100">
@@ -159,6 +164,13 @@
                 <div class="collapsible-content">
                     <p id="noTokenSelected">Haz clic en una ficha en el mapa para editarla.</p>
                     <div id="tokenEditor" class="token-editor-form">
+                        <div id="editTokenImagePreviewContainer" style="display: none;">
+                            <img id="editTokenImagePreview" src="" alt="Imagen de la Ficha">
+                            <label for="editTokenImageInput" class="change-image-btn" title="Cambiar imagen">✏️</label>
+                            <button id="removeTokenImageBtn" class="remove-image-btn" title="Quitar imagen">X</button>
+                            <input type="file" id="editTokenImageInput" accept="image/png, image/jpeg, image/webp"
+                                class="hidden-file-input">
+                        </div>
                         <div class="form-header">
                             <h3>Configuración de Personaje</h3>
                         </div>
