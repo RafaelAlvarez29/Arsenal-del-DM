@@ -32,7 +32,8 @@ Este proyecto es una aplicación web diseñada desde cero para proporcionar a lo
 *   **HTML5:** Para la estructura semántica de la aplicación.
 *   **CSS3:** Para el diseño, las animaciones y la estética personalizada, utilizando Flexbox, Grid y pseudo-elementos.
 *   **JavaScript (Vanilla JS):** Para toda la lógica de la aplicación, incluyendo la manipulación del DOM, la gestión del estado, la interacción con el Canvas y los eventos de usuario.
-  ![image](https://github.com/user-attachments/assets/e08dc854-0883-4208-8980-ab8b89e98081)
+   
+![image](https://github.com/user-attachments/assets/2ede5ed1-1431-4849-8c17-15f569a05b74)
 
 
 ## 🚀 Cómo Usar
