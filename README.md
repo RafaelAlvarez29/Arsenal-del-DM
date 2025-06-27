@@ -4,7 +4,8 @@
 
 Este proyecto es una aplicación web diseñada desde cero para proporcionar a los Directores de Juego una solución ligera, rápida y altamente visual para gestionar combates, exploración y el estado de los personajes en sus campañas de Dungeons & Dragons, Pathfinder u otros TTRPG.
 
-![image](https://github.com/user-attachments/assets/592a32e8-a4f1-40f8-a5a2-f2b661919587)
+![addm 1](https://github.com/user-attachments/assets/0a0e5fb4-2713-4629-ae30-e1a5beada031)
+
 
 ---
 
@@ -31,6 +32,8 @@ Este proyecto es una aplicación web diseñada desde cero para proporcionar a lo
 *   **HTML5:** Para la estructura semántica de la aplicación.
 *   **CSS3:** Para el diseño, las animaciones y la estética personalizada, utilizando Flexbox, Grid y pseudo-elementos.
 *   **JavaScript (Vanilla JS):** Para toda la lógica de la aplicación, incluyendo la manipulación del DOM, la gestión del estado, la interacción con el Canvas y los eventos de usuario.
+  ![image](https://github.com/user-attachments/assets/e08dc854-0883-4208-8980-ab8b89e98081)
+
 
 ## 🚀 Cómo Usar
 
@@ -56,21 +59,21 @@ Las contribuciones son bienvenidas. Si tienes ideas para nuevas características
 A continuación, un vistazo a las herramientas que te esperan en el Grimorio del Guardián.
 
 ### El Mapa Táctico Interactivo
-![image](https://github.com/user-attachments/assets/f45d3fff-6913-4e6a-82da-bace34b90a37)
+![addm 2](https://github.com/user-attachments/assets/40a0e284-2a92-42aa-b628-a2adad4f3a19)
 
 El corazón de la aplicación es su **mapa táctico totalmente interactivo**. Carga cualquier imagen, desde un dungeon detallado hasta un mapa del mundo, y da vida a tus escenas. Las fichas se pueden arrastrar y soltar con fluidez, permitiendo una representación visual y dinámica del combate y la exploración en tiempo real.
 
 ---
 
 ### Niebla de Guerra Dinámica y Envolvente
-![image](https://github.com/user-attachments/assets/8f164ef6-4c43-45d7-b04e-44489fa1547e)
+![niebla de guerra dinamica y envolvente](https://github.com/user-attachments/assets/7b47ce42-7452-4f43-9b4f-03f212636922)
 
 Aumenta la inmersión y el misterio con un sistema de **Niebla de Guerra dual**. La visión de los jugadores revela el mapa automáticamente a medida que exploran, mientras que los enemigos permanecen ocultos en la oscuridad hasta ser descubiertos. Además, como DM, tienes control total con un **pincel manual** para revelar áreas secretas, pasadizos ocultos o corregir la visibilidad a tu antojo.
 
 ---
 
 ### Gestión Detallada de Personajes
-![image](https://github.com/user-attachments/assets/b435a8e5-c7d8-4388-8303-6c51b3ae5310)
+![gestion de personajes detallada](https://github.com/user-attachments/assets/8bb29b41-07a9-4c7b-91dd-f03a3fc9e55a)
 
 Cada ficha es una **hoja de personaje simplificada**. Al seleccionar una unidad, accedes a un panel de edición completo donde puedes gestionar su nombre, iniciativa, vida máxima y actual, visión y notas de campaña. Los **controles de vida interactivos**, con animaciones y efectos de sonido, hacen que la gestión del combate sea rápida, visual y satisfactoria.
 
@@ -84,6 +87,6 @@ Mantén el ritmo del combate sin esfuerzo. El panel lateral muestra una **lista 
 ---
 
 ### Herramientas y Personalización
-![image](https://github.com/user-attachments/assets/863f7db4-0fc6-4e04-99e8-60e4c4875681)
+![herramienta y perzonalizacion](https://github.com/user-attachments/assets/34c1ee4b-8c88-4151-a7a1-8acf9df3adb0)
 
 Adapta la herramienta a tu estilo de juego. Activa una **rejilla superpuesta** y personaliza su tamaño de celda, color y opacidad para facilitar el movimiento táctico. Todas las herramientas y paneles están organizados en **secciones desplegables** para mantener una interfaz limpia y enfocada en lo que más importa: la historia.
