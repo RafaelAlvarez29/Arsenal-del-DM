@@ -62,6 +62,8 @@
 
                     <label for="cellSize">Tamaño de Casilla (px):</label>
                     <input type="number" id="cellSize" value="50" min="10">
+                    <input type="range" id="cellSizeSlider" min="10" max="150" value="50">
+
 
                     <h4 class="top-margin">Pincel de Niebla</h4>
                     <div class="radio-group">
@@ -82,8 +84,6 @@
             <section class="collapsible">
                 <h3 class="collapsible-header">Muros (Línea de Visión) </h3>
                 <div class="collapsible-content">
-                                    <p>En desarrollo</p>
-
                     <p class="help-text">Dibuja muros para bloquear la visión de los jugadores antes de iniciar la
                         niebla.</p>
                     <button id="toggleWallModeBtn">Activar Modo Muros</button>
@@ -215,9 +215,20 @@
 
         </div>
 
-        <div class="map-area">
-            <div id="mapContainer">
-                <img id="mapImage" src="" alt="Mapa" style="  -webkit-user-drag: none;">
+        <div id="mapContainer">
+            <!-- El mensaje de bienvenida sigue aquí -->
+            <div class="loading-state">
+                <div class="loading-icon">🎲</div>
+                <h1>Tu Aventura Comienza Aquí</h1>
+                <h2>¡Manos a la obra, DM!</h2>
+                <p>Carga tu mapa y prepara la escena. Tus jugadores confían en ti para crear una experiencia
+                    inolvidable.</p>
+                    <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk1fb46-3fa3ffb8-cec7-408a-afa0-2a656e178fce.png/v1/fill/w_1148,h_696/dm_screen_by_rafaelalvarez29_dk1fb46-pre.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9Nzc2IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazFmYjQ2LTNmYTNmZmI4LWNlYzctNDA4YS1hZmEwLTJhNjU2ZTE3OGZjZS5wbmciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.Q09gTvWeGEluAHfA1EXSgMuWKnP2Og4oU3577nPw970" alt="">
+            </div>
+
+            <!-- El NUEVO WRAPPER que contendrá todo el mapa -->
+            <div id="mapContentWrapper">
+                <img id="mapImage" src="" alt="Mapa" style="-webkit-user-drag: none;">
                 <canvas id="gridCanvas"></canvas>
                 <canvas id="wallsCanvas"></canvas>
                 <canvas id="visionCanvas"></canvas>
