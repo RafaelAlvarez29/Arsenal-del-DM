@@ -94,7 +94,7 @@ h4.top-margin {
   top: 50%;
   font-size: 1.2em;
   transform: translateY(-50%);
-  transition: transform 0.3s ease-out;
+  transition: 0.3s;
 }
 .collapsible.active .collapsible-header::after {
   transform: translateY(-50%) rotate(45deg);
@@ -102,7 +102,7 @@ h4.top-margin {
 .collapsible-content {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+  transition: 0.3s;
   padding: 0 15px;
   background-color: var(--content-bg);
 }
@@ -898,7 +898,7 @@ input[type="range"]::-moz-range-thumb {
 .loading-state p {
   font-size: 1.2em;
 }
-.loading-state img{
+.loading-state img {
   width: 75%;
 }
 
@@ -951,4 +951,96 @@ input[type="range"]::-moz-range-thumb {
   max-width: 400px; /* Evita que el texto se haga demasiado ancho en pantallas grandes */
   font-size: 1em; /* Un tamaño de fuente más estándar */
   line-height: 1.5; /* Mejora la legibilidad */
+}
+body.wall-drawing-mode #mapContainer {
+  cursor: crosshair;
+}
+
+/* 2. Estilos para la nueva lista de puertas en el panel */
+#doorList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#doorList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid var(--input-border);
+  background-color: rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s;
+}
+
+#doorList li:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.door-name {
+  font-family: "Cinzel", serif;
+  font-size: 1.1em;
+}
+
+.door-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Botón de Abrir/Cerrar */
+.toggle-door-btn {
+  padding: 5px 10px;
+  font-size: 0.9em;
+  font-family: "Cinzel", serif;
+  min-width: 80px; /* Ancho fijo para que no salte al cambiar el texto */
+  margin: 0;
+  border-radius: 3px;
+  background: var(--header-hover);
+  border: 1px solid var(--input-border);
+  color: var(--text-light);
+}
+.toggle-door-btn:hover {
+  background: var(--header-bg);
+  color: white;
+}
+.toggle-door-btn.open {
+  border-color: #5dc66f;
+  color: #5dc66f;
+}
+
+/* Botón de eliminar puerta */
+.delete-door-btn {
+  background: none;
+  border: 1px solid #c65d5d;
+  color: #c65d5d;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  margin: 0;
+  font-size: 1.2em;
+  line-height: 26px;
+  border-radius: 3px;
+}
+.delete-door-btn:hover {
+  background: #a13535;
+  color: white;
+}
+
+#noDoorsMessage {
+  text-align: center;
+  padding: 15px;
+}
+
+/* --- AÑADE ESTA REGLA A TU STYLE.CSS --- */
+
+/* Estilo para el input de edición del nombre de la puerta */
+.door-name-edit {
+  background-color: var(--input-bg);
+  border: 1px solid var(--text-gold);
+  color: var(--text-light);
+  font-family: "Cinzel", serif;
+  font-size: 1.1em;
+  padding: 4px 6px;
+  border-radius: 3px;
+  width: 50%; /* Ocupa un espacio razonable */
 }

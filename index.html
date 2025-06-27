@@ -28,7 +28,7 @@
 
 
             <section class="collapsible active">
-                <h3 class="collapsible-header">Mapa y Escena</h3>
+                <h3 class="collapsible-header">🗺️ Mapa y Escena</h3>
                 <div class="collapsible-content">
                     <!-- El input ahora está oculto, pero funcional -->
                     <input type="file" id="mapImageInput" accept="image/*" class="hidden-file-input">
@@ -49,9 +49,9 @@
             </section>
 
             <section class="collapsible">
-                <h3 class="collapsible-header">Herramientas del DM</h3>
+                <h3 class="collapsible-header">⚒️ Herramientas del DM</h3>
                 <div class="collapsible-content">
-                    <h4>Rejilla</h4>
+                    <h4>▦ Rejilla</h4>
                     <div class="checkbox-container">
                         <input type="checkbox" id="gridToggle">
                         <label for="gridToggle">Mostrar Rejilla</label>
@@ -65,7 +65,7 @@
                     <input type="range" id="cellSizeSlider" min="10" max="150" value="50">
 
 
-                    <h4 class="top-margin">Pincel de Niebla</h4>
+                    <h4 class="top-margin">🖌️ Pincel de Niebla</h4>
                     <div class="radio-group">
                         <div> <!-- Envolvemos cada par -->
                             <input type="radio" id="brushReveal" name="brushMode" value="reveal" checked>
@@ -82,21 +82,44 @@
             </section>
 
             <section class="collapsible">
-                <h3 class="collapsible-header">Muros (Línea de Visión) </h3>
+                <h3 class="collapsible-header">🧱 Muros y Puertas</h3>
                 <div class="collapsible-content">
-                    <p class="help-text">Dibuja muros para bloquear la visión de los jugadores antes de iniciar la
-                        niebla.</p>
-                    <button id="toggleWallModeBtn">Activar Modo Muros</button>
+                    <!-- NUEVOS RADIO BUTTONS PARA ELEGIR TIPO DE TRAZO -->
+                    <h4>Tipo de Trazado</h4>
+                    <div class="radio-group">
+                        <div>
+                            <input type="radio" id="drawTypeWall" name="drawType" value="wall" checked>
+                            <label for="drawTypeWall">Muro Sólido</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="drawTypeDoor" name="drawType" value="door">
+                            <label for="drawTypeDoor">Puerta / Acceso</label>
+                        </div>
+                    </div>
+                    <p class="help-text">Dibuja muros para bloquear la visión o puertas que puedas abrir y cerrar.</p>
+
+                    <!-- Botones de control -->
+                    <button id="toggleWallModeBtn">Activar Modo Dibujo</button>
                     <div class="button-group">
                         <button id="undoWallBtn" class="secondary">Deshacer Último</button>
-                        <button id="clearWallsBtn" class="secondary">Limpiar Muros</button>
+                        <button id="clearWallsBtn" class="secondary">Limpiar Todo</button>
                     </div>
+                </div>
+            </section>
+
+            <section id="doorControlsSection" class="collapsible">
+                <h3 class="collapsible-header">🚪 Control de Accesos</h3>
+                <div class="collapsible-content">
+                    <ul id="doorList">
+                        <!-- La lista de puertas se generará aquí con JavaScript -->
+                    </ul>
+                    <p id="noDoorsMessage" class="help-text">No has dibujado ninguna puerta o acceso secreto.</p>
                 </div>
             </section>
 
             <!-- FORMULARIO AÑADIR FICHA (con etiqueta de vida actualizada) -->
             <section class="collapsible">
-                <h3 class="collapsible-header">Añadir Ficha Nueva</h3>
+                <h3 class="collapsible-header">➕ Añadir Ficha Nueva</h3>
                 <div class="collapsible-content">
                     <label>Tipo:</label>
                     <div class="radio-group">
@@ -132,7 +155,7 @@
 
             <!-- FORMULARIO FICHA SELECCIONADA (Totalmente reconstruido) -->
             <section id="selectedTokenSection" class="collapsible">
-                <h3 class="collapsible-header">Ficha Seleccionada</h3>
+                <h3 class="collapsible-header">📍 Ficha Seleccionada</h3>
                 <div class="collapsible-content">
                     <p id="noTokenSelected">Haz clic en una ficha en el mapa para editarla.</p>
                     <div id="tokenEditor" class="token-editor-form">
@@ -200,7 +223,7 @@
             </section>
 
             <section class="collapsible active"> <!-- Dejamos esta abierta por defecto -->
-                <h3 class="collapsible-header">Fichas en el Tablero (Turno)</h3>
+                <h3 class="collapsible-header">♟️ Fichas en el Tablero (Turno)</h3>
                 <div class="collapsible-content">
                     <ul id="tokenList"></ul>
                 </div>
@@ -223,7 +246,8 @@
                 <h2>¡Manos a la obra, DM!</h2>
                 <p>Carga tu mapa y prepara la escena. Tus jugadores confían en ti para crear una experiencia
                     inolvidable.</p>
-                    <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk1fb46-3fa3ffb8-cec7-408a-afa0-2a656e178fce.png/v1/fill/w_1148,h_696/dm_screen_by_rafaelalvarez29_dk1fb46-pre.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9Nzc2IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazFmYjQ2LTNmYTNmZmI4LWNlYzctNDA4YS1hZmEwLTJhNjU2ZTE3OGZjZS5wbmciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.Q09gTvWeGEluAHfA1EXSgMuWKnP2Og4oU3577nPw970" alt="">
+                <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk1fb46-3fa3ffb8-cec7-408a-afa0-2a656e178fce.png/v1/fill/w_1148,h_696/dm_screen_by_rafaelalvarez29_dk1fb46-pre.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9Nzc2IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazFmYjQ2LTNmYTNmZmI4LWNlYzctNDA4YS1hZmEwLTJhNjU2ZTE3OGZjZS5wbmciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.Q09gTvWeGEluAHfA1EXSgMuWKnP2Og4oU3577nPw970"
+                    alt="">
             </div>
 
             <!-- El NUEVO WRAPPER que contendrá todo el mapa -->

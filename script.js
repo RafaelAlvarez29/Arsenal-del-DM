@@ -1,3 +1,5 @@
+// --- SCRIPT.JS - VERSIÓN FINAL CON PUERTAS DINÁMICAS ---
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- SELECTORES DEL DOM (ORGANIZADOS) ---
     const mapImageInput = document.getElementById('mapImageInput'),
@@ -30,9 +32,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleVisionBtn = document.getElementById('toggleVisionBtn'),
         resetFogBtn = document.getElementById('resetFogBtn');
 
+    // Selectores de Muros y Puertas
+    const drawTypeInputs = document.querySelectorAll('input[name="drawType"]');
     const toggleWallModeBtn = document.getElementById('toggleWallModeBtn'),
         undoWallBtn = document.getElementById('undoWallBtn'),
         clearWallsBtn = document.getElementById('clearWallsBtn');
+    const doorListUl = document.getElementById('doorList'),
+        noDoorsMessage = document.getElementById('noDoorsMessage');
 
     const fileNameDisplay = document.getElementById('fileNameDisplay');
 
@@ -46,8 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         add_addBorderCheckbox = document.getElementById('addBorderCheckbox'),
         add_tokenVision = document.getElementById('tokenVision');
 
-    const selectedTokenSection = document.getElementById('selectedTokenSection'),
-        tokenEditorDiv = document.getElementById('tokenEditor');
+    const selectedTokenSection = document.getElementById('selectedTokenSection');
 
     const edit_tokenName = document.getElementById('editTokenName'),
         edit_tokenLetter = document.getElementById('editTokenLetter'),
@@ -71,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- VARIABLES DE ESTADO ---
     let tokens = [],
+        walls = [], // Ahora contendrá objetos
         selectedTokenId = null,
         visionModeActive = false,
         currentDraggedToken = null,
@@ -84,12 +90,13 @@ document.addEventListener('DOMContentLoaded', () => {
         gridOpacity = parseFloat(gridOpacityInput.value);
     let brushMode = document.querySelector('input[name="brushMode"]:checked').value,
         brushSize = parseInt(brushSizeInput.value);
-    let walls = [];
+    let drawType = 'wall';
     const revealedBufferCanvas = document.createElement('canvas'),
         revealedBufferCtx = revealedBufferCanvas.getContext('2d', { willReadFrequently: true });
 
     // --- ESTADO INICIAL ---
     mapContainer.classList.add('no-map');
+    updateDoorList();
 
     // --- EVENT LISTENERS ---
     document.querySelectorAll('.collapsible-header').forEach(header => header.addEventListener('click', () => header.parentElement.classList.toggle('active')));
@@ -101,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     gridOpacityInput.addEventListener('input', e => { gridOpacity = parseFloat(e.target.value); drawGrid(); });
     brushModeInputs.forEach(input => input.addEventListener('change', e => brushMode = e.target.value));
     brushSizeInput.addEventListener('input', e => brushSize = parseInt(e.target.value));
+    drawTypeInputs.forEach(input => input.addEventListener('change', e => drawType = e.target.value));
     cellSizeSlider.addEventListener('input', () => { cellSizeInput.value = cellSizeSlider.value; updateCellSize(); });
     cellSizeInput.addEventListener('input', () => { const val = Math.min(parseInt(cellSizeInput.value) || 10, 150); cellSizeSlider.value = val; updateCellSize(); });
     addTokenBtn.addEventListener('click', addToken);
@@ -171,12 +179,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedStateJSON = localStorage.getItem('dndMapState');
         if (!savedStateJSON) { alert("No hay ninguna escena guardada."); return; }
         const state = JSON.parse(savedStateJSON);
-        const restore = () => restoreSceneFromState(state);
+        let hasRestored = false;
+        const restore = () => { if (hasRestored) return; hasRestored = true; restoreSceneFromState(state); };
         mapImage.onload = restore;
         mapImage.src = state.mapSrc;
-        if (mapImage.complete) {
-            restore();
-        }
+        if (mapImage.complete) { restore(); }
     }
 
     function restoreSceneFromState(state) {
@@ -196,6 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gridOpacityInput.value = gridOpacity;
         walls = state.walls || [];
         drawWalls();
+        updateDoorList();
         drawGrid();
         const fogImg = new Image();
         fogImg.onload = () => {
@@ -210,6 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- GESTIÓN DE FICHAS ---
+    // (Sin cambios en esta sección)
     function addToken() {
         const letter = add_tokenLetter.value.trim(),
             name = add_tokenName.value.trim(),
@@ -367,10 +376,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const endY = event.clientY - mapRect.top + mapContainer.scrollTop;
             wallsCtx.beginPath();
             wallsCtx.moveTo(wallStartPoint.x, wallStartPoint.y);
-            wallsCtx.lineTo(endX, endY);
-            wallsCtx.strokeStyle = 'cyan';
+            const previewDrawType = document.querySelector('input[name="drawType"]:checked').value;
+            if (previewDrawType === 'door') {
+                wallsCtx.setLineDash([10, 8]);
+                wallsCtx.strokeStyle = '#87CEEB'; // Un azul cielo para puertas
+            } else {
+                wallsCtx.setLineDash([]);
+                wallsCtx.strokeStyle = 'cyan';
+            }
             wallsCtx.lineWidth = 3;
-            wallsCtx.setLineDash([5, 5]);
+            wallsCtx.lineTo(endX, endY);
             wallsCtx.stroke();
             wallsCtx.setLineDash([]);
         } else if (currentDraggedToken) {
@@ -383,9 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentDraggedToken.y = newY;
             currentDraggedToken.element.style.left = `${newX}px`;
             currentDraggedToken.element.style.top = `${newY}px`;
-            if (visionModeActive) {
-                drawVision();
-            }
+            if (visionModeActive) { drawVision(); }
         } else if (isPaintingFog) {
             paintFog(event);
         }
@@ -398,7 +411,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function toggleVisionMode() {
         visionModeActive = !visionModeActive;
         toggleVisionBtn.textContent = visionModeActive ? 'Detener Visión Dinámica' : 'Iniciar Visión Dinámica';
-        // NO TOCAMOS pointerEvents aquí. El CSS es la única fuente de verdad.
         if (visionModeActive) {
             if (isDrawingWallMode) { toggleWallMode(); }
             toggleWallModeBtn.disabled = true; undoWallBtn.disabled = true; clearWallsBtn.disabled = true;
@@ -420,31 +432,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function clearRevealedBuffer() { revealedBufferCtx.clearRect(0, 0, revealedBufferCanvas.width, revealedBufferCanvas.height); }
     function resetFog() { if (!confirm("¿Estás seguro de que quieres reiniciar toda la niebla de guerra? Esta acción no se puede deshacer.")) return; clearRevealedBuffer(); if (visionModeActive) { tokens.forEach(t => { if (t.type === 'enemy') t.isDiscovered = false; }); drawVision(); updateAllTokenVisibility(); } }
 
-    // --- REEMPLAZA ESTA FUNCIÓN EN TU script.js ---
-
     function paintFog(event) {
         if (!visionModeActive) return;
-
-        // Obtenemos las coordenadas reales del clic, teniendo en cuenta el scroll
         const mapRect = mapContainer.getBoundingClientRect();
         const x = event.clientX - mapRect.left + mapContainer.scrollLeft;
         const y = event.clientY - mapRect.top + mapContainer.scrollTop;
-
-        // Aplicamos la acción del pincel (revelar u ocultar) en el canvas de memoria
         revealedBufferCtx.globalCompositeOperation = brushMode === 'reveal' ? 'source-over' : 'destination-out';
         revealedBufferCtx.fillStyle = 'white';
         revealedBufferCtx.beginPath();
         revealedBufferCtx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
         revealedBufferCtx.fill();
-
-        // En lugar de llamar a drawVision(), ahora solo renderizamos el resultado del buffer
         renderFogFromBuffer();
-
-        // Y comprobamos si hemos descubierto a un enemigo manualmente
         checkEnemyDiscovery();
     }
-
-    // --- AÑADE ESTA FUNCIÓN A TU SCRIPT.JS ---
 
     function renderFogFromBuffer() {
         ctx.clearRect(0, 0, visionCanvas.width, visionCanvas.height);
@@ -455,101 +455,77 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.globalCompositeOperation = 'source-over';
     }
 
-// --- REEMPLAZA ESTA FUNCIÓN EN TU SCRIPT.JS ---
+    function drawVision() {
+        if (!visionModeActive) return;
+        const visionThisFrameCanvas = document.createElement('canvas');
+        visionThisFrameCanvas.width = visionCanvas.width;
+        visionThisFrameCanvas.height = visionCanvas.height;
+        const visionThisFrameCtx = visionThisFrameCanvas.getContext('2d');
+        const mapBoundaries = [{ x1: 0, y1: 0, x2: visionCanvas.width, y2: 0 }, { x1: visionCanvas.width, y1: 0, x2: visionCanvas.width, y2: visionCanvas.height }, { x1: visionCanvas.width, y1: visionCanvas.height, x2: 0, y2: visionCanvas.height }, { x1: 0, y1: visionCanvas.height, x2: 0, y2: 0 }];
+        const activeWalls = walls.filter(w => w.type === 'wall' || (w.type === 'door' && !w.isOpen));
 
-function drawVision() {
-    if (!visionModeActive) return;
+        tokens.filter(t => t.type === 'player').forEach(pToken => {
+            const centerX = pToken.x + pToken.size / 2;
+            const centerY = pToken.y + pToken.size / 2;
+            const visionRadiusPixels = pToken.visionRadius * cellSize;
 
-    // --- INICIO DE LA SOLUCIÓN DEFINITIVA ---
-    // 1. Creamos un CANVAS TEMPORAL solo para la visión de este turno.
-    // Esto evita interferir con el canvas principal de memoria (revealedBufferCanvas).
-    const visionThisFrameCanvas = document.createElement('canvas');
-    visionThisFrameCanvas.width = visionCanvas.width;
-    visionThisFrameCanvas.height = visionCanvas.height;
-    const visionThisFrameCtx = visionThisFrameCanvas.getContext('2d');
-    // --- FIN DE LA SOLUCIÓN DEFINITIVA ---
-
-    const mapBoundaries = [{ x1: 0, y1: 0, x2: visionCanvas.width, y2: 0 }, { x1: visionCanvas.width, y1: 0, x2: visionCanvas.width, y2: visionCanvas.height }, { x1: visionCanvas.width, y1: visionCanvas.height, x2: 0, y2: visionCanvas.height }, { x1: 0, y1: visionCanvas.height, x2: 0, y2: 0 }];
-    
-    tokens.filter(t => t.type === 'player').forEach(pToken => {
-        const centerX = pToken.x + pToken.size / 2;
-        const centerY = pToken.y + pToken.size / 2;
-        const visionRadiusPixels = pToken.visionRadius * cellSize;
-
-        // Pintamos la visión en el CANVAS TEMPORAL.
-        visionThisFrameCtx.save();
-        visionThisFrameCtx.beginPath();
-        visionThisFrameCtx.arc(centerX, centerY, visionRadiusPixels, 0, Math.PI * 2);
-        visionThisFrameCtx.clip();
-
-        if (walls.length === 0) {
-            visionThisFrameCtx.fillStyle = 'white';
+            visionThisFrameCtx.save();
             visionThisFrameCtx.beginPath();
             visionThisFrameCtx.arc(centerX, centerY, visionRadiusPixels, 0, Math.PI * 2);
-            visionThisFrameCtx.fill();
-        } else {
-            const allWalls = [...walls, ...mapBoundaries];
-            let points = [];
-            allWalls.forEach(wall => { points.push({ x: wall.x1, y: wall.y1 }); points.push({ x: wall.x2, y: wall.y2 }); });
-            
-            let rays = [];
-            points.forEach(point => {
-                const angle = Math.atan2(point.y - centerY, point.x - centerX);
-                const rayLength = visionRadiusPixels * 1.5;
-                rays.push({ angle: angle - 0.0001, x1: centerX, y1: centerY, x2: centerX + Math.cos(angle - 0.0001) * rayLength, y2: centerY + Math.sin(angle - 0.0001) * rayLength });
-                rays.push({ angle: angle, x1: centerX, y1: centerY, x2: centerX + Math.cos(angle) * rayLength, y2: centerY + Math.sin(angle) * rayLength });
-                rays.push({ angle: angle + 0.0001, x1: centerX, y1: centerY, x2: centerX + Math.cos(angle + 0.0001) * rayLength, y2: centerY + Math.sin(angle + 0.0001) * rayLength });
-            });
-            
-            let intersects = [];
-            rays.forEach(ray => {
-                let closestIntersect = null;
-                allWalls.forEach(wall => {
-                    const intersect = getIntersection(ray, wall);
-                    if (intersect) { if (!closestIntersect || intersect.param < closestIntersect.param) { closestIntersect = intersect; } }
-                });
-                if (closestIntersect) { closestIntersect.angle = ray.angle; intersects.push(closestIntersect); } else { intersects.push({ angle: ray.angle, x: ray.x2, y: ray.y2 }); }
-            });
-            
-            intersects.sort((a, b) => a.angle - b.angle);
-            
-            if (intersects.length > 0) {
+            visionThisFrameCtx.clip();
+
+            if (activeWalls.length === 0) {
                 visionThisFrameCtx.fillStyle = 'white';
                 visionThisFrameCtx.beginPath();
-                visionThisFrameCtx.moveTo(intersects[0].x, intersects[0].y);
-                for (let i = 1; i < intersects.length; i++) {
-                    visionThisFrameCtx.lineTo(intersects[i].x, intersects[i].y);
-                }
-                visionThisFrameCtx.closePath();
+                visionThisFrameCtx.arc(centerX, centerY, visionRadiusPixels, 0, Math.PI * 2);
                 visionThisFrameCtx.fill();
+            } else {
+                const allObstacles = [...activeWalls, ...mapBoundaries];
+                let points = [];
+                allObstacles.forEach(wall => { points.push({ x: wall.x1, y: wall.y1 }); points.push({ x: wall.x2, y: wall.y2 }); });
+
+                let rays = [];
+                points.forEach(point => {
+                    const angle = Math.atan2(point.y - centerY, point.x - centerX);
+                    const rayLength = visionRadiusPixels * 1.5;
+                    rays.push({ angle: angle - 0.0001, x1: centerX, y1: centerY, x2: centerX + Math.cos(angle - 0.0001) * rayLength, y2: centerY + Math.sin(angle - 0.0001) * rayLength });
+                    rays.push({ angle: angle, x1: centerX, y1: centerY, x2: centerX + Math.cos(angle) * rayLength, y2: centerY + Math.sin(angle) * rayLength });
+                    rays.push({ angle: angle + 0.0001, x1: centerX, y1: centerY, x2: centerX + Math.cos(angle + 0.0001) * rayLength, y2: centerY + Math.sin(angle + 0.0001) * rayLength });
+                });
+
+                let intersects = [];
+                rays.forEach(ray => {
+                    let closestIntersect = null;
+                    allObstacles.forEach(wall => {
+                        const intersect = getIntersection(ray, wall);
+                        if (intersect) { if (!closestIntersect || intersect.param < closestIntersect.param) { closestIntersect = intersect; } }
+                    });
+                    if (closestIntersect) { closestIntersect.angle = ray.angle; intersects.push(closestIntersect); } else { intersects.push({ angle: ray.angle, x: ray.x2, y: ray.y2 }); }
+                });
+
+                intersects.sort((a, b) => a.angle - b.angle);
+
+                if (intersects.length > 0) {
+                    visionThisFrameCtx.fillStyle = 'white';
+                    visionThisFrameCtx.beginPath();
+                    visionThisFrameCtx.moveTo(intersects[0].x, intersects[0].y);
+                    for (let i = 1; i < intersects.length; i++) {
+                        visionThisFrameCtx.lineTo(intersects[i].x, intersects[i].y);
+                    }
+                    visionThisFrameCtx.closePath();
+                    visionThisFrameCtx.fill();
+                }
             }
-        }
-        visionThisFrameCtx.restore();
-    });
+            visionThisFrameCtx.restore();
+        });
 
-    // --- INICIO DE LA FUSIÓN DE CAPAS ---
-    // 1. Añadimos la visión de este turno al canvas de memoria.
-    // Esto asegura que la "memoria" de la niebla se actualice.
-    revealedBufferCtx.globalCompositeOperation = 'source-over';
-    revealedBufferCtx.drawImage(visionThisFrameCanvas, 0, 0);
+        revealedBufferCtx.globalCompositeOperation = 'source-over';
+        revealedBufferCtx.drawImage(visionThisFrameCanvas, 0, 0);
 
-    // 2. Ahora, renderizamos la niebla final usando el buffer de memoria actualizado.
-    renderFogFromBuffer();
+        renderFogFromBuffer();
+        checkEnemyDiscovery();
+    }
 
-    // 3. Y comprobamos si hemos descubierto enemigos con la nueva visión.
-    checkEnemyDiscovery();
-    // --- FIN DE LA FUSIÓN DE CAPAS ---
-}
-
-// Asegúrate de que tienes esta función en tu código (la añadimos en la respuesta anterior)
-function renderFogFromBuffer() {
-    ctx.clearRect(0, 0, visionCanvas.width, visionCanvas.height);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.95)';
-    ctx.fillRect(0, 0, visionCanvas.width, visionCanvas.height);
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.drawImage(revealedBufferCanvas, 0, 0);
-    ctx.globalCompositeOperation = 'source-over';
-}
     function checkEnemyDiscovery() {
         tokens.filter(t => t.type === 'enemy' && !t.isDiscovered).forEach(enemy => {
             const data = revealedBufferCtx.getImageData(enemy.x + enemy.size / 2, enemy.y + enemy.size / 2, 1, 1).data;
@@ -580,13 +556,14 @@ function renderFogFromBuffer() {
         gridCtx.globalAlpha = 1.0;
     }
 
+    // --- LÓGICA DE MUROS Y PUERTAS ---
     function toggleWallMode() {
         if (visionModeActive) { alert("No se puede editar muros mientras la Visión Dinámica está activa. Desactívala primero."); return; }
         isDrawingWallMode = !isDrawingWallMode;
         wallStartPoint = null;
         toggleWallModeBtn.classList.toggle('active', isDrawingWallMode);
         document.body.classList.toggle('wall-drawing-mode', isDrawingWallMode);
-        toggleWallModeBtn.textContent = isDrawingWallMode ? 'Desactivar Modo Muros' : 'Activar Modo Muros';
+        toggleWallModeBtn.textContent = isDrawingWallMode ? 'Desactivar Modo Dibujo' : 'Activar Modo Dibujo';
         drawWalls();
     }
 
@@ -597,24 +574,120 @@ function renderFogFromBuffer() {
         if (!wallStartPoint) {
             wallStartPoint = { x, y };
         } else {
-            const newWall = { x1: wallStartPoint.x, y1: wallStartPoint.y, x2: x, y2: y };
+            const newWall = {
+                id: Date.now(),
+                x1: wallStartPoint.x,
+                y1: wallStartPoint.y,
+                x2: x,
+                y2: y,
+                type: drawType
+            };
+            if (newWall.type === 'door') {
+                newWall.isOpen = false; // Las puertas empiezan cerradas
+                const doorCount = walls.filter(w => w.type === 'door').length + 1;
+                newWall.name = `Acceso #${doorCount}`;
+            }
             walls.push(newWall);
             wallStartPoint = null;
             drawWalls();
+            updateDoorList();
             if (visionModeActive) drawVision();
         }
+
     }
 
     function drawWalls() {
         wallsCtx.clearRect(0, 0, wallsCanvas.width, wallsCanvas.height);
-        wallsCtx.strokeStyle = '#e6c253';
-        wallsCtx.lineWidth = 4;
-        wallsCtx.lineCap = 'round';
-        walls.forEach(wall => { wallsCtx.beginPath(); wallsCtx.moveTo(wall.x1, wall.y1); wallsCtx.lineTo(wall.x2, wall.y2); wallsCtx.stroke(); });
+        walls.forEach(wall => {
+            wallsCtx.beginPath();
+            wallsCtx.moveTo(wall.x1, wall.y1);
+            wallsCtx.lineTo(wall.x2, wall.y2);
+
+            if (wall.type === 'door') {
+                wallsCtx.strokeStyle = wall.isOpen ? '#5dc66f' : '#c65d5d'; // Verde si está abierta, rojo si cerrada
+                wallsCtx.setLineDash([10, 8]);
+                wallsCtx.lineWidth = 5;
+            } else {
+                wallsCtx.strokeStyle = '#e6c253'; // Color dorado para muros sólidos
+                wallsCtx.setLineDash([]);
+                wallsCtx.lineWidth = 4;
+            }
+            wallsCtx.stroke();
+        });
+        wallsCtx.setLineDash([]); // Reset final
     }
 
-    function undoLastWall() { walls.pop(); drawWalls(); if (visionModeActive) drawVision(); }
-    function clearAllWalls() { if (confirm("¿Estás seguro de que quieres eliminar todos los muros?")) { walls = []; drawWalls(); if (visionModeActive) drawVision(); } }
+    function undoLastWall() {
+        walls.pop();
+        drawWalls();
+        updateDoorList();
+        if (visionModeActive) drawVision();
+    }
+
+    function clearAllWalls() {
+        if (confirm("¿Estás seguro de que quieres eliminar todos los muros y puertas?")) {
+            walls = [];
+            drawWalls();
+            updateDoorList();
+            if (visionModeActive) drawVision();
+        }
+    }
+
+    function updateDoorList() {
+        const doors = walls.filter(w => w.type === 'door');
+        doorListUl.innerHTML = '';
+
+        if (doors.length === 0) {
+            noDoorsMessage.style.display = 'block';
+            return;
+        }
+
+        noDoorsMessage.style.display = 'none';
+
+        doors.forEach((door) => {
+            const li = document.createElement('li');
+            // El nombre ahora está en un span con un data-id para poder identificarlo
+            li.innerHTML = `
+            <span class="door-name" data-id="${door.id}" title="Haz clic para editar">${door.name}</span>
+            <div class="door-actions">
+                <button class="toggle-door-btn ${door.isOpen ? 'open' : ''}" data-id="${door.id}">
+                    ${door.isOpen ? 'Cerrar' : 'Abrir'}
+                </button>
+                <button class="delete-door-btn" data-id="${door.id}" title="Eliminar Acceso">X</button>
+            </div>
+        `;
+            doorListUl.appendChild(li);
+        });
+
+        // Añadimos los listeners a los nuevos elementos
+        doorListUl.querySelectorAll('.toggle-door-btn').forEach(btn => btn.addEventListener('click', toggleDoorState));
+        doorListUl.querySelectorAll('.delete-door-btn').forEach(btn => btn.addEventListener('click', deleteDoor));
+        doorListUl.querySelectorAll('.door-name').forEach(nameSpan => nameSpan.addEventListener('click', makeDoorNameEditable));
+    }
+
+    function toggleDoorState(event) {
+        const doorId = parseInt(event.target.dataset.id);
+        const door = walls.find(w => w.id === doorId);
+        if (door) {
+            door.isOpen = !door.isOpen;
+            updateDoorList();
+            drawWalls();
+            if (visionModeActive) {
+                drawVision();
+            }
+        }
+    }
+
+    function deleteDoor(event) {
+        const doorId = parseInt(event.target.dataset.id);
+        walls = walls.filter(w => w.id !== doorId);
+        updateDoorList();
+        drawWalls();
+        if (visionModeActive) {
+            drawVision();
+        }
+    }
+
     function getIntersection(ray, wall) {
         const r_px = ray.x1, r_py = ray.y1, r_dx = ray.x2 - r_px, r_dy = ray.y2 - r_py;
         const s_px = wall.x1, s_py = wall.y1, s_dx = wall.x2 - s_px, s_dy = wall.y2 - s_py;
@@ -624,5 +697,47 @@ function renderFogFromBuffer() {
         const T1 = (s_px + s_dx * T2 - r_px) / r_dx;
         if (T1 < 0 || T2 < 0 || T2 > 1) return null;
         return { x: r_px + r_dx * T1, y: r_py + r_dy * T1, param: T1 };
+    }
+
+    function makeDoorNameEditable(event) {
+        const nameSpan = event.target;
+        const doorId = parseInt(nameSpan.dataset.id);
+        const originalName = nameSpan.textContent;
+
+        // Creamos un campo de input
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = originalName;
+        input.classList.add('door-name-edit'); // Le damos una clase por si queremos estilizarlo
+
+        // Reemplazamos el span por el input
+        nameSpan.replaceWith(input);
+        input.focus();
+        input.select();
+
+        // Función para guardar los cambios
+        const saveChanges = () => {
+            const door = walls.find(w => w.id === doorId);
+            if (door) {
+                // Usamos trim() para quitar espacios en blanco y nos aseguramos de que no quede vacío
+                const newName = input.value.trim();
+                door.name = newName === '' ? originalName : newName;
+            }
+            // Volvemos a renderizar la lista para mostrar el texto actualizado
+            updateDoorList();
+        };
+
+        // Guardamos cuando el input pierde el foco
+        input.addEventListener('blur', saveChanges);
+
+        // O cuando se presiona Enter
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                input.blur(); // Usamos blur() para llamar a saveChanges y evitar duplicar código
+            } else if (e.key === 'Escape') {
+                // Si se presiona Escape, cancelamos la edición y restauramos la lista
+                updateDoorList();
+            }
+        });
     }
 });
