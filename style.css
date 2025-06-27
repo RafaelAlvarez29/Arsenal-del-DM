@@ -688,6 +688,15 @@ input[type="radio"] {
   width: 0;
   height: 0;
 }
+input[type="range"]{
+  width: 100%;
+  
+}
+input[type="range"]{
+  width: 100%;
+  
+}
+
 
 /* El label ahora es el elemento clicable principal */
 .radio-group label,
@@ -812,3 +821,59 @@ body.wall-drawing-mode .map-area {
   color: #fff;
   box-shadow: 0 0 10px #5dc66f;
 }
+
+input[type="range"] {
+  /* removing default appearance */
+  -webkit-appearance: none;
+  appearance: none; 
+  /* creating a custom design */
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+  /*  slider progress trick  */
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+/* Track: webkit browsers */
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 15px;
+  background: var(--panel-bg);
+  border-radius: 16px;
+  /*border: solid 1px var(--panel-border);*/
+}
+
+/* Track: Mozilla Firefox */
+input[type="range"]::-moz-range-track {
+  height: 15px;
+  background: #ccc;
+  border-radius: 16px;
+}
+
+/* Thumb: webkit */
+input[type="range"]::-webkit-slider-thumb {
+  /* removing default appearance */
+  -webkit-appearance: none;
+  appearance: none; 
+  /* creating a custom design */
+  height: 15px;
+  width: 15px;
+  background-color: var(--bg-dark);
+  border-radius: 50%;
+  border: 2px solid var(--text-gold);
+  /*  slider progress trick  */
+  box-shadow: -407px 0 0 400px var(--text-gold);
+}
+
+
+/* Thumb: Firefox */
+input[type="range"]::-moz-range-thumb {
+  height: 15px;
+  width: 15px;
+  background-color: #fff;
+  border-radius: 50%;
+  border: 1px solid var(--text-gold);
+  /*  slider progress trick  */
+  box-shadow: -407px 0 0 400px var(--text-gold)0;
+}
+
