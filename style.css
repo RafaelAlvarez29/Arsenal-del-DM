@@ -101,13 +101,13 @@ h4.top-margin {
 }
 .collapsible-content {
   max-height: 0;
-  overflow: hidden;
+  overflow: auto;
   transition: 0.3s;
   padding: 0 15px;
   background-color: var(--content-bg);
 }
 .collapsible.active .collapsible-content {
-  max-height: 1200px; /* Valor alto para permitir contenido grande */
+  max-height: 1900px; /* Valor alto para permitir contenido grande */
   padding: 15px;
 }
 
@@ -340,13 +340,15 @@ button.secondary:hover {
 }
 .health-modifier-btn {
   width: 40px;
-  height: 30px;
+  height: 35px;
   padding: 0;
   font-family: "Cinzel", serif;
   font-size: 1em;
   background: #3a3a3a;
   border-radius: 3px;
   box-shadow: none;
+  margin-top: 0;
+  top: 0;
 }
 .health-modifier-btn.negative {
   border: 1px solid #c65d5d;
@@ -388,7 +390,7 @@ button.secondary:hover {
   font-weight: bold;
   pointer-events: none;
   animation: float-and-fade 1s ease-out forwards;
-  z-index: 101;
+  z-index: 1001;
 }
 .damage-float.heal {
   color: #5dff8b;
@@ -484,8 +486,14 @@ button.secondary:hover {
   flex-grow: 1;
   overflow: auto; /* ¡Este es nuestro scroller principal! */
   background-color: var(--bg-dark);
+  cursor: grab;
 }
 
+/*#mapContainer:active {
+     Opcional: Cambia el cursor para todo el contenedor mientras se hace clic */
+/* Lo manejaremos con JS para más control, pero esto es una alternativa */
+/* cursor: grabbing; 
+}*/
 /* El nuevo wrapper que da tamaño al contenido */
 #mapContentWrapper {
   position: relative; /* Es el contexto para apilar los canvas */
@@ -1081,6 +1089,30 @@ body.wall-drawing-mode #mapContainer {
   object-fit: cover; /* Asegura que la imagen llene el círculo sin deformarse */
 }
 
+/* El círculo para la letra/color */
+.token-preview-letter {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid var(--text-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "IM Fell English SC", serif;
+  font-size: 3.5em; /* Tamaño grande para la letra */
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  box-sizing: border-box; /* Incluye el borde en el tamaño total */
+}
+
+/* Aseguramos que la imagen y el preview de letra ocupen el mismo espacio */
+#editTokenImagePreview,
+.token-preview-letter {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 /* Botón para cambiar la imagen */
 .change-image-btn {
   position: absolute;
@@ -1122,4 +1154,653 @@ body.wall-drawing-mode #mapContainer {
 }
 .remove-image-btn:hover {
   background: #a13535;
+}
+/* --- ESTILOS PARA MODALES (ACTUALIZADO CON TU DISEÑO) --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: none; /* Oculto por defecto */
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+  animation: modal-fade-in 0.3s ease-out;
+}
+
+.modal-overlay.open {
+  display: flex;
+  opacity: 1;
+}
+
+/* Modal PEQUEÑO (Para guardar nombre) */
+.modal-content {
+  background: var(--panel-bg);
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  transform: scale(0.95);
+  transition: transform 0.3s ease;
+}
+
+.modal-overlay.open .modal-content {
+  transform: scale(1);
+}
+
+.modal-content h3 {
+  font-family: "IM Fell English SC", serif;
+  font-size: 1.8em;
+  text-align: center;
+  color: var(--text-gold);
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+/* Modal GRANDE (Para ver escenas) */
+.saved-scenes-modal {
+  background: var(--panel-bg);
+  border: 3px solid var(--panel-border);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 1100px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  animation: modal-slide-in 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.modal-header {
+  padding: 20px 25px;
+  border-bottom: 2px solid var(--panel-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, var(--header-bg), var(--panel-bg));
+  flex-shrink: 0;
+}
+
+.modal-title {
+  font-family: "IM Fell English SC", serif;
+  font-size: 2.2em;
+  color: var(--text-gold);
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.modal-close-btn {
+  background: #8c2d2d;
+  color: white;
+  border: 2px solid #c65d5d;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.8em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+}
+.modal-close-btn:hover {
+  background: #a13535;
+  transform: scale(1.1);
+}
+
+/* --- ESTILOS PARA LISTA DE ESCENAS GUARDADAS (NUEVO DISEÑO) --- */
+.modal-content-body {
+  padding: 25px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.saved-scenes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
+}
+
+.scene-card {
+  background: var(--content-bg);
+  border: 2px solid var(--input-border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.scene-card:hover {
+  border-color: var(--text-gold);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(230, 194, 83, 0.2);
+}
+
+.scene-card-image-container {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  background: #000;
+}
+.scene-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.scene-card:hover .scene-card-image {
+  transform: scale(1.05);
+}
+
+.scene-card-info-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+  padding: 40px 15px 15px 15px;
+  color: white;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+}
+.scene-card-name {
+  font-family: "IM Fell English SC", serif;
+  font-size: 1.4em;
+  color: var(--text-gold);
+  margin: 0 0 5px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.scene-card-date {
+  font-family: "Cinzel", serif;
+  font-size: 0.8em;
+  color: #c0c0c0;
+  margin: 0;
+}
+
+.scene-card-body {
+  padding: 15px;
+  border-top: 1px solid var(--input-border);
+}
+.scene-card-stats {
+  display: flex;
+  justify-content: space-around;
+  font-size: 0.9em;
+  color: #a0a0a0;
+}
+.scene-card-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.scene-card-stat-icon {
+  font-size: 1.2em;
+}
+
+.delete-scene-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(140, 45, 45, 0.85);
+  color: white;
+  border: 1px solid #c65d5d;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1.3em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.2s ease-out;
+  backdrop-filter: blur(3px);
+  z-index: 5;
+}
+.scene-card:hover .delete-scene-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+.delete-scene-btn:hover {
+  background: rgba(161, 53, 53, 1);
+  transform: scale(1.1) !important;
+}
+
+/* Mensaje cuando no hay mapas guardados */
+#no-scenes-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+}
+#no-scenes-message .icon {
+  font-size: 4em;
+  color: #666;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+#no-scenes-message h3 {
+  font-family: "IM Fell English SC", serif;
+  font-size: 1.8em;
+  color: #999;
+  margin: 0 0 15px 0;
+}
+#no-scenes-message p {
+  font-family: "Cinzel", serif;
+  font-size: 1.1em;
+  line-height: 1.5;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Ajusta los márgenes del radio group cuando está dentro de un form-group */
+.form-group .radio-group {
+  margin-top: 5px;
+  margin-bottom: 0;
+}
+
+/* Wrapper para alinear el botón de carga de archivo y el nombre */
+.file-upload-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Quita márgenes automáticos de los elementos dentro del wrapper para que flex los controle */
+.file-upload-wrapper .custom-file-upload-btn,
+.file-upload-wrapper .file-name-display {
+  margin: 0;
+}
+
+/* El botón no se encoge */
+.file-upload-wrapper .custom-file-upload-btn {
+  flex-shrink: 0;
+}
+
+/* El nombre del archivo ocupa el espacio restante */
+.file-upload-wrapper .file-name-display {
+  flex-grow: 1;
+}
+
+/* Ajuste menor para la textarea sin label explícito */
+.token-editor-form h4 + .form-group textarea {
+  width: calc(100% - 20px); /* Ajuste por el padding del form-group */
+}
+
+/* --- ESTILO PARA MENSAJE DE LISTA DE FICHAS VACÍA (NUEVO) --- */
+.no-tokens-message {
+  text-align: center;
+  padding: 20px 15px;
+  font-size: 0.9em;
+  color: #888;
+  font-style: italic;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+/* --- ESTILOS PARA TRACKER DE TURNOS DE JUGADOR (NUEVO) --- */
+#playerTurnTracker {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 300px;
+  max-height: calc(100vh - 40px);
+
+  z-index: 10;
+  overflow-y: auto;
+  overflow-x: hidden;
+  color: var(--text-light);
+  /* box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+  background-color: #1f1614d9;
+  backdrop-filter: blur(8px);
+  border: 2px none var(--panel-border);
+  border-radius: 10px;*/
+}
+
+.player-token-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid var(--input-border);
+  gap: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+  background-color: #1f1614d9;
+  /*backdrop-filter: blur(8px);*/
+  border: 2px none var(--panel-border);
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.4),
+    rgba(0, 0, 0, 0.2),
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0)
+  );
+  clip-path: polygon(5% 0%, 100% 0%, 100% 100%, 0% 100%);
+  margin: 10px;
+}
+
+.player-token-card:last-child {
+  border-bottom: none;
+}
+
+.player-token-preview {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.5em;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  border: 2px solid #555;
+}
+
+.player-token-info {
+  flex-grow: 1;
+  min-width: 0; /* Permite que los elementos flex se encojan correctamente */
+}
+
+.player-token-name {
+  font-family: "IM Fell English SC", serif;
+  font-size: 1.2em;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-token-initiative {
+  font-size: 0.8em;
+  color: #b0b0b0;
+  margin-bottom: 8px;
+}
+
+.health-bar-container {
+  width: 100%;
+  height: 12px;
+  background-color: #1a1a1a;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #4a3f3c;
+}
+
+.health-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+/* Reutilizamos las clases de color para la barra de vida */
+.health-bar-fill.health-high {
+  background-color: #5dff8b;
+}
+.health-bar-fill.health-mid {
+  background-color: #ffee5d;
+}
+.health-bar-fill.health-low {
+  background-color: #ff5d5d;
+}
+.health-bar-fill.health-critical {
+  background-color: #a93232;
+}
+
+.player-token-states {
+  display: flex;
+  gap: 5px;
+  margin-top: 8px;
+  font-size: 1.2em;
+}
+
+.player-token-states span {
+  cursor: help; /* Indica que se puede obtener info al pasar el ratón */
+}
+
+/* --- ESTILOS PARA EDITOR DE ESTADOS (NUEVO) --- */
+#tokenStatesEditor {
+  margin-top: 20px;
+}
+
+button.small-btn {
+  width: auto;
+  padding: 8px 15px;
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
+#editTokenStatesList {
+  list-style: none;
+  padding: 0;
+  margin-top: 15px;
+}
+
+#editTokenStatesList li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 8px 12px;
+  border-radius: 3px;
+  margin-bottom: 5px;
+}
+
+#editTokenStatesList .state-emoji {
+  font-size: 1.3em;
+}
+#editTokenStatesList .state-desc {
+  flex-grow: 1;
+  font-size: 0.9em;
+}
+#editTokenStatesList .delete-state-btn {
+  background: none;
+  border: 1px solid #c65d5d;
+  color: #c65d5d;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin: 0;
+  font-size: 1em;
+  line-height: 22px;
+  border-radius: 50%;
+}
+#editTokenStatesList .delete-state-btn:hover {
+  background: #a13535;
+  color: white;
+}
+/* --- AÑADE ESTO AL FINAL DE style.css --- */
+
+/* Animaciones para las tarjetas de jugador en el tracker (VERSIÓN CON CAMBIO DE FONDO) */
+.player-token-card {
+  position: relative; /* Necesario para que la capa ::before se posicione correctamente */
+  /* NOTA: Asegúrate de que esta línea esté presente en tu regla .player-token-card */
+}
+
+/* 2. Definimos la capa de color invisible que usaremos para el flash */
+.player-token-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  /* Hacemos que la capa tenga la misma forma que la tarjeta */
+  border-radius: inherit;
+  clip-path: inherit;
+
+  /* Por defecto, la capa es invisible y no se puede hacer clic en ella */
+  opacity: 0;
+  pointer-events: none;
+
+  /* El color se lo daremos después */
+  background-color: transparent;
+
+  /* Una transición suave por si acaso */
+  transition: background-color 0.2s;
+}
+
+/* 3. APLICAMOS LAS ANIMACIONES CUANDO LA CLASE SE AÑADE */
+
+/* DAÑO: */
+/* La tarjeta principal se encarga de la SACUDIDA */
+.player-token-card.card-damaged {
+  animation: token-shake 0.4s ease-out;
+}
+/* La capa invisible se encarga del FLASH DE COLOR */
+.player-token-card.card-damaged::before {
+  background-color: rgba(180, 50, 50, 0.7); /* Color del flash de daño */
+  animation: flash-overlay 0.4s ease-out;
+}
+
+/* CURACIÓN: */
+/* La tarjeta principal se encarga del PULSO/TAMBALEO */
+.player-token-card.card-healed {
+  animation: card-pulse-scale 0.5s ease-out;
+}
+/* La capa invisible se encarga del FLASH DE COLOR */
+.player-token-card.card-healed::before {
+  background-color: rgba(50, 180, 80, 0.6); /* Color del flash de curación */
+  animation: flash-overlay 0.5s ease-out;
+}
+
+/* 4. DEFINICIÓN DE LOS KEYFRAMES */
+
+/* Se mantiene la animación de sacudida original de la ficha */
+@keyframes token-shake {
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
+/* Una animación de pulso/escala más suave para la curación */
+@keyframes card-pulse-scale {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+/* La animación clave para el flash de la capa (solo anima la opacidad) */
+@keyframes flash-overlay {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* --- ESTILOS PARA RADIO BUTTONS TIPO TILE (NUEVO) --- */
+
+.radio-tile-group {
+  display: flex;
+  justify-content: space-around; /* Distribuye el espacio entre los tiles */
+  gap: 1rem;
+  margin-top: 10px;
+}
+
+.radio-tile-group .input-container {
+  position: relative;
+  height: 90px;
+  flex: 1; /* Hace que ambos tiles ocupen el espacio disponible */
+  max-width: 180px; /* Un ancho máximo para que no se estiren demasiado */
+}
+
+/* El input de radio real, oculto pero funcional */
+.radio-tile-group .input-container .radio-button {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* El tile visible */
+.radio-tile-group .input-container .radio-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--input-border);
+  border-radius: 8px;
+  background: var(--content-bg);
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+}
+
+/* El emoji que usamos como icono */
+.radio-tile-group .input-container .radio-tile-icon {
+  font-size: 2.5em;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+/* La etiqueta de texto dentro del tile */
+.radio-tile-group .input-container .radio-tile-label {
+  text-align: center;
+  font-size: 0.9em;
+  font-family: "IM Fell English SC", serif;
+  font-weight: 600;
+  color: var(--text-light);
+  letter-spacing: 1px;
+}
+
+/* --- El estado cuando está SELECCIONADO --- */
+.radio-tile-group .input-container .radio-button:checked + .radio-tile {
+  background-color: var(--header-hover);
+  border: 2px solid var(--text-gold);
+  color: var(--text-gold);
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(230, 194, 83, 0.3);
+}
+
+.radio-tile-group
+  .input-container
+  .radio-button:checked
+  + .radio-tile
+  .radio-tile-label {
+  color: var(--text-gold);
 }

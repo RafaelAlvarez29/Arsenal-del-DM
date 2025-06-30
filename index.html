@@ -30,16 +30,14 @@
             <section class="collapsible active">
                 <h3 class="collapsible-header">🗺️ Mapa y Escena</h3>
                 <div class="collapsible-content">
-                    <!-- El input ahora está oculto, pero funcional -->
+                    <!-- Input oculto para cargar mapa -->
                     <input type="file" id="mapImageInput" accept="image/*" class="hidden-file-input">
-
-                    <!-- Este label actúa como nuestro nuevo botón visible -->
                     <label for="mapImageInput" class="custom-file-upload-btn">
                         Cargar Mapa de Fondo
                     </label>
-
-                    <!-- También mostraremos el nombre del archivo cargado -->
                     <span id="fileNameDisplay" class="file-name-display">Ningún archivo seleccionado</span>
+
+                    <!-- NUEVO BOTÓN PARA VER MAPAS GUARDADOS -->
 
                     <div class="button-group">
                         <button id="saveStateBtn">Guardar Escena</button>
@@ -48,6 +46,7 @@
                 </div>
             </section>
 
+            <!-- El resto de las secciones del panel de control permanecen sin cambios -->
             <section class="collapsible">
                 <h3 class="collapsible-header">⚒️ Herramientas del DM</h3>
                 <div class="collapsible-content">
@@ -86,14 +85,23 @@
                 <div class="collapsible-content">
                     <!-- NUEVOS RADIO BUTTONS PARA ELEGIR TIPO DE TRAZO -->
                     <h4>Tipo de Trazado</h4>
-                    <div class="radio-group">
-                        <div>
-                            <input type="radio" id="drawTypeWall" name="drawType" value="wall" checked>
-                            <label for="drawTypeWall">Muro Sólido</label>
+                    <div class="radio-tile-group">
+                        <!-- Opción Muro -->
+                        <div class="input-container">
+                            <input id="drawTypeWall" class="radio-button" type="radio" name="drawType" value="wall"
+                                checked>
+                            <div class="radio-tile">
+                                <span class="radio-tile-icon">🧱</span>
+                                <label for="drawTypeWall" class="radio-tile-label">Muro</label>
+                            </div>
                         </div>
-                        <div>
-                            <input type="radio" id="drawTypeDoor" name="drawType" value="door">
-                            <label for="drawTypeDoor">Puerta / Acceso</label>
+                        <!-- Opción Puerta -->
+                        <div class="input-container">
+                            <input id="drawTypeDoor" class="radio-button" type="radio" name="drawType" value="door">
+                            <div class="radio-tile">
+                                <span class="radio-tile-icon">🚪</span>
+                                <label for="drawTypeDoor" class="radio-tile-label">Puerta</label>
+                            </div>
                         </div>
                     </div>
                     <p class="help-text">Dibuja muros para bloquear la visión o puertas que puedas abrir y cerrar.</p>
@@ -121,40 +129,96 @@
             <section class="collapsible">
                 <h3 class="collapsible-header">➕ Añadir Ficha Nueva</h3>
                 <div class="collapsible-content">
-                    <label>Tipo:</label>
-                    <div class="radio-group">
-                        <div> <!-- Envolvemos cada par en un div para mantenerlos juntos -->
-                            <input type="radio" id="typePlayer" name="tokenType" value="player" checked>
-                            <label for="typePlayer">🛡️Jugador</label>
+                    <div class="token-editor-form"> <!-- Reutilizamos la clase para estilos consistentes -->
+
+                        <h4>Información Básica</h4>
+                        <div class="form-group">
+                            <label>Tipo:</label>
+                            <div class="radio-tile-group">
+                                <!-- Opción Jugador -->
+                                <div class="input-container">
+                                    <input id="typePlayer" class="radio-button" type="radio" name="tokenType"
+                                        value="player" checked>
+                                    <div class="radio-tile">
+                                        <span class="radio-tile-icon">🛡️</span>
+                                        <label for="typePlayer" class="radio-tile-label">Jugador</label>
+                                    </div>
+                                </div>
+                                <!-- Opción Enemigo -->
+                                <div class="input-container">
+                                    <input id="typeEnemy" class="radio-button" type="radio" name="tokenType"
+                                        value="enemy">
+                                    <div class="radio-tile">
+                                        <span class="radio-tile-icon">👹</span>
+                                        <label for="typeEnemy" class="radio-tile-label">Enemigo</label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <input type="radio" id="typeEnemy" name="tokenType" value="enemy">
-                            <label for="typeEnemy">👹Enemigo</label>
+                        <div class="form-group">
+                            <label for="tokenName">Nombre:*</label>
+                            <input type="text" id="tokenName" placeholder="Ej: Grog Strongjaw">
                         </div>
+                        <div class="form-row">
+                            <div class="form-group" style="flex-grow: 1;">
+                                <label for="tokenLetter">Letra (ID Ficha):*</label>
+                                <input type="text" id="tokenLetter" maxlength="2" value="">
+                            </div>
+                            <div class="form-group" style="flex-grow: 2;">
+                                <label for="tokenImageInput">o Imagen de Ficha:</label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" id="tokenImageInput"
+                                        accept="image/png, image/jpeg, image/webp, image/gif" class="hidden-file-input">
+                                    <label for="tokenImageInput" class="custom-file-upload-btn small-btn">Cargar
+                                        Imagen</label>
+                                    <span id="tokenImageName" class="file-name-display">Ningún archivo...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4>Estadísticas</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tokenTurn">Turno (Iniciativa):</label>
+                                <!-- CORRECCIÓN: Añadido value por defecto -->
+                                <input type="number" id="tokenTurn" value="10">
+                            </div>
+                            <div class="form-group">
+                                <label for="tokenVision">Visión (casillas):*</label>
+                                <!-- CORRECCIÓN: Añadido value por defecto -->
+                                <input type="number" id="tokenVision" value="6" min="0">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tokenHealth">Vida Inicial:</label>
+                            <input type="number" id="tokenHealth" value="">
+                        </div>
+
+                        <h4>Apariencia</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tokenColor">Color Relleno:*</label>
+                                <input type="color" id="tokenColor" value="#4a90e2">
+                            </div>
+                            <div class="form-group">
+                                <label for="tokenBorderColor">Color Borde:*</label>
+                                <input type="color" id="tokenBorderColor" value="#000000">
+                                <div class="checkbox-container" style="margin-top: 8px;">
+                                    <input type="checkbox" id="addBorderCheckbox">
+                                    <label for="addBorderCheckbox">Añadir Borde</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4>Notas</h4>
+                        <div class="form-group">
+                            <textarea id="tokenNotes" rows="3"
+                                placeholder="Describe características especiales..."></textarea>
+                        </div>
+
+                        <button id="addTokenBtn">Añadir Ficha</button>
+
                     </div>
-                    <label for="tokenName">Nombre:*</label><input type="text" id="tokenName"
-                        placeholder="Ej: Grog Strongjaw">
-                    <label for="tokenLetter">Letra (ID Ficha):*</label><input type="text" id="tokenLetter" maxlength="2"
-                        value="">
-                    <label for="tokenImageInput">o Imagen de Ficha:</label>
-                    <input type="file" id="tokenImageInput" accept="image/png, image/jpeg, image/webp"
-                        class="hidden-file-input">
-                    <label for="tokenImageInput" class="custom-file-upload-btn small-btn">Cargar Imagen</label>
-                    <span id="tokenImageName" class="file-name-display">Ningún archivo...</span>
-                    <label for="tokenTurn">Turno (Iniciativa):</label><input type="number" id="tokenTurn" value="10">
-                    <label for="tokenHealth">Vida Inicial:</label> <!-- CAMBIO DE ETIQUETA -->
-                    <input type="number" id="tokenHealth" value="100">
-                    <label for="tokenNotes">Notas:</label><textarea id="tokenNotes" rows="3"
-                        placeholder="Describe características especiales, habilidades o notas importantes..."></textarea>
-                    <label for="tokenColor">Color Relleno:*</label><input type="color" id="tokenColor" value="#4a90e2">
-                    <label for="tokenBorderColor">Color Borde:*</label><input type="color" id="tokenBorderColor"
-                        value="#000000">
-                    <div class="checkbox-container"> <!-- Usamos un contenedor similar -->
-                        <input type="checkbox" id="addBorderCheckbox">
-                        <label for="addBorderCheckbox" class="inline-label">Añadir Borde</label>
-                    </div> <label for="tokenVision">Visión (casillas):*</label><input type="number" id="tokenVision"
-                        value="6" min="0">
-                    <button id="addTokenBtn">Añadir Ficha</button>
                 </div>
             </section>
 
@@ -162,15 +226,25 @@
             <section id="selectedTokenSection" class="collapsible">
                 <h3 class="collapsible-header">📍 Ficha Seleccionada</h3>
                 <div class="collapsible-content">
-                    <p id="noTokenSelected">Haz clic en una ficha en el mapa para editarla.</p>
+                    <p id="noTokenSelected">...</p>
                     <div id="tokenEditor" class="token-editor-form">
-                        <div id="editTokenImagePreviewContainer" style="display: none;">
+
+                        <div id="editTokenImagePreviewContainer">
+                            <!-- Vista previa de la IMAGEN -->
                             <img id="editTokenImagePreview" src="" alt="Imagen de la Ficha">
-                            <label for="editTokenImageInput" class="change-image-btn" title="Cambiar imagen">✏️</label>
+                            <!-- Vista previa de la LETRA/COLOR (se mostrará u ocultará con JS) -->
+                            <div id="editTokenLetterPreview" class="token-preview-letter"></div>
+
+                            <!-- Botones de acción -->
+                            <label for="editTokenImageInput" class="change-image-btn"
+                                title="Cargar/Cambiar imagen">✏️</label>
                             <button id="removeTokenImageBtn" class="remove-image-btn" title="Quitar imagen">X</button>
-                            <input type="file" id="editTokenImageInput" accept="image/png, image/jpeg, image/webp"
-                                class="hidden-file-input">
+                            <input type="file" id="editTokenImageInput"
+                                accept="image/png, image/jpeg, image/webp, image/gif" class="hidden-file-input">
+
+
                         </div>
+
                         <div class="form-header">
                             <h3>Configuración de Personaje</h3>
                         </div>
@@ -226,6 +300,26 @@
                                 placeholder="Describe características especiales, habilidades o notas importantes..."></textarea>
                         </div>
 
+                        <!-- NUEVA SECCIÓN PARA GESTIONAR ESTADOS -->
+                        <div id="tokenStatesEditor">
+                            <h4>Estados y Efectos</h4>
+                            <div class="form-row">
+                                <div class="form-group" style="flex-grow: 1;">
+                                    <label for="newStateEmoji">Emoji</label>
+                                    <input type="text" id="newStateEmoji" placeholder="🔥" maxlength="2">
+                                </div>
+                                <div class="form-group" style="flex-grow: 3;">
+                                    <label for="newStateDesc">Descripción del Estado</label>
+                                    <input type="text" id="newStateDesc" placeholder="En llamas, -1d4 por turno">
+                                </div>
+                            </div>
+                            <button id="addStateBtn" class="small-btn">Añadir Estado</button>
+
+                            <ul id="editTokenStatesList">
+                                <!-- La lista de estados se generará aquí -->
+                            </ul>
+                        </div>
+
                         <div class="form-row button-group">
                             <button id="updateTokenBtn">Actualizar Ficha</button>
                             <button id="deselectTokenBtn" class="secondary">Deseleccionar</button>
@@ -270,8 +364,54 @@
                 <canvas id="visionCanvas"></canvas>
                 <div id="tokensLayer"></div>
             </div>
+            <div id="playerTurnTracker">
+            </div>
         </div>
     </div>
+
+    <!-- MODAL PARA NOMBRAR PUERTA (NUEVO) -->
+    <div id="doorNameModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Nombrar Nuevo Acceso</h3>
+            <label for="doorNameInput">Nombre de la Puerta / Acceso:</label>
+            <input type="text" id="doorNameInput" placeholder="Ej: Puerta de Roble Reforzado">
+            <div class="button-group">
+                <button id="confirmDoorNameBtn">Crear Acceso</button>
+                <button id="cancelDoorNameBtn" class="secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PARA GUARDAR ESCENA -->
+    <div id="saveSceneModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Guardar Escena</h3>
+            <label for="sceneNameInput">Nombre de la Escena:</label>
+            <input type="text" id="sceneNameInput" placeholder="Ej: Cripta del Rey Olvidado">
+            <div class="button-group">
+                <button id="confirmSaveSceneBtn">Guardar</button>
+                <button id="cancelSaveSceneBtn" class="secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PARA MOSTRAR ESCENAS GUARDADAS -->
+    <div id="savedScenesModal" class="modal-overlay">
+        <div class="saved-scenes-modal">
+            <!-- Header del modal -->
+            <div class="modal-header">
+                <h1 class="modal-title">Mapas Guardados</h1>
+                <button class="modal-close-btn" id="closeSavedScenesBtn">×</button>
+            </div>
+            <!-- Contenido scrolleable del modal -->
+            <div class="modal-content-body">
+                <div id="sceneListContainer" class="saved-scenes-grid">
+                    <!-- Las tarjetas de escenas se generarán aquí con JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <audio id="damage-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_895037d330.mp3"
         preload="auto"></audio>
