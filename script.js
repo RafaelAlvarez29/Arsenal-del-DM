@@ -1,6 +1,32 @@
 // --- SCRIPT.JS - VERSIÓN CON GESTOR DE ESCENAS ---
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    // --- CONFIGURACIÓN DE INDEXEDDB ---
+    const DB_NAME = 'DMArsenalDB';
+    const DB_VERSION = 1;
+    const SCENES_STORE = 'scenes';
+    const ASSETS_STORE = 'assets';
+
+    let db; // Variable para mantener la conexión a la base de datos
+
+    async function initDB() {
+        db = await idb.openDB(DB_NAME, DB_VERSION, {
+            upgrade(db) {
+                if (!db.objectStoreNames.contains(SCENES_STORE)) {
+                    db.createObjectStore(SCENES_STORE, { keyPath: 'id' });
+                }
+                if (!db.objectStoreNames.contains(ASSETS_STORE)) {
+                    db.createObjectStore(ASSETS_STORE, { keyPath: 'id' });
+                }
+            },
+        });
+    }
+
+    // Llamamos a la inicialización de la DB al cargar la página
+    initDB();
+
+
     // --- NUEVOS SELECTORES DE MODAL ---
     const saveStateBtn = document.getElementById('saveStateBtn');
     const loadStateBtn = document.getElementById('loadStateBtn');
@@ -71,6 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
         clearWallsBtn = document.getElementById('clearWallsBtn');
     const doorListUl = document.getElementById('doorList'),
         noDoorsMessage = document.getElementById('noDoorsMessage');
+    const alignGridModeBtn = document.getElementById('alignGridModeBtn');
+    const resetGridOffsetBtn = document.getElementById('resetGridOffsetBtn');
+
 
     const fileNameDisplay = document.getElementById('fileNameDisplay');
 
@@ -125,7 +154,12 @@ document.addEventListener('DOMContentLoaded', () => {
         wallStartPoint = null;
 
     let pendingDoor = null;
+    let activeLoopingSound = null;
 
+
+    let isAligningGrid = false;
+    let gridOffsetX = 0;
+    let gridOffsetY = 0;
 
     // --- NUEVAS VARIABLES DE ESTADO PARA EL PANEO ---
     let isPanning = false;
@@ -134,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     let dragOffsetX, dragOffsetY;
-    let cellSize = parseInt(cellSizeInput.value),
+    let cellSize = parseFloat(cellSizeInput.value),
         gridVisible = gridToggle.checked,
         gridColor = gridColorInput.value,
         gridOpacity = parseFloat(gridOpacityInput.value);
@@ -153,14 +187,22 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.collapsible-header').forEach(header => header.addEventListener('click', () => header.parentElement.classList.toggle('active')));
     mapImageInput.addEventListener('change', handleImageUpload);
     gridToggle.addEventListener('change', e => { gridVisible = e.target.checked; drawGrid(); });
+
+    alignGridModeBtn.addEventListener('click', toggleAlignGridMode);
+    resetGridOffsetBtn.addEventListener('click', resetGridOffset);
     gridColorInput.addEventListener('input', e => { gridColor = e.target.value; drawGrid(); });
     gridOpacityInput.addEventListener('input', e => { gridOpacity = parseFloat(e.target.value); drawGrid(); });
     brushModeInputs.forEach(input => input.addEventListener('change', e => brushMode = e.target.value));
     brushSizeInput.addEventListener('input', e => brushSize = parseInt(e.target.value));
     drawTypeInputs.forEach(input => input.addEventListener('change', e => drawType = e.target.value));
     cellSizeSlider.addEventListener('input', () => { cellSizeInput.value = cellSizeSlider.value; updateCellSize(); });
-    cellSizeInput.addEventListener('input', () => { const val = Math.min(parseInt(cellSizeInput.value) || 10, 150); cellSizeSlider.value = val; updateCellSize(); });
-    addTokenBtn.addEventListener('click', addToken);
+    cellSizeInput.addEventListener('input', () => {
+        // Usamos parseFloat para permitir decimales
+        const val = parseFloat(cellSizeInput.value) || 10;
+        // No necesitamos Math.min aquí porque el input type="number" ya respeta el max="150"
+        cellSizeSlider.value = val;
+        updateCellSize();
+    }); addTokenBtn.addEventListener('click', addToken);
     add_tokenImageInput.addEventListener('change', e => { add_tokenImageName.textContent = e.target.files[0] ? e.target.files[0].name : 'Ningún archivo...'; });
     edit_tokenImageInput.addEventListener('change', handleEditTokenImageChange);
     removeTokenImageBtn.addEventListener('click', removeEditTokenImage);
@@ -217,10 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
     confirmSaveSceneBtn.addEventListener('click', saveCurrentScene);
     closeSavedScenesBtn.addEventListener('click', () => savedScenesModal.classList.remove('open'));
 
-    showSavedScenesBtn.addEventListener('click', () => {
-        renderSavedScenesList();
-        savedScenesModal.classList.add('open');
-    });
+
 
     closeSavedScenesBtn.addEventListener('click', () => savedScenesModal.classList.remove('open'));
 
@@ -239,165 +278,292 @@ document.addEventListener('DOMContentLoaded', () => {
         return JSON.parse(localStorage.getItem(SCENES_STORAGE_KEY)) || [];
     }
 
-    function saveCurrentScene() {
+    async function saveCurrentScene() {
         const sceneName = sceneNameInput.value.trim();
         if (!sceneName) {
             alert("Por favor, introduce un nombre para la escena.");
             return;
         }
 
-        const state = {
-            id: Date.now(),
-            name: sceneName,
-            date: new Date().toISOString(),
-            mapSrc: mapImage.src,
-            cellSize: cellSize,
-            // CORRECCIÓN CRÍTICA: Añadida la propiedad 'states' al guardado
-            tokens: tokens.map(t => ({
-                id: t.id, type: t.type, name: t.name, letter: t.letter,
-                image: t.image, turn: t.turn, health_max: t.health_max,
-                health_current: t.health_current, notes: t.notes,
-                color: t.color, borderColor: t.borderColor,
-                visionRadius: t.visionRadius, x: t.x, y: t.y, size: t.size,
-                isDiscovered: t.isDiscovered,
-                states: t.states || [] // Guardar estados (con fallback por si acaso)
-            })),
-            walls: walls,
-            revealedFogData: revealedBufferCanvas.toDataURL(),
-            gridSettings: { visible: gridVisible, color: gridColor, opacity: gridOpacity }
-        };
+        const sceneId = Date.now();
+        const tx = db.transaction([ASSETS_STORE], 'readwrite');
+        const assetStore = tx.objectStore(ASSETS_STORE);
 
-        const scenes = getSavedScenes();
-        scenes.push(state);
-        localStorage.setItem(SCENES_STORAGE_KEY, JSON.stringify(scenes));
+        try {
+            // Guardar imagen del mapa
+            const mapAssetId = `map_${sceneId}`;
+            await assetStore.put({ id: mapAssetId, data: mapImage.src });
 
-        saveSceneModal.classList.remove('open');
-        alert(`¡Escena "${sceneName}" guardada!`);
+            // Guardar niebla
+            const fogAssetId = `fog_${sceneId}`;
+            await assetStore.put({ id: fogAssetId, data: revealedBufferCanvas.toDataURL() });
+
+            // Guardar imágenes de las fichas y preparar metadatos de fichas
+            const tokenPromises = tokens.map(async (t, index) => {
+                let imageAssetId = null;
+                if (t.image) {
+                    imageAssetId = `token_${sceneId}_${index}`;
+                    await assetStore.put({ id: imageAssetId, data: t.image });
+                }
+                // Devolvemos el objeto token SIN la data de la imagen, solo con su ID de asset
+                return {
+                    id: t.id, type: t.type, name: t.name, letter: t.letter,
+                    imageAssetId: imageAssetId, // Guardamos la referencia, no la data
+                    turn: t.turn, health_max: t.health_max,
+                    health_current: t.health_current, notes: t.notes,
+                    color: t.color, borderColor: t.borderColor,
+                    visionRadius: t.visionRadius, x: t.x, y: t.y, size: t.size,
+                    isDiscovered: t.isDiscovered,
+                    states: t.states || []
+                };
+            });
+
+            const tokenMetadata = await Promise.all(tokenPromises);
+            await tx.done; // Finalizar la transacción de assets
+
+            // Ahora, preparamos el objeto de metadatos para localStorage
+            const sceneMetadata = {
+                id: sceneId,
+                name: sceneName,
+                date: new Date().toISOString(),
+                mapAssetId: mapAssetId, // Referencia a la imagen del mapa
+                fogAssetId: fogAssetId, // Referencia a la niebla
+                cellSize: cellSize,
+                tokens: tokenMetadata, // Los metadatos de las fichas
+                walls: walls,
+                gridSettings: {
+                    visible: gridVisible, color: gridColor, opacity: gridOpacity, offsetX: gridOffsetX, offsetY: gridOffsetY
+                }
+            };
+
+            // Guardamos los metadatos en localStorage
+            const scenes = getSavedScenes();
+            scenes.push(sceneMetadata);
+            localStorage.setItem(SCENES_STORAGE_KEY, JSON.stringify(scenes));
+
+            saveSceneModal.classList.remove('open');
+            alert(`¡Escena "${sceneName}" guardada!`);
+
+        } catch (error) {
+            console.error('Error al guardar la escena:', error);
+            tx.abort(); // Abortar transacción si algo falla
+            alert('Hubo un error al guardar la escena. Revisa la consola para más detalles.');
+        }
     }
-
-    function renderSavedScenesList() {
+    async function renderSavedScenesList() {
         const scenes = getSavedScenes();
-        sceneListContainer.innerHTML = ''; // Limpiar la lista
+        sceneListContainer.innerHTML = '';
 
         if (scenes.length === 0) {
             sceneListContainer.innerHTML = `
-                <div id="no-scenes-message">
-                    <div class="icon">🗺️</div>
-                    <h3>No hay mapas guardados</h3>
-                    <p>Aún no has guardado ninguna escena. Crea una y guárdala para poder cargarla más tarde.</p>
-                </div>`;
+            <div id="no-scenes-message">
+                <div class="icon icon-map-large"></div>
+                <h3>No hay mapas guardados</h3>
+                <p>Aún no has guardado ninguna escena. Crea una y guárdala para poder cargarla más tarde.</p>
+            </div>`;
             return;
         }
 
-        scenes.sort((a, b) => b.date.localeCompare(a.date)); // Mostrar las más nuevas primero
+        scenes.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        scenes.forEach(scene => {
+        // --- CORRECCIÓN AQUÍ ---
+        // 1. Filtramos para obtener solo las llaves (keys) que realmente existen.
+        const validMapKeys = scenes.map(scene => scene.mapAssetId).filter(key => key);
+
+        // 2. Creamos un mapa (diccionario) para acceder fácilmente a los assets por su ID.
+        const mapAssets = new Map();
+        if (validMapKeys.length > 0) {
+            // Usamos una transacción para obtener todos los assets válidos de una vez.
+            const tx = db.transaction(ASSETS_STORE, 'readonly');
+            const store = tx.objectStore(ASSETS_STORE);
+            const assets = await Promise.all(validMapKeys.map(key => store.get(key)));
+
+            // Llenamos nuestro mapa.
+            assets.forEach(asset => {
+                if (asset) {
+                    mapAssets.set(asset.id, asset.data);
+                }
+            });
+        }
+        // --- FIN DE LA CORRECCIÓN ---
+
+
+        scenes.forEach((scene) => {
+            // Obtenemos la imagen desde nuestro mapa, con un fallback seguro.
+            const mapSrc = mapAssets.get(scene.mapAssetId) || '';
             const formattedDate = new Date(scene.date).toLocaleString('es-ES', {
                 day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
             });
-
-            // Calcular estadísticas
             const tokenCount = scene.tokens.length;
             const wallCount = scene.walls.filter(w => w.type === 'wall').length;
             const doorCount = scene.walls.filter(w => w.type === 'door').length;
-
             const card = document.createElement('div');
             card.className = 'scene-card';
-            card.dataset.sceneId = scene.id; // Asignar ID a la tarjeta para el evento de carga
+            card.dataset.sceneId = scene.id;
 
             card.innerHTML = `
-                <div class="scene-card-image-container">
-                    <img src="${scene.mapSrc}" alt="Vista previa de ${scene.name}" class="scene-card-image">
-                    <div class="scene-card-info-overlay">
-                        <h3 class="scene-card-name">${scene.name}</h3>
-                        <p class="scene-card-date">Guardado: ${formattedDate}</p>
-                    </div>
-                    <button class="delete-scene-btn" data-scene-id="${scene.id}" title="Eliminar Escena">×</button>
+            <div class="scene-card-image-container">
+                <img src="${mapSrc}" alt="Vista previa de ${scene.name}" class="scene-card-image">
+                <div class="scene-card-info-overlay">
+                    <h3 class="scene-card-name">${scene.name}</h3>
+                    <p class="scene-card-date">Guardado: ${formattedDate}</p>
                 </div>
-                <div class="scene-card-body">
-                    <div class="scene-card-stats">
-                        <div class="scene-card-stat-item">
-                            <span class="scene-card-stat-icon">👥</span>
-                            <span>${tokenCount} Fichas</span>
-                        </div>
-                        <div class="scene-card-stat-item">
-                            <span class="scene-card-stat-icon">🧱</span>
-                            <span>${wallCount} Muros</span>
-                        </div>
-                        <div class="scene-card-stat-item">
-                            <span class="scene-card-stat-icon">🚪</span>
-                            <span>${doorCount} Puertas</span>
-                        </div>
+                <button class="delete-scene-btn" data-scene-id="${scene.id}" title="Eliminar Escena">×</button>
+            </div>
+            <div class="scene-card-body">
+                <div class="scene-card-stats">
+                    <div class="scene-card-stat-item">
+                        <span class="scene-card-stat-icon icon-stat-token"></span>
+                        <span>${tokenCount} Fichas</span>
+                    </div>
+                    <div class="scene-card-stat-item">
+                        <span class="scene-card-stat-icon icon-stat-wall"></span>
+                        <span>${wallCount} Muros</span>
+                    </div>
+                    <div class="scene-card-stat-item">
+                        <span class="scene-card-stat-icon icon-stat-door"></span>
+                        <span>${doorCount} Puertas</span>
                     </div>
                 </div>
-            `;
+            </div>
+        `;
             sceneListContainer.appendChild(card);
         });
 
-        // --- LÓGICA DE EVENTOS REDISEÑADA ---
-
-        // 1. Cargar escena al hacer clic en la tarjeta
+        // Listeners (no cambian)
         sceneListContainer.querySelectorAll('.scene-card').forEach(card => {
             card.addEventListener('click', (e) => {
-                // Solo cargar si no se hizo clic en el botón de eliminar
                 if (!e.target.classList.contains('delete-scene-btn')) {
                     loadSceneById(card.dataset.sceneId);
                 }
             });
         });
-
-        // 2. Eliminar escena al hacer clic en el botón 'X'
         sceneListContainer.querySelectorAll('.delete-scene-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Evita que el clic se propague a la tarjeta (y la cargue)
+                e.stopPropagation();
                 deleteSceneById(btn.dataset.sceneId);
             });
         });
     }
-
-    function loadSceneById(sceneId) {
+    async function loadSceneById(sceneId) {
         const scenes = getSavedScenes();
-        const sceneToLoad = scenes.find(s => s.id == sceneId); // Usar == por si el ID es string
+        const sceneMetadata = scenes.find(s => s.id == sceneId);
 
-        if (!sceneToLoad) {
+        if (!sceneMetadata) {
             alert("Error: No se encontró la escena seleccionada.");
             return;
         }
 
-        // Usar un callback para asegurarse de que la imagen del mapa se carga ANTES de restaurar todo lo demás
-        let hasRestored = false;
-        const restore = () => {
-            if (hasRestored) return;
-            hasRestored = true;
-            restoreSceneFromState(sceneToLoad);
-        };
-        mapImage.onload = restore;
-        mapImage.src = sceneToLoad.mapSrc;
-        // Si la imagen ya está en caché, `onload` podría no dispararse
-        if (mapImage.complete) {
-            restore();
+        try {
+            // Recuperar todos los assets de IndexedDB
+            const tx = db.transaction([ASSETS_STORE], 'readonly');
+            const assetStore = tx.objectStore(ASSETS_STORE);
+
+            const mapAsset = await assetStore.get(sceneMetadata.mapAssetId);
+            const fogAsset = await assetStore.get(sceneMetadata.fogAssetId);
+
+            // Cargar la imagen del mapa y esperar a que esté lista
+            const mapLoadedPromise = new Promise((resolve) => {
+                mapImage.onload = resolve;
+                mapImage.src = mapAsset.data;
+                if (mapImage.complete) resolve();
+            });
+
+            await mapLoadedPromise;
+
+            // Una vez que el mapa está cargado, restaurar todo lo demás
+            restoreSceneFromState(sceneMetadata, fogAsset.data);
+
+            // Cargar imágenes de las fichas asíncronamente
+            const tokenAssetPromises = sceneMetadata.tokens.map(tokenMeta => {
+                if (tokenMeta.imageAssetId) {
+                    return assetStore.get(tokenMeta.imageAssetId);
+                }
+                return Promise.resolve(null);
+            });
+
+            const tokenAssets = await Promise.all(tokenAssetPromises);
+
+            // Asignar las imágenes recuperadas a las fichas ya creadas
+            tokens.forEach((token, index) => {
+                const asset = tokenAssets[index];
+                if (asset) {
+                    token.image = asset.data;
+                }
+            });
+
+            // Actualizar visualmente todas las fichas y la UI
+            tokens.forEach(updateTokenElementStyle);
+            updateTokenList();
+            updatePlayerTurnTracker();
+            selectToken(selectedTokenId); // Re-seleccionar para refrescar el editor si había una ficha seleccionada
+
+        } catch (error) {
+            console.error('Error al cargar la escena:', error);
+            alert('Hubo un error al cargar los datos de la escena. Revisa la consola.');
         }
     }
 
-    function deleteSceneById(sceneId) {
+    async function deleteSceneById(sceneId) {
         if (!confirm("¿Estás seguro de que quieres eliminar esta escena? Esta acción no se puede deshacer.")) {
             return;
         }
 
         let scenes = getSavedScenes();
-        scenes = scenes.filter(s => s.id != sceneId);
-        localStorage.setItem(SCENES_STORAGE_KEY, JSON.stringify(scenes));
+        const sceneToDelete = scenes.find(s => s.id == sceneId);
 
-        // Refrescar la lista en el modal
-        renderSavedScenesList();
+        if (sceneToDelete) {
+            try {
+                const tx = db.transaction(ASSETS_STORE, 'readwrite');
+                const assetStore = tx.objectStore(ASSETS_STORE);
+                const deletePromises = [];
+
+                // --- CORRECCIÓN AQUÍ ---
+                // Añadimos una comprobación antes de intentar borrar.
+
+                if (sceneToDelete.mapAssetId) {
+                    deletePromises.push(assetStore.delete(sceneToDelete.mapAssetId));
+                }
+                if (sceneToDelete.fogAssetId) {
+                    deletePromises.push(assetStore.delete(sceneToDelete.fogAssetId));
+                }
+
+                sceneToDelete.tokens.forEach(token => {
+                    if (token.imageAssetId) {
+                        deletePromises.push(assetStore.delete(token.imageAssetId));
+                    }
+                });
+                // --- FIN DE LA CORRECCIÓN ---
+
+                await Promise.all(deletePromises);
+                await tx.done;
+
+                // Eliminar metadatos de localStorage
+                scenes = scenes.filter(s => s.id != sceneId);
+                localStorage.setItem(SCENES_STORAGE_KEY, JSON.stringify(scenes));
+
+                // Refrescar la lista en el modal
+                renderSavedScenesList();
+
+            } catch (error) {
+                console.error("Error al eliminar los assets de la escena:", error);
+                alert("Hubo un problema al limpiar los datos de la escena eliminada.");
+            }
+        }
     }
 
-    function restoreSceneFromState(state) {
+    function restoreSceneFromState(state, fogDataUrl) {
         showMapArea();
         removeAllTokens();
-        resizeAllCanvas();
 
-        // Restaurar estado
+        if (activeLoopingSound) {
+            activeLoopingSound.pause();
+            activeLoopingSound.currentTime = 0;
+            document.querySelector('.sound-btn.active')?.classList.remove('active');
+            activeLoopingSound = null;
+        }
+
+        resizeAllCanvas();
         cellSize = state.cellSize;
         cellSizeInput.value = cellSize;
         cellSizeSlider.value = cellSize;
@@ -409,6 +575,14 @@ document.addEventListener('DOMContentLoaded', () => {
             gridToggle.checked = gridVisible;
             gridColorInput.value = gridColor;
             gridOpacityInput.value = gridOpacity;
+
+            // --- NUEVA LÓGICA ---
+            gridOffsetX = state.gridSettings.offsetX || 0; // Cargar offset, con fallback a 0
+            gridOffsetY = state.gridSettings.offsetY || 0; // Cargar offset, con fallback a 0
+        } else {
+            // Fallback para escenas antiguas sin esta configuración
+            gridOffsetX = 0;
+            gridOffsetY = 0;
         }
 
         walls = state.walls || [];
@@ -422,21 +596,17 @@ document.addEventListener('DOMContentLoaded', () => {
             revealedBufferCtx.drawImage(fogImg, 0, 0);
             if (visionModeActive) drawVision();
         };
-        fogImg.src = state.revealedFogData;
+        fogImg.src = fogDataUrl;
 
-        state.tokens.forEach(tokenData => recreateToken(tokenData));
+        // Crear fichas SIN sus imágenes primero (estas se añadirán después)
+        state.tokens.forEach(tokenData => {
+            const tokenToCreate = { ...tokenData, image: null }; // Crear sin imagen
+            recreateToken(tokenToCreate);
+        });
+
         updateTokenList();
-
-        // Cerrar el modal
         savedScenesModal.classList.remove('open');
-
-        // --- AÑADIR ESTA LÍNEA ---
-        // Buscamos la sección "Mapa y Escena" y le quitamos la clase 'active' para colapsarla.
         mapImageInput.closest('.collapsible').classList.remove('active');
-
-        // Mostrar confirmación
-        /* setTimeout(() => alert(`Escena "${state.name}" cargada.`), 100);*/
-
         updatePlayerTurnTracker();
     }
 
@@ -633,38 +803,24 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePlayerTurnTracker();
     }
     function updateTokenList() {
-        tokenListUl.innerHTML = ''; // Limpiamos la lista como siempre
-
-        // --- LÓGICA CORREGIDA ---
+        tokenListUl.innerHTML = '';
         if (tokens.length === 0) {
-            // Si no hay fichas, insertamos el párrafo directamente en el UL
             tokenListUl.innerHTML = `<p class="no-tokens-message">Aún no hay fichas en el tablero. ¡Añade una para empezar!</p>`;
-            return; // Terminamos la función aquí
+            return;
         }
-
-        // Si hay fichas, procedemos con la lógica normal
         const sortedTokens = [...tokens].sort((a, b) => b.turn - a.turn);
         sortedTokens.forEach(token => {
             const li = document.createElement('li');
             li.dataset.id = token.id;
-            const typeIcon = token.type === 'player' ? '🛡️' : '👹';
+            const typeIconHTML = `<span class="token-list-icon ${token.type === 'player' ? 'icon-player-list' : 'icon-enemy-list'}"></span>`;
             const borderStyle = token.borderColor ? `border: 3px solid ${token.borderColor};` : 'none';
             const imageStyle = token.image ? `background-image: url(${token.image}); background-size: cover; background-position: center;` : `background-color: ${token.color};`;
-
-            li.innerHTML = `<div class="token-list-preview" style="${imageStyle} ${borderStyle}">${token.image ? '' : token.letter}</div><div class="token-list-header"><span>${typeIcon}</span><span>${token.name}</span></div><div class="token-list-details"><span>Turno: ${token.turn}</span><span>❤️ Vida: ${token.health_current}/${token.health_max}</span><span>👁️ Vis: ${token.visionRadius}</span></div><button class="delete-token-btn" data-id="${token.id}" title="Eliminar Ficha">X</button>`;
+            const previewContent = token.image ? '' : token.letter;
+            li.innerHTML = `<div class="token-list-preview" style="${imageStyle} ${borderStyle}">${previewContent}</div><div class="token-list-header">${typeIconHTML}<span>${token.name}</span></div><div class="token-list-details"><span>Turno: ${token.turn}</span><span>❤️ Vida: ${token.health_current}/${token.health_max}</span><span>👁️ Vis: ${token.visionRadius}</span></div><button class="delete-token-btn" data-id="${token.id}" title="Eliminar Ficha">X</button>`;
             tokenListUl.appendChild(li);
         });
-
-        // Los listeners se añaden después de crear la lista
-        tokenListUl.querySelectorAll('.delete-token-btn').forEach(btn => btn.addEventListener('click', e => {
-            e.stopPropagation();
-            deleteToken(parseInt(e.target.dataset.id));
-        }));
-
-        // Ya no necesitamos la comprobación extra aquí, porque si la lista está vacía, no hay 'li' a los que añadir listeners.
-        tokenListUl.querySelectorAll('li').forEach(li => {
-            li.addEventListener('click', e => selectToken(parseInt(e.currentTarget.dataset.id)));
-        });
+        tokenListUl.querySelectorAll('.delete-token-btn').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); deleteToken(parseInt(e.target.dataset.id)); }));
+        tokenListUl.querySelectorAll('li').forEach(li => { li.addEventListener('click', e => selectToken(parseInt(e.currentTarget.dataset.id))); });
     }
 
 
@@ -989,8 +1145,35 @@ document.addEventListener('DOMContentLoaded', () => {
             mapContainer.style.cursor = 'grab'; // Restaura el cursor a "mano abierta"
         } if (currentDraggedToken) { currentDraggedToken.element.style.zIndex = ''; if (visionModeActive) drawVision(); currentDraggedToken = null; } isPaintingFog = false;
     }
-    function handleLayerClick(event) { if (event.detail > 1) return; setTimeout(() => { if (currentDraggedToken) return; const tokenElement = event.target.closest('.token'); if (tokenElement) { selectToken(parseInt(tokenElement.dataset.id)); } else { deselectToken(); } }, 150); }
+    function handleLayerClick(event) {
+        if (event.detail > 1 || isPanning) return;
 
+        // --- NUEVA LÓGICA DE ALINEACIÓN DE REJILLA ---
+        if (isAligningGrid) {
+            const mapRect = mapContainer.getBoundingClientRect();
+            const x = event.clientX - mapRect.left + mapContainer.scrollLeft;
+            const y = event.clientY - mapRect.top + mapContainer.scrollTop;
+
+            // El offset es el residuo de la posición del clic dividido por el tamaño de la celda.
+            gridOffsetX = x % cellSize;
+            gridOffsetY = y % cellSize;
+
+            drawGrid(); // Redibujar la rejilla con el nuevo offset.
+            toggleAlignGridMode(); // Salir del modo automáticamente.
+            return; // Detener la ejecución para no seleccionar fichas, etc.
+        }
+        // --- FIN DE LA NUEVA LÓGICA ---
+
+        setTimeout(() => {
+            if (currentDraggedToken) return;
+            const tokenElement = event.target.closest('.token');
+            if (tokenElement) {
+                selectToken(parseInt(tokenElement.dataset.id));
+            } else {
+                deselectToken();
+            }
+        }, 150);
+    }
     // --- VISIÓN, NIEBLA Y MUROS ---
     function toggleVisionMode() {
         visionModeActive = !visionModeActive;
@@ -1129,7 +1312,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateCellSize() {
-        const newSize = parseInt(cellSizeInput.value);
+        const newSize = parseFloat(cellSizeInput.value);
         if (isNaN(newSize) || newSize < 10) { cellSizeInput.value = cellSize; return; }
         cellSize = newSize;
         tokens.forEach(token => { token.size = cellSize; updateTokenElementStyle(token); });
@@ -1141,12 +1324,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const w = gridCanvas.width, h = gridCanvas.height;
         gridCtx.clearRect(0, 0, w, h);
         if (!gridVisible || cellSize <= 0) return;
+
         gridCtx.strokeStyle = gridColor;
         gridCtx.globalAlpha = gridOpacity;
         gridCtx.lineWidth = 1;
         gridCtx.beginPath();
-        for (let x = cellSize; x < w; x += cellSize) { gridCtx.moveTo(x, 0); gridCtx.lineTo(x, h); }
-        for (let y = cellSize; y < h; y += cellSize) { gridCtx.moveTo(0, y); gridCtx.lineTo(w, y); }
+
+        // Dibuja las líneas verticales, empezando desde el offset
+        for (let x = gridOffsetX; x < w; x += cellSize) {
+            gridCtx.moveTo(x, 0);
+            gridCtx.lineTo(x, h);
+        }
+        // Dibuja las líneas horizontales, empezando desde el offset
+        for (let y = gridOffsetY; y < h; y += cellSize) {
+            gridCtx.moveTo(0, y);
+            gridCtx.lineTo(w, y);
+        }
         gridCtx.stroke();
         gridCtx.globalAlpha = 1.0;
     }
@@ -1162,6 +1355,28 @@ document.addEventListener('DOMContentLoaded', () => {
         drawWalls();
     }
 
+    function toggleAlignGridMode() {
+        isAligningGrid = !isAligningGrid;
+        alignGridModeBtn.classList.toggle('active', isAligningGrid);
+        document.body.classList.toggle('grid-align-mode', isAligningGrid); // <-- FIX IMPORTANTE
+        alignGridModeBtn.textContent = isAligningGrid ? 'Cancelar Alineación' : 'Activar Modo Alineación';
+
+        // Desactivar otros modos para evitar conflictos
+        if (isAligningGrid && isDrawingWallMode) {
+            toggleWallMode();
+        }
+    }
+
+    function resetGridOffset() {
+        if (confirm("¿Restablecer la alineación de la rejilla a la esquina superior izquierda?")) {
+            gridOffsetX = 0;
+            gridOffsetY = 0;
+            drawGrid();
+            if (isAligningGrid) { // Salir del modo si se resetea
+                toggleAlignGridMode();
+            }
+        }
+    }
     function handleWallDrawing(event) {
         const mapRect = mapContainer.getBoundingClientRect();
         const x = event.clientX - mapRect.left + mapContainer.scrollLeft;
@@ -1469,4 +1684,52 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         // ...
     }
+    const soundButtons = document.querySelectorAll('.sound-btn');
+
+    soundButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // 1. Identificamos el botón presionado y su audio correspondiente.
+            const soundId = button.dataset.soundId;
+            const audio = document.getElementById(soundId);
+
+            // Si por alguna razón el audio no existe, no hacemos nada.
+            if (!audio) return;
+
+            // 2. Comprobamos si el audio tiene el atributo 'loop'.
+            if (audio.loop) {
+                // --- LÓGICA PARA SONIDOS DE AMBIENTE (CON LOOP) ---
+
+                // Si hacemos clic en el sonido que ya está en loop...
+                if (activeLoopingSound === audio) {
+                    // ...lo detenemos.
+                    audio.pause();
+                    audio.currentTime = 0;
+                    activeLoopingSound = null; // Olvidamos que había un sonido activo.
+                    button.classList.remove('active'); // Le quitamos el estilo de "activo".
+                } else {
+                    // Si hacemos clic en un NUEVO sonido en loop...
+
+                    // a) Detenemos el que sonaba antes (si había uno).
+                    if (activeLoopingSound) {
+                        activeLoopingSound.pause();
+                        activeLoopingSound.currentTime = 0;
+                        // Buscamos el botón antiguo y le quitamos el estilo activo.
+                        document.querySelector('.sound-btn.active')?.classList.remove('active');
+                    }
+
+                    // b) Reproducimos el nuevo sonido, lo recordamos y le damos el estilo activo.
+                    audio.play();
+                    activeLoopingSound = audio;
+                    button.classList.add('active');
+                }
+            } else {
+                // --- LÓGICA PARA EFECTOS DE SONIDO (SIN LOOP) ---
+
+                // Simplemente lo reproducimos desde el principio.
+                // Esto no afecta a `activeLoopingSound`, por lo que la música de fondo sigue sonando.
+                audio.currentTime = 0;
+                audio.play();
+            }
+        });
+    });
 });

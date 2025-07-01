@@ -81,6 +81,8 @@ h4.top-margin {
   margin: 0;
   font-size: 1.1em;
   font-family: "Cinzel", serif;
+  display: flex; /* Habilitar flexbox para alinear icono y texto */
+  align-items: center; /* Centrar verticalmente icono y texto */
 }
 .collapsible-header:hover {
   background: var(--header-hover);
@@ -109,6 +111,42 @@ h4.top-margin {
 .collapsible.active .collapsible-content {
   max-height: 1900px; /* Valor alto para permitir contenido grande */
   padding: 15px;
+}
+
+/* --- NUEVO: ESTILOS PARA LOS ICONOS EN LOS HEADERS --- */
+.header-icon {
+  display: inline-block; /* Asegura que el span se comporte como un bloque en línea */
+  width: 1.3em; /* Ajusta el tamaño del icono */
+  height: 1.3em; /* Ajusta el tamaño del icono */
+  margin-right: 10px; /* Espacio entre el icono y el texto */
+  vertical-align: middle; /* Alinea el icono con el centro del texto */
+  background-size: contain; /* Ajusta la imagen para que quepa sin distorsionarse */
+  background-repeat: no-repeat; /* Evita que la imagen se repita */
+  background-position: center; /* Centra la imagen en el espacio del span */
+}
+
+/* --- NUEVO: CLASES ESPECÍFICAS PARA CADA ICONO DE HEADER --- */
+/* REEMPLAZA 'path/to/your-icon.png' CON LA RUTA REAL DE TUS ARCHIVOS */
+.icon-map {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk2807e-bf125877-efc8-4136-97d7-e6b8bd53da39.png/v1/fit/w_674,h_707/mapa_icon_by_rafaelalvarez29_dk2807e-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzA3IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI4MDdlLWJmMTI1ODc3LWVmYzgtNDEzNi05N2Q3LWU2YjhiZDUzZGEzOS5wbmciLCJ3aWR0aCI6Ijw9Njc0In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.KFdtHEY3m67t_O4ES74Pr_pH9yK6Oa3n0Yc6MJR3tAA");
+}
+.icon-tools {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27wwu-0fccb350-f3fd-4e7d-a4d4-102adad26f4e.png/v1/fill/w_902,h_859/herramientas_icon_by_rafaelalvarez29_dk27wwu-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODU5IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3d3d1LTBmY2NiMzUwLWYzZmQtNGU3ZC1hNGQ0LTEwMmFkYWQyNmY0ZS5wbmciLCJ3aWR0aCI6Ijw9OTAyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.ok1Yedsu8VvTHTDBLl9AnbutC-UIhQ2IKtd-jzarkqY");
+}
+.icon-walls {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27xrv-d8c11b91-d059-42e1-922c-39233f7d587f.png/v1/fill/w_884,h_837/muro_icon_by_rafaelalvarez29_dk27xrv-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODM3IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3eHJ2LWQ4YzExYjkxLWQwNTktNDJlMS05MjJjLTM5MjMzZjdkNTg3Zi5wbmciLCJ3aWR0aCI6Ijw9ODg0In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.Gsorh3ss3jCQIFRYym-JjKfx7KIgnU6l3DuI3KM02bw");
+}
+.icon-doors {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27xzc-36669da6-1875-409f-83e5-61a04b750924.png/v1/fit/w_602,h_848/puerta_icon_by_rafaelalvarez29_dk27xzc-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODQ4IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3eHpjLTM2NjY5ZGE2LTE4NzUtNDA5Zi04M2U1LTYxYTA0Yjc1MDkyNC5wbmciLCJ3aWR0aCI6Ijw9NjAyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.Y989bL2cMG4fX4jmwQvfM2hTQZmPqv1oTh9DEXIIp44");
+}
+.icon-add-token {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27ye7-655a6bcb-69d8-47cf-9e4f-787f7df50155.png/v1/fit/w_709,h_709/mas_icon_by_rafaelalvarez29_dk27ye7-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzA5IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3eWU3LTY1NWE2YmNiLTY5ZDgtNDdjZi05ZTRmLTc4N2Y3ZGY1MDE1NS5wbmciLCJ3aWR0aCI6Ijw9NzA5In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.zANMzZbMmR267V7d1EHx_0KrkjNwGrFw1pnf34Lk3rU");
+}
+.icon-selected-token {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27yjb-e545e4ee-c2dd-4905-b1b8-416737a0265b.png/v1/fit/w_493,h_721/seleccionado_icon_by_rafaelalvarez29_dk27yjb-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzIxIiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3eWpiLWU1NDVlNGVlLWMyZGQtNDkwNS1iMWI4LTQxNjczN2EwMjY1Yi5wbmciLCJ3aWR0aCI6Ijw9NDkzIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.AHsXpddc5nKb4Et8VyhMGhF75DnyJ8Msi_YiVa_cb8U");
+}
+.icon-tokens {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk29d0m-fbc2566a-dfea-4e3d-9b40-752f87b4cd24.png/v1/fit/w_719,h_775/fichas_icon_1_by_rafaelalvarez29_dk29d0m-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9Nzc1IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI5ZDBtLWZiYzI1NjZhLWRmZWEtNGUzZC05YjQwLTc1MmY4N2I0Y2QyNC5wbmciLCJ3aWR0aCI6Ijw9NzE5In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.H9jU7bpIClEtk0r0joZ56VmIaFeM3-H8wu69owImg-g");
 }
 
 /* --- FORMULARIOS Y BOTONES (con textarea) --- */
@@ -449,9 +487,37 @@ button.secondary:hover {
   font-weight: bold;
   color: var(--text-light);
 }
-.token-list-header span {
+/* Removimos el span del emoji aquí en el HTML, pero en JS lo manejaremos */
+/* .token-list-header span {
   margin-right: 8px;
+} */
+
+/* --- NUEVO: ESTILO PARA EL ICONO EN LA LISTA DE FICHAS --- */
+.token-list-icon {
+  display: inline-block;
+  width: 1.1em; /* Tamaño ajustado para la lista */
+  height: 1.1em; /* Tamaño ajustado para la lista */
+  margin-right: 8px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
+
+/* --- NUEVO: CLASES ESPECÍFICAS PARA LOS ICONOS DE LISTA DE FICHAS --- */
+/* REEMPLAZA LAS RUTAS */
+.icon-player-list {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk280pi-d5a22ac5-2d1e-49cf-8950-ea3da33ffb94.png/v1/fit/w_720,h_867/jugador_icon_by_rafaelalvarez29_dk280pi-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODY3IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI4MHBpLWQ1YTIyYWM1LTJkMWUtNDljZi04OTUwLWVhM2RhMzNmZmI5NC5wbmciLCJ3aWR0aCI6Ijw9NzIwIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.xFjM5mMj-NGZYvdFJzsZItT4jz5ZCERid4abqKijNNk");
+  filter: drop-shadow(0 0 5px #fffbc8)
+    /* Un resplandor exterior, rojo y más difuso */
+    drop-shadow(0 0 15px #ffd30e);
+  pointer-events: none;
+} /* Reusamos el icono de tipo jugador/enemigo */
+.icon-enemy-list {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk280si-23ebfeac-29eb-4e9a-9cf3-af3d666e6828.png/v1/fit/w_679,h_874/enemigo_icon_by_rafaelalvarez29_dk280si-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODc0IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI4MHNpLTIzZWJmZWFjLTI5ZWItNGU5YS05Y2YzLWFmM2Q2NjZlNjgyOC5wbmciLCJ3aWR0aCI6Ijw9Njc5In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.SEXeiU9RgxFAglrgdhWff-z-FCA_TyOJZ9SGd1CVsWU");
+  filter: drop-shadow(0 0 12px rgb(255, 75, 255));
+  pointer-events: none;
+}
+
 .token-list-details {
   grid-column: 2 / 3;
   font-size: 0.8em;
@@ -492,7 +558,7 @@ button.secondary:hover {
 /*#mapContainer:active {
      Opcional: Cambia el cursor para todo el contenedor mientras se hace clic */
 /* Lo manejaremos con JS para más control, pero esto es una alternativa */
-/* cursor: grabbing; 
+/* cursor: grabbing;
 }*/
 /* El nuevo wrapper que da tamaño al contenido */
 #mapContentWrapper {
@@ -688,6 +754,7 @@ button.secondary:hover {
 .checkbox-container {
   display: flex;
   align-items: center;
+  position: relative;
 }
 
 /* Ocultamos el input original */
@@ -829,6 +896,18 @@ body.wall-drawing-mode .map-area {
   box-shadow: 0 0 10px #5dc66f;
 }
 
+/* --- ESTILOS PARA EL MODO DE ALINEACIÓN DE REJILLA --- */
+#alignGridModeBtn.active {
+  background: var(--button-vision-bg);
+  border-color: #5dc66f;
+  color: #fff;
+  box-shadow: 0 0 10px #5dc66f;
+}
+
+body.grid-align-mode #mapContainer {
+  cursor: crosshair;
+}
+
 input[type="range"] {
   /* removing default appearance */
   -webkit-appearance: none;
@@ -910,13 +989,33 @@ input[type="range"]::-moz-range-thumb {
   width: 75%;
 }
 
-.loading-icon {
-  font-size: 4em;
+/* --- NUEVO: ESTILOS PARA EL ICONO GRANDE EN LOADING STATE --- */
+.loading-state .icon {
+  width: 80px; /* Tamaño del contenedor del icono */
+  height: 80px; /* Tamaño del contenedor del icono */
   margin-bottom: 16px;
-  opacity: 0.5;
-  animation: bounce 2s infinite ease-in-out;
+  opacity: 0.7; /* Ajusta opacidad si es necesario */
+  animation: bounce 2s infinite ease-in-out; /* Mantén la animación */
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
+/* --- NUEVO: CLASE ESPECÍFICA PARA EL ICONO DE LOADING STATE --- */
+/* REEMPLAZA LA RUTA */
+.icon-dice-large {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk284pr-9dfc6256-e224-42ee-8ed1-3919850a1ecd.png/v1/fill/w_894,h_894/carganoruna_icon_by_rafaelalvarez29_dk284pr-pre.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTAyNCIsInBhdGgiOiJcL2ZcLzQ2NWU0NTMyLTU0MzAtNGJlNy1iNDljLWFjZjgxMDg3ZDhiZFwvZGsyODRwci05ZGZjNjI1Ni1lMjI0LTQyZWUtOGVkMS0zOTE5ODUwYTFlY2QucG5nIiwid2lkdGgiOiI8PTEwMjQifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.uOKJoXBapkzwmJG35gjiwFkz1UgiuTiphqmSdMVOfmE");
+}
+
+.icon-brush {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk282gr-f1662dbf-3e31-4a2d-8551-27b0f154b2a2.png/v1/fit/w_655,h_856/pincel_icon_by_rafaelalvarez29_dk282gr-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODU2IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI4MmdyLWYxNjYyZGJmLTNlMzEtNGEyZC04NTUxLTI3YjBmMTU0YjJhMi5wbmciLCJ3aWR0aCI6Ijw9NjU1In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.FFnNcEtf7gnPRLYhEZpmus8jAuMT6PO-uvi-solkONc");
+}
+.icon-grid {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk2bxyl-b1b71100-45cc-4aa2-b7e2-850eae7a4108.png/v1/fit/w_546,h_586/editarrejilla_icon2__by_rafaelalvarez29_dk2bxyl-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NTg2IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazJieHlsLWIxYjcxMTAwLTQ1Y2MtNGFhMi1iN2UyLTg1MGVhZTdhNDEwOC5wbmciLCJ3aWR0aCI6Ijw9NTQ2In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.PzvDY41ptuym_x4NnxOABsIsy_TqVX4l_sD5Cp7EsyQ");
+}
+.icon-align-grid {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk2bxyl-b1b71100-45cc-4aa2-b7e2-850eae7a4108.png/v1/fit/w_546,h_586/editarrejilla_icon2__by_rafaelalvarez29_dk2bxyl-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NTg2IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazJieHlsLWIxYjcxMTAwLTQ1Y2MtNGFhMi1iN2UyLTg1MGVhZTdhNDEwOC5wbmciLCJ3aWR0aCI6Ijw9NTQ2In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.PzvDY41ptuym_x4NnxOABsIsy_TqVX4l_sD5Cp7EsyQ");
+}
 /* Una pequeña animación para el icono */
 @keyframes bounce {
   0%,
@@ -1343,13 +1442,33 @@ body.wall-drawing-mode #mapContainer {
   font-size: 0.9em;
   color: #a0a0a0;
 }
+
+/* --- NUEVO: ESTILOS PARA LOS ICONOS DE ESTADÍSTICAS DE ESCENA --- */
 .scene-card-stat-item {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 .scene-card-stat-icon {
-  font-size: 1.2em;
+  font-size: 1.2em; /* Mantenemos el tamaño del contenedor */
+  display: inline-block; /* Asegura que el span se comporte como un bloque en línea */
+  width: 1em; /* Ajusta el tamaño del icono */
+  height: 1em; /* Ajusta el tamaño del icono */
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* --- NUEVO: CLASES ESPECÍFICAS PARA LOS ICONOS DE ESTADÍSTICAS --- */
+/* REEMPLAZA LAS RUTAS */
+.icon-stat-token {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk2826w-6b17b7c5-0f58-4c59-9457-29763234d533.png/v1/fit/w_574,h_759/ficha_icon_by_rafaelalvarez29_dk2826w-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzU5IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI4MjZ3LTZiMTdiN2M1LTBmNTgtNGM1OS05NDU3LTI5NzYzMjM0ZDUzMy5wbmciLCJ3aWR0aCI6Ijw9NTc0In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.ecJ1Y7MbiTskxHcKPmmKWW4a8O6YA67wjxwMoIPZIjU");
+}
+.icon-stat-wall {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27xrv-d8c11b91-d059-42e1-922c-39233f7d587f.png/v1/fill/w_884,h_837/muro_icon_by_rafaelalvarez29_dk27xrv-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODM3IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3eHJ2LWQ4YzExYjkxLWQwNTktNDJlMS05MjJjLTM5MjMzZjdkNTg3Zi5wbmciLCJ3aWR0aCI6Ijw9ODg0In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.Gsorh3ss3jCQIFRYym-JjKfx7KIgnU6l3DuI3KM02bw");
+}
+.icon-stat-door {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27xzc-36669da6-1875-409f-83e5-61a04b750924.png/v1/fit/w_602,h_848/puerta_icon_by_rafaelalvarez29_dk27xzc-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODQ4IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3eHpjLTM2NjY5ZGE2LTE4NzUtNDA5Zi04M2U1LTYxYTA0Yjc1MDkyNC5wbmciLCJ3aWR0aCI6Ijw9NjAyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.Y989bL2cMG4fX4jmwQvfM2hTQZmPqv1oTh9DEXIIp44");
 }
 
 .delete-scene-btn {
@@ -1389,12 +1508,25 @@ body.wall-drawing-mode #mapContainer {
   padding: 60px 20px;
   color: #888;
 }
+/* .icon ya tiene estilos base, añadimos la imagen específica */
+.icon-map-large {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk2807e-bf125877-efc8-4136-97d7-e6b8bd53da39.png/v1/fit/w_674,h_707/mapa_icon_by_rafaelalvarez29_dk2807e-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzA3IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI4MDdlLWJmMTI1ODc3LWVmYzgtNDEzNi05N2Q3LWU2YjhiZDUzZGEzOS5wbmciLCJ3aWR0aCI6Ijw9Njc0In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.KFdtHEY3m67t_O4ES74Pr_pH9yK6Oa3n0Yc6MJR3tAA");
+} /* REEMPLAZA LA RUTA */
+
 #no-scenes-message .icon {
-  font-size: 4em;
-  color: #666;
+  font-size: 4em; /* Este tamaño ahora define el tamaño del contenedor del icono */
+  color: #666; /* Este color ya no afecta la imagen, puedes quitarlo si quieres */
   margin-bottom: 20px;
   opacity: 0.5;
+  /* Añadido del CSS de .loading-state .icon */
+  display: inline-block; /* Necesario para width/height */
+  width: 1em;
+  height: 1em; /* Usa font-size para definir el tamaño */
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
+
 #no-scenes-message h3 {
   font-family: "IM Fell English SC", serif;
   font-size: 1.8em;
@@ -1474,7 +1606,7 @@ body.wall-drawing-mode #mapContainer {
 }
 
 .player-token-card {
-  position: relative;
+  position: relative; /* Necesario para que la capa ::before se posicione correctamente */
   display: flex;
   align-items: center;
   padding: 12px;
@@ -1771,11 +1903,39 @@ button.small-btn {
   box-sizing: border-box;
 }
 
-/* El emoji que usamos como icono */
+/* El contenedor del icono dentro del tile (ahora será un span vacío con background-image) */
 .radio-tile-group .input-container .radio-tile-icon {
-  font-size: 2.5em;
+  font-size: 2.5em; /* Este tamaño define el tamaño del contenedor del icono */
   line-height: 1;
   margin-bottom: 8px;
+  /* NUEVO: Estilos para la imagen de fondo */
+  display: inline-block; /* Necesario para width/height */
+  width: 1em;
+  height: 1em; /* Usa font-size para definir el tamaño */
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* --- NUEVO: CLASES ESPECÍFICAS PARA LOS ICONOS DE RADIO TILES --- */
+/* REEMPLAZA LAS RUTAS */
+.icon-wall-draw {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27xrv-d8c11b91-d059-42e1-922c-39233f7d587f.png/v1/fill/w_884,h_837/muro_icon_by_rafaelalvarez29_dk27xrv-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODM3IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3eHJ2LWQ4YzExYjkxLWQwNTktNDJlMS05MjJjLTM5MjMzZjdkNTg3Zi5wbmciLCJ3aWR0aCI6Ijw9ODg0In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.Gsorh3ss3jCQIFRYym-JjKfx7KIgnU6l3DuI3KM02bw");
+}
+.icon-door-draw {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27xzc-36669da6-1875-409f-83e5-61a04b750924.png/v1/fit/w_602,h_848/puerta_icon_by_rafaelalvarez29_dk27xzc-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODQ4IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3eHpjLTM2NjY5ZGE2LTE4NzUtNDA5Zi04M2U1LTYxYTA0Yjc1MDkyNC5wbmciLCJ3aWR0aCI6Ijw9NjAyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.Y989bL2cMG4fX4jmwQvfM2hTQZmPqv1oTh9DEXIIp44");
+}
+.icon-player-type {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk280pi-d5a22ac5-2d1e-49cf-8950-ea3da33ffb94.png/v1/fit/w_720,h_867/jugador_icon_by_rafaelalvarez29_dk280pi-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODY3IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI4MHBpLWQ1YTIyYWM1LTJkMWUtNDljZi04OTUwLWVhM2RhMzNmZmI5NC5wbmciLCJ3aWR0aCI6Ijw9NzIwIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.xFjM5mMj-NGZYvdFJzsZItT4jz5ZCERid4abqKijNNk");
+  filter: drop-shadow(0 0 5px #fffbc8)
+    /* Un resplandor exterior, rojo y más difuso */
+    drop-shadow(0 0 15px #ffd30e);
+  pointer-events: none;
+}
+.icon-enemy-type {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk280si-23ebfeac-29eb-4e9a-9cf3-af3d666e6828.png/v1/fit/w_679,h_874/enemigo_icon_by_rafaelalvarez29_dk280si-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODc0IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI4MHNpLTIzZWJmZWFjLTI5ZWItNGU5YS05Y2YzLWFmM2Q2NjZlNjgyOC5wbmciLCJ3aWR0aCI6Ijw9Njc5In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.SEXeiU9RgxFAglrgdhWff-z-FCA_TyOJZ9SGd1CVsWU");
+  filter: drop-shadow(0 0 12px rgb(255, 75, 255));
+  pointer-events: none;
 }
 
 /* La etiqueta de texto dentro del tile */
@@ -1786,15 +1946,28 @@ button.small-btn {
   font-weight: 600;
   color: var(--text-light);
   letter-spacing: 1px;
+  pointer-events: none;
 }
 
 /* --- El estado cuando está SELECCIONADO --- */
 .radio-tile-group .input-container .radio-button:checked + .radio-tile {
   background-color: var(--header-hover);
   border: 2px solid var(--text-gold);
-  color: var(--text-gold);
+  color: var(--text-gold); /* Esto cambia el color del texto */
   transform: scale(1.05);
   box-shadow: 0 0 10px rgba(230, 194, 83, 0.3);
+}
+
+/* Asegura que el icono también cambie de color si la imagen es un SVG o tiene colores que se pueden cambiar */
+/* Si tus iconos son PNGs con colores fijos, esta regla podría no tener efecto visual en el icono en sí,
+   pero sí en la etiqueta de texto. */
+.radio-tile-group
+  .input-container
+  .radio-button:checked
+  + .radio-tile
+  .radio-tile-icon {
+  /* Si usas SVGs y quieres cambiar su color con CSS, podrías añadir filtros */
+  /* filter: invert(50%) sepia(200%) saturate(2000%) hue-rotate(20deg); */ /* Ejemplo de filtro */
 }
 
 .radio-tile-group
@@ -1803,4 +1976,42 @@ button.small-btn {
   + .radio-tile
   .radio-tile-label {
   color: var(--text-gold);
+}
+
+/* Icono para la nueva sección de Ambientación */
+.icon-ambiance {
+  background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk2d8n7-f3c81512-6d0b-4c8f-857e-98f18fde5d9a.png/v1/fit/w_706,h_708/ambiente_icon_by_rafaelalvarez29_dk2d8n7-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzA4IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazJkOG43LWYzYzgxNTEyLTZkMGItNGM4Zi04NTdlLTk4ZjE4ZmRlNWQ5YS5wbmciLCJ3aWR0aCI6Ijw9NzA2In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.3Hgg4rklFWP1EGV9orJeuE6bH_3hXTRASghJxBdLRFE");
+}
+
+/* Rejilla para la botonera de sonidos */
+.sound-board-grid {
+  display: grid;
+  /* Crea 4 columnas de igual tamaño que ocupan el espacio disponible */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px; /* Espacio entre los botones */
+}
+
+/* Estilo para los botones de sonido individuales */
+.sound-btn {
+  margin-top: 0; /* Anula el margen por defecto de los botones */
+  padding: 10px 5px; /* Padding más pequeño para que no sean tan altos */
+  font-size: 0.9em; /* Fuente ligeramente más pequeña */
+  background: var(--header-bg); /* Un color base más sutil */
+  border-color: var(--input-border);
+  transition: all 0.2s ease;
+}
+
+.sound-btn:hover {
+  background: var(--header-hover);
+  border-color: var(--text-gold);
+}
+
+/* Estilo para el botón que está activo (reproduciendo un loop) */
+.sound-btn.active {
+  background: var(
+    --button-vision-bg
+  ); /* Un color verde para indicar que está activo */
+  border-color: #5dc66f;
+  color: #fff;
+  box-shadow: 0 0 8px #5dc66f;
 }

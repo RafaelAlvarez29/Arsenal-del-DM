@@ -28,7 +28,8 @@
 
 
             <section class="collapsible active">
-                <h3 class="collapsible-header">🗺️ Mapa y Escena</h3>
+                <!-- CAMBIO: Añadir span para el icono -->
+                <h3 class="collapsible-header"><span class="header-icon icon-map"></span> Mapa y Escena</h3>
                 <div class="collapsible-content">
                     <!-- Input oculto para cargar mapa -->
                     <input type="file" id="mapImageInput" accept="image/*" class="hidden-file-input">
@@ -48,9 +49,10 @@
 
             <!-- El resto de las secciones del panel de control permanecen sin cambios -->
             <section class="collapsible">
-                <h3 class="collapsible-header">⚒️ Herramientas del DM</h3>
+                <!-- CAMBIO: Añadir span para el icono -->
+                <h3 class="collapsible-header"><span class="header-icon icon-tools"></span> Herramientas del DM</h3>
                 <div class="collapsible-content">
-                    <h4>▦ Rejilla</h4>
+                    <h4><span class="header-icon icon-grid"></span> Rejilla</h4>
                     <div class="checkbox-container">
                         <input type="checkbox" id="gridToggle">
                         <label for="gridToggle">Mostrar Rejilla</label>
@@ -60,28 +62,36 @@
                     <input type="range" class="range1" id="gridOpacity" min="0" max="1" step="0.1" value="0.5">
 
                     <label for="cellSize">Tamaño de Casilla (px):</label>
-                    <input type="number" id="cellSize" value="50" min="10">
-                    <input type="range" id="cellSizeSlider" min="10" max="150" value="50">
-
-
-                    <h4 class="top-margin">🖌️ Pincel de Niebla</h4>
-                    <div class="radio-group">
-                        <div> <!-- Envolvemos cada par -->
-                            <input type="radio" id="brushReveal" name="brushMode" value="reveal" checked>
-                            <label for="brushReveal">Revelar</label>
-                        </div>
-                        <div>
-                            <input type="radio" id="brushHide" name="brushMode" value="hide">
-                            <label for="brushHide">Ocultar</label>
-                        </div>
+                    <input type="number" id="cellSize" value="50" min="10" step="0.1">
+                    <input type="range" id="cellSizeSlider" min="10" max="150" value="50" step="0.1"
+                        aria-label="Ajustar tamaño de casilla">
+                    <h4 class="top-margin"><span class="header-icon icon-align-grid"></span> Alinear Rejilla</h4>
+                    <p class="help-text">Activa este modo y luego haz clic en la esquina superior izquierda de una
+                        casilla en la imagen de tu mapa para alinear la rejilla.</p>
+                    <div class="button-group">
+                        <button id="alignGridModeBtn">Activar Modo Alineación</button>
+                        <button id="resetGridOffsetBtn" class="secondary">Resetear</button>
                     </div>
-                    <label for="brushSize">Tamaño Pincel:</label>
-                    <input type="range" id="brushSize" min="10" max="300" step="5" value="50">
-                </div>
+                    <h4 class="top-margin"><span class="header-icon icon-brush"></span> Pincel de Niebla</h4>
+                    <div class="radio-group">
+                        <div class="radio-group">
+                            <div> <!-- Envolvemos cada par -->
+                                <input type="radio" id="brushReveal" name="brushMode" value="reveal" checked>
+                                <label for="brushReveal">Revelar</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="brushHide" name="brushMode" value="hide">
+                                <label for="brushHide">Ocultar</label>
+                            </div>
+                        </div>
+                        <label for="brushSize">Tamaño Pincel:</label>
+                        <input type="range" id="brushSize" min="10" max="300" step="5" value="50">
+                    </div>
             </section>
 
             <section class="collapsible">
-                <h3 class="collapsible-header">🧱 Muros y Puertas</h3>
+                <!-- CAMBIO: Añadir span para el icono -->
+                <h3 class="collapsible-header"><span class="header-icon icon-walls"></span> Muros y Puertas</h3>
                 <div class="collapsible-content">
                     <!-- NUEVOS RADIO BUTTONS PARA ELEGIR TIPO DE TRAZO -->
                     <h4>Tipo de Trazado</h4>
@@ -91,7 +101,8 @@
                             <input id="drawTypeWall" class="radio-button" type="radio" name="drawType" value="wall"
                                 checked>
                             <div class="radio-tile">
-                                <span class="radio-tile-icon">🧱</span>
+                                <!-- CAMBIO: span vacío para el icono -->
+                                <span class="radio-tile-icon icon-wall-draw"></span>
                                 <label for="drawTypeWall" class="radio-tile-label">Muro</label>
                             </div>
                         </div>
@@ -99,7 +110,8 @@
                         <div class="input-container">
                             <input id="drawTypeDoor" class="radio-button" type="radio" name="drawType" value="door">
                             <div class="radio-tile">
-                                <span class="radio-tile-icon">🚪</span>
+                                <!-- CAMBIO: span vacío para el icono -->
+                                <span class="radio-tile-icon icon-door-draw"></span>
                                 <label for="drawTypeDoor" class="radio-tile-label">Puerta</label>
                             </div>
                         </div>
@@ -116,7 +128,8 @@
             </section>
 
             <section id="doorControlsSection" class="collapsible">
-                <h3 class="collapsible-header">🚪 Control de Accesos</h3>
+                <!-- CAMBIO: Añadir span para el icono -->
+                <h3 class="collapsible-header"><span class="header-icon icon-doors"></span> Control de Accesos</h3>
                 <div class="collapsible-content">
                     <ul id="doorList">
                         <!-- La lista de puertas se generará aquí con JavaScript -->
@@ -125,9 +138,48 @@
                 </div>
             </section>
 
+            <section class="collapsible">
+                <h3 class="collapsible-header"><span class="header-icon icon-ambiance"></span> Ambientación</h3>
+                <div class="collapsible-content">
+                    <div id="soundBoardGrid" class="sound-board-grid">
+                        <!-- Fila 1: Ambientes (Loop) -->
+                        <button class="sound-btn" data-sound-id="sound-tavern">Taverna</button>
+                        <button class="sound-btn" data-sound-id="sound-forest">Bosque</button>
+                        <button class="sound-btn" data-sound-id="sound-cave">Cueva</button>
+                        <button class="sound-btn" data-sound-id="sound-rain">Lluvia</button>
+
+                        <!-- Fila 2: Música (Loop) -->
+                        <button class="sound-btn" data-sound-id="sound-combat">Combate</button>
+                        <button class="sound-btn" data-sound-id="sound-tension">Tensión</button>
+                        <button class="sound-btn" data-sound-id="sound-end-battle">Fin Batalla</button>
+                        <button class="sound-btn" data-sound-id="sound-eendigolongroar">Roar Monstruo</button>
+
+                        <!-- Fila 3: Efectos de Combate -->
+                        <button class="sound-btn" data-sound-id="sound-Sword-slash">Espadazo</button>
+                        <button class="sound-btn" data-sound-id="sound-sword-hit">Golpe Espada</button>
+                        <button class="sound-btn" data-sound-id="sound-Fireball">Bola de Fuego</button>
+                        <button class="sound-btn" data-sound-id="sound-explosion">Explosión</button>
+
+                        <!-- Fila 4: Efectos de Entorno -->
+                        <button class="sound-btn" data-sound-id="sound-magic">Hechizo</button>
+                        <button class="sound-btn" data-sound-id="sound-monster">Grito</button>
+                        <button class="sound-btn" data-sound-id="sound-coin">Moneda</button>
+                        <button class="sound-btn" data-sound-id="sound-door-1">Puerta Chirría</button>
+                        <button class="sound-btn" data-sound-id="sound-risasenlatadas">Risas enltatadas</button>
+
+
+                        <!-- Fila 5: Efectos de Puerta -->
+                        <button class="sound-btn" data-sound-id="sound-noknok">Toc-Toc</button>
+                        <button class="sound-btn" data-sound-id="sound-noknok-1">Aporrear</button>
+
+                    </div>
+                </div>
+            </section>
+
             <!-- FORMULARIO AÑADIR FICHA (con etiqueta de vida actualizada) -->
             <section class="collapsible">
-                <h3 class="collapsible-header">➕ Añadir Ficha Nueva</h3>
+                <!-- CAMBIO: Añadir span para el icono -->
+                <h3 class="collapsible-header"><span class="header-icon icon-add-token"></span> Añadir Ficha Nueva</h3>
                 <div class="collapsible-content">
                     <div class="token-editor-form"> <!-- Reutilizamos la clase para estilos consistentes -->
 
@@ -140,7 +192,8 @@
                                     <input id="typePlayer" class="radio-button" type="radio" name="tokenType"
                                         value="player" checked>
                                     <div class="radio-tile">
-                                        <span class="radio-tile-icon">🛡️</span>
+                                        <!-- CAMBIO: span vacío para el icono -->
+                                        <span class="radio-tile-icon icon-player-type"></span>
                                         <label for="typePlayer" class="radio-tile-label">Jugador</label>
                                     </div>
                                 </div>
@@ -149,7 +202,8 @@
                                     <input id="typeEnemy" class="radio-button" type="radio" name="tokenType"
                                         value="enemy">
                                     <div class="radio-tile">
-                                        <span class="radio-tile-icon">👹</span>
+                                        <!-- CAMBIO: span vacío para el icono -->
+                                        <span class="radio-tile-icon icon-enemy-type"></span>
                                         <label for="typeEnemy" class="radio-tile-label">Enemigo</label>
                                     </div>
                                 </div>
@@ -224,7 +278,9 @@
 
             <!-- FORMULARIO FICHA SELECCIONADA (Totalmente reconstruido) -->
             <section id="selectedTokenSection" class="collapsible">
-                <h3 class="collapsible-header">📍 Ficha Seleccionada</h3>
+                <!-- CAMBIO: Añadir span para el icono -->
+                <h3 class="collapsible-header"><span class="header-icon icon-selected-token"></span> Ficha Seleccionada
+                </h3>
                 <div class="collapsible-content">
                     <p id="noTokenSelected">...</p>
                     <div id="tokenEditor" class="token-editor-form">
@@ -329,7 +385,9 @@
             </section>
 
             <section class="collapsible active"> <!-- Dejamos esta abierta por defecto -->
-                <h3 class="collapsible-header">♟️ Fichas en el Tablero (Turno)</h3>
+                <!-- CAMBIO: Añadir span para el icono -->
+                <h3 class="collapsible-header"><span class="header-icon icon-tokens"></span> Fichas en el Tablero
+                    (Turno)</h3>
                 <div class="collapsible-content">
                     <ul id="tokenList"></ul>
                 </div>
@@ -347,7 +405,8 @@
         <div id="mapContainer">
             <!-- El mensaje de bienvenida sigue aquí -->
             <div class="loading-state">
-                <div class="loading-icon">🎲</div>
+                <!-- CAMBIO: Reemplazar emoji con div para icono de fondo -->
+                <div class="loading-icon icon-dice-large"></div>
                 <h1>Tu Aventura Comienza Aquí</h1>
                 <h2>¡Manos a la obra, DM!</h2>
                 <p>Carga tu mapa y prepara la escena. Tus jugadores confían en ti para crear una experiencia
@@ -407,17 +466,60 @@
             <div class="modal-content-body">
                 <div id="sceneListContainer" class="saved-scenes-grid">
                     <!-- Las tarjetas de escenas se generarán aquí con JavaScript -->
+                    <!-- CAMBIO: El mensaje de no escenas usará el div para el icono -->
+                    <div id="no-scenes-message">
+                        <div class="icon icon-map-large"></div>
+                        <h3>No hay mapas guardados</h3>
+                        <p>Aún no has guardado ninguna escena. Crea una y guárdala para poder cargarla más tarde.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
 
-    <audio id="damage-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_895037d330.mp3"
+    <audio id="damage-sound" src="https://www.myinstants.com/media/sounds/crap-dnd-song.mp3" preload="auto"></audio>
+    <audio id="heal-sound" src="https://www.myinstants.com/media/sounds/crap-dnd-song.mp3" preload="auto"></audio>
+
+
+    <!-- ======================================================= -->
+    <!-- ========== NUEVOS AUDIOS DE AMBIENTE ================== -->
+    <!-- ======================================================= -->
+    <audio id="sound-tavern" src="https://www.myinstants.com/media/sounds/crapdndsong_ICcww3d.mp3" preload="auto"
+        loop></audio>
+    <audio id="sound-forest" src="https://www.myinstants.com/media/sounds/forest-night.mp3" preload="auto" loop></audio>
+    <audio id="sound-cave" src="https://www.myinstants.com/media/sounds/cave-ambience-3.mp3" preload="auto"
+        loop></audio>
+    <audio id="sound-combat" src="https://www.myinstants.com/media/sounds/.mp3" preload="auto" loop></audio>
+    <audio id="sound-tension" src="https://www.myinstants.com/media/sounds/64-000-500-000-questions-mp3cut.mp3"
+        preload="auto" loop></audio>
+    <audio id="sound-magic" src="https://www.myinstants.com/media/sounds/magia.mp3" preload="auto"></audio>
+    <audio id="sound-monster" src="https://www.myinstants.com/media/sounds/monster-scream-aggressive.mp3"
         preload="auto"></audio>
-    <audio id="heal-sound" src="https://cdn.pixabay.com/download/audio/2022/02/07/audio_a54f1f5062.mp3"
+    <audio id="sound-eendigolongroar" src="https://www.myinstants.com/media/sounds/wendigo-long-roar.mp3" preload="auto"
+        loop></audio>
+    <audio id="sound-rain" src="https://www.myinstants.com/media/sounds/lluvia.mp3" preload="auto" loop></audio>
+    <audio id="sound-coin" src="https://www.myinstants.com/media/sounds/coin.mp3" preload="auto"></audio>
+    <audio id="sound-Sword-slash" src="https://www.myinstants.com/media/sounds/sword-slash.mp3" preload="auto"></audio>
+    <audio id="sound-sword-hit" src="https://www.myinstants.com/media/sounds/sword-swing-hit.mp3"
+        preload="auto"></audio>
+    <audio id="sound-Fireball"
+        src="https://www.myinstants.com/media/sounds/ghast-fireball-minecraft-sound-sound-effect-for-editing.mp3"
+        preload="auto"></audio>
+    <audio id="sound-noknok" src="https://www.myinstants.com/media/sounds/dnd-puerta.mp3" preload="auto"></audio>
+    <audio id="sound-noknok-1" src="https://www.myinstants.com/media/sounds/dnd-aporreando.mp3" preload="auto"></audio>
+    <audio id="sound-end-battle" src="https://www.myinstants.com/media/sounds/end-battle.mp3" preload="auto"
+        loop></audio>
+    <audio id="sound-door-1" src="https://www.myinstants.com/media/sounds/dndoor-squeak.mp3" preload="auto"></audio>
+    <audio id="sound-explosion" src="https://www.myinstants.com/media/sounds/dnd-explosion.mp3" preload="auto"></audio>
+    <audio id="sound-risasenlatadas" src="https://www.myinstants.com/media/sounds/risas-enlatadas-tv.mp3"
         preload="auto"></audio>
 
+
+
+    <!-- ======================================================= -->
+    <!-- ======================================================= -->
+    <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script> <!--usaremos bd del navegador-->
     <script src="script.js"></script>
 </body>
 
