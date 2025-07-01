@@ -28,7 +28,8 @@
 
 
             <section class="collapsible active">
-                <h3 class="collapsible-header">🗺️ Mapa y Escena</h3>
+                <!-- CAMBIO: Añadir span para el icono -->
+                <h3 class="collapsible-header"><span class="header-icon icon-map"></span> Mapa y Escena</h3>
                 <div class="collapsible-content">
                     <!-- Input oculto para cargar mapa -->
                     <input type="file" id="mapImageInput" accept="image/*" class="hidden-file-input">
@@ -48,9 +49,10 @@
 
             <!-- El resto de las secciones del panel de control permanecen sin cambios -->
             <section class="collapsible">
-                <h3 class="collapsible-header">⚒️ Herramientas del DM</h3>
+                <!-- CAMBIO: Añadir span para el icono -->
+                <h3 class="collapsible-header"><span class="header-icon icon-tools"></span> Herramientas del DM</h3>
                 <div class="collapsible-content">
-                    <h4>▦ Rejilla</h4>
+                    <h4><span class="header-icon icon-grid"></span> Rejilla</h4>
                     <div class="checkbox-container">
                         <input type="checkbox" id="gridToggle">
                         <label for="gridToggle">Mostrar Rejilla</label>
@@ -64,24 +66,26 @@
                     <input type="range" id="cellSizeSlider" min="10" max="150" value="50">
 
 
-                    <h4 class="top-margin">🖌️ Pincel de Niebla</h4>
+                    <h4 class="top-margin"><span class="header-icon icon-brush"></span> Pincel de Niebla</h4>
                     <div class="radio-group">
-                        <div> <!-- Envolvemos cada par -->
-                            <input type="radio" id="brushReveal" name="brushMode" value="reveal" checked>
-                            <label for="brushReveal">Revelar</label>
+                        <div class="radio-group">
+                            <div> <!-- Envolvemos cada par -->
+                                <input type="radio" id="brushReveal" name="brushMode" value="reveal" checked>
+                                <label for="brushReveal">Revelar</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="brushHide" name="brushMode" value="hide">
+                                <label for="brushHide">Ocultar</label>
+                            </div>
                         </div>
-                        <div>
-                            <input type="radio" id="brushHide" name="brushMode" value="hide">
-                            <label for="brushHide">Ocultar</label>
-                        </div>
+                        <label for="brushSize">Tamaño Pincel:</label>
+                        <input type="range" id="brushSize" min="10" max="300" step="5" value="50">
                     </div>
-                    <label for="brushSize">Tamaño Pincel:</label>
-                    <input type="range" id="brushSize" min="10" max="300" step="5" value="50">
-                </div>
             </section>
 
             <section class="collapsible">
-                <h3 class="collapsible-header">🧱 Muros y Puertas</h3>
+                <!-- CAMBIO: Añadir span para el icono -->
+                <h3 class="collapsible-header"><span class="header-icon icon-walls"></span> Muros y Puertas</h3>
                 <div class="collapsible-content">
                     <!-- NUEVOS RADIO BUTTONS PARA ELEGIR TIPO DE TRAZO -->
                     <h4>Tipo de Trazado</h4>
@@ -91,7 +95,8 @@
                             <input id="drawTypeWall" class="radio-button" type="radio" name="drawType" value="wall"
                                 checked>
                             <div class="radio-tile">
-                                <span class="radio-tile-icon">🧱</span>
+                                <!-- CAMBIO: span vacío para el icono -->
+                                <span class="radio-tile-icon icon-wall-draw"></span>
                                 <label for="drawTypeWall" class="radio-tile-label">Muro</label>
                             </div>
                         </div>
@@ -99,7 +104,8 @@
                         <div class="input-container">
                             <input id="drawTypeDoor" class="radio-button" type="radio" name="drawType" value="door">
                             <div class="radio-tile">
-                                <span class="radio-tile-icon">🚪</span>
+                                <!-- CAMBIO: span vacío para el icono -->
+                                <span class="radio-tile-icon icon-door-draw"></span>
                                 <label for="drawTypeDoor" class="radio-tile-label">Puerta</label>
                             </div>
                         </div>
@@ -116,7 +122,8 @@
             </section>
 
             <section id="doorControlsSection" class="collapsible">
-                <h3 class="collapsible-header">🚪 Control de Accesos</h3>
+                <!-- CAMBIO: Añadir span para el icono -->
+                <h3 class="collapsible-header"><span class="header-icon icon-doors"></span> Control de Accesos</h3>
                 <div class="collapsible-content">
                     <ul id="doorList">
                         <!-- La lista de puertas se generará aquí con JavaScript -->
@@ -127,7 +134,8 @@
 
             <!-- FORMULARIO AÑADIR FICHA (con etiqueta de vida actualizada) -->
             <section class="collapsible">
-                <h3 class="collapsible-header">➕ Añadir Ficha Nueva</h3>
+                <!-- CAMBIO: Añadir span para el icono -->
+                <h3 class="collapsible-header"><span class="header-icon icon-add-token"></span> Añadir Ficha Nueva</h3>
                 <div class="collapsible-content">
                     <div class="token-editor-form"> <!-- Reutilizamos la clase para estilos consistentes -->
 
@@ -140,7 +148,8 @@
                                     <input id="typePlayer" class="radio-button" type="radio" name="tokenType"
                                         value="player" checked>
                                     <div class="radio-tile">
-                                        <span class="radio-tile-icon">🛡️</span>
+                                        <!-- CAMBIO: span vacío para el icono -->
+                                        <span class="radio-tile-icon icon-player-type"></span>
                                         <label for="typePlayer" class="radio-tile-label">Jugador</label>
                                     </div>
                                 </div>
@@ -149,7 +158,8 @@
                                     <input id="typeEnemy" class="radio-button" type="radio" name="tokenType"
                                         value="enemy">
                                     <div class="radio-tile">
-                                        <span class="radio-tile-icon">👹</span>
+                                        <!-- CAMBIO: span vacío para el icono -->
+                                        <span class="radio-tile-icon icon-enemy-type"></span>
                                         <label for="typeEnemy" class="radio-tile-label">Enemigo</label>
                                     </div>
                                 </div>
@@ -224,7 +234,9 @@
 
             <!-- FORMULARIO FICHA SELECCIONADA (Totalmente reconstruido) -->
             <section id="selectedTokenSection" class="collapsible">
-                <h3 class="collapsible-header">📍 Ficha Seleccionada</h3>
+                <!-- CAMBIO: Añadir span para el icono -->
+                <h3 class="collapsible-header"><span class="header-icon icon-selected-token"></span> Ficha Seleccionada
+                </h3>
                 <div class="collapsible-content">
                     <p id="noTokenSelected">...</p>
                     <div id="tokenEditor" class="token-editor-form">
@@ -329,7 +341,9 @@
             </section>
 
             <section class="collapsible active"> <!-- Dejamos esta abierta por defecto -->
-                <h3 class="collapsible-header">♟️ Fichas en el Tablero (Turno)</h3>
+                <!-- CAMBIO: Añadir span para el icono -->
+                <h3 class="collapsible-header"><span class="header-icon icon-tokens"></span> Fichas en el Tablero
+                    (Turno)</h3>
                 <div class="collapsible-content">
                     <ul id="tokenList"></ul>
                 </div>
@@ -347,7 +361,8 @@
         <div id="mapContainer">
             <!-- El mensaje de bienvenida sigue aquí -->
             <div class="loading-state">
-                <div class="loading-icon">🎲</div>
+                <!-- CAMBIO: Reemplazar emoji con div para icono de fondo -->
+                <div class="loading-icon icon-dice-large"></div>
                 <h1>Tu Aventura Comienza Aquí</h1>
                 <h2>¡Manos a la obra, DM!</h2>
                 <p>Carga tu mapa y prepara la escena. Tus jugadores confían en ti para crear una experiencia
@@ -407,6 +422,12 @@
             <div class="modal-content-body">
                 <div id="sceneListContainer" class="saved-scenes-grid">
                     <!-- Las tarjetas de escenas se generarán aquí con JavaScript -->
+                    <!-- CAMBIO: El mensaje de no escenas usará el div para el icono -->
+                    <div id="no-scenes-message">
+                        <div class="icon icon-map-large"></div>
+                        <h3>No hay mapas guardados</h3>
+                        <p>Aún no has guardado ninguna escena. Crea una y guárdala para poder cargarla más tarde.</p>
+                    </div>
                 </div>
             </div>
         </div>

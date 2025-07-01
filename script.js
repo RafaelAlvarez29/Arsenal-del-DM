@@ -1,10 +1,9 @@
-// --- SCRIPT.JS - VERSIÓN CON GESTOR DE ESCENAS ---
-
 document.addEventListener('DOMContentLoaded', () => {
     // --- NUEVOS SELECTORES DE MODAL ---
     const saveStateBtn = document.getElementById('saveStateBtn');
     const loadStateBtn = document.getElementById('loadStateBtn');
-    //const showSavedScenesBtn = document.getElementById('showSavedScenesBtn');
+    //const showSavedScenesBtn = document.getElementById('showSavedScenesBtn'); // Este selector ya no se usa si loadStateBtn abre el modal
+
 
     const saveSceneModal = document.getElementById('saveSceneModal');
     const sceneNameInput = document.getElementById('sceneNameInput');
@@ -174,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mapContainer.addEventListener('click', handleLayerClick);
     healthModifierBtns.forEach(btn => btn.addEventListener('click', () => applyHealthChange(parseInt(btn.dataset.amount))));
     healthModifierInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); const amount = parseInt(healthModifierInput.value); if (!isNaN(amount)) { applyHealthChange(amount); healthModifierInput.value = ''; } } });
-    edit_tokenHealthMax.addEventListener('change', () => { if (!selectedTokenId) return; const token = tokens.find(t => t.id === selectedTokenId); if (!token) return; const newMax = parseInt(edit_tokenHealthMax.value) || 0; token.health_max = newMax; if (token.health_current > newMax) { token.health_current = newMax; healthDisplay.textContent = token.health_current; } healthDisplay.className = `health-display ${getHealthColorClass(token.health_current, token.health_max)}`; updateTokenList(); });
+    edit_tokenHealthMax.addEventListener('change', () => { if (!selectedTokenId) return; const token = tokens.find(t => t.id === selectedTokenId); if (!token) return; const newMax = parseInt(edit_tokenHealthMax.value) || 0; token.health_max = newMax; if (token.health_current > newMax) { token.health_current = newMax; healthDisplay.textContent = token.health_current; } healthDisplay.className = `health-display ${getHealthColorClass(token.health_current, token.health_max)}`; updateTokenList(); updatePlayerTurnTracker();}); // Added updatePlayerTurnTracker
     toggleWallModeBtn.addEventListener('click', toggleWallMode);
     undoWallBtn.addEventListener('click', undoLastWall);
     clearWallsBtn.addEventListener('click', clearAllWalls);
@@ -217,12 +216,12 @@ document.addEventListener('DOMContentLoaded', () => {
     confirmSaveSceneBtn.addEventListener('click', saveCurrentScene);
     closeSavedScenesBtn.addEventListener('click', () => savedScenesModal.classList.remove('open'));
 
-    showSavedScenesBtn.addEventListener('click', () => {
-        renderSavedScenesList();
-        savedScenesModal.classList.add('open');
-    });
+    // showSavedScenesBtn.addEventListener('click', () => { // Selector comentado en la parte superior
+    //     renderSavedScenesList();
+    //     savedScenesModal.classList.add('open');
+    // });
 
-    closeSavedScenesBtn.addEventListener('click', () => savedScenesModal.classList.remove('open'));
+    // closeSavedScenesBtn.addEventListener('click', () => savedScenesModal.classList.remove('open')); // Ya está definido arriba
 
     // Cierra el modal si se hace clic en el overlay
     [saveSceneModal, savedScenesModal].forEach(modal => {
@@ -280,9 +279,10 @@ document.addEventListener('DOMContentLoaded', () => {
         sceneListContainer.innerHTML = ''; // Limpiar la lista
 
         if (scenes.length === 0) {
-            sceneListContainer.innerHTML = `
+            // Si no hay escenas, insertamos el mensaje con el div de icono ya preparado
+             sceneListContainer.innerHTML = `
                 <div id="no-scenes-message">
-                    <div class="icon">🗺️</div>
+                    <div class="icon icon-map-large"></div> <!-- Usamos la clase CSS para la imagen -->
                     <h3>No hay mapas guardados</h3>
                     <p>Aún no has guardado ninguna escena. Crea una y guárdala para poder cargarla más tarde.</p>
                 </div>`;
@@ -317,15 +317,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="scene-card-body">
                     <div class="scene-card-stats">
                         <div class="scene-card-stat-item">
-                            <span class="scene-card-stat-icon">👥</span>
+                            <span class="scene-card-stat-icon icon-stat-token"></span> <!-- Usamos la clase CSS -->
                             <span>${tokenCount} Fichas</span>
                         </div>
                         <div class="scene-card-stat-item">
-                            <span class="scene-card-stat-icon">🧱</span>
+                             <span class="scene-card-stat-icon icon-stat-wall"></span> <!-- Usamos la clase CSS -->
                             <span>${wallCount} Muros</span>
                         </div>
                         <div class="scene-card-stat-item">
-                            <span class="scene-card-stat-icon">🚪</span>
+                             <span class="scene-card-stat-icon icon-stat-door"></span> <!-- Usamos la clase CSS -->
                             <span>${doorCount} Puertas</span>
                         </div>
                     </div>
@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function deleteSceneById(sceneId) {
-        if (!confirm("¿Estás seguro de que quieres eliminar esta escena? Esta acción no se puede deshacer.")) {
+        if (!confirm("¿Estás seguro de que quieres eliminar esta escena? Esta acción no se puede rehacer.")) {
             return;
         }
 
@@ -465,6 +465,9 @@ document.addEventListener('DOMContentLoaded', () => {
             clearRevealedBuffer();
             removeAllTokens();
             drawGrid();
+             walls = []; // Clear walls and doors on new map load
+             updateDoorList();
+             drawWalls();
 
             // --- ASEGURARNOS DE QUE ESTA LÍNEA TAMBIÉN ESTÉ AQUÍ ---
             const mapSection = mapImageInput.closest('.collapsible');
@@ -607,22 +610,24 @@ document.addEventListener('DOMContentLoaded', () => {
         el.style.width = `${token.size}px`; el.style.height = `${token.size}px`;
         el.style.lineHeight = `${token.size}px`;
         el.style.backgroundColor = token.color;
+        // Aseguramos que el borde se aplique solo si borderColor no es null
         el.style.border = token.borderColor ? `3px solid ${token.borderColor}` : 'none';
 
         if (token.image) {
             el.classList.add('has-image');
             el.style.backgroundImage = `url(${token.image})`;
-            el.textContent = '';
+            el.textContent = ''; // Ocultamos el texto si hay imagen
         } else {
             el.classList.remove('has-image');
             el.style.backgroundImage = 'none';
-            el.textContent = token.letter;
+            el.textContent = token.letter; // Mostramos el texto si no hay imagen
         }
 
         if (visionModeActive && token.type === 'enemy') { el.classList.toggle('hidden-enemy', !token.isDiscovered); } else { el.classList.remove('hidden-enemy'); }
     }
 
-    function removeAllTokens() { tokens = []; tokensLayer.innerHTML = ''; updateTokenList(); deselectToken(); }
+
+    function removeAllTokens() { tokens = []; tokensLayer.innerHTML = ''; updateTokenList(); deselectToken(); updatePlayerTurnTracker(); } // Added updatePlayerTurnTracker
     function deleteToken(tokenId) {
         tokens = tokens.filter(t => t.id !== tokenId);
         const el = tokensLayer.querySelector(`.token[data-id="${tokenId}"]`);
@@ -647,11 +652,16 @@ document.addEventListener('DOMContentLoaded', () => {
         sortedTokens.forEach(token => {
             const li = document.createElement('li');
             li.dataset.id = token.id;
-            const typeIcon = token.type === 'player' ? '🛡️' : '👹';
+            // CAMBIO: Usar span para el icono de tipo
+            const typeIconHTML = `<span class="token-list-icon ${token.type === 'player' ? 'icon-player-list' : 'icon-enemy-list'}"></span>`;
+
             const borderStyle = token.borderColor ? `border: 3px solid ${token.borderColor};` : 'none';
             const imageStyle = token.image ? `background-image: url(${token.image}); background-size: cover; background-position: center;` : `background-color: ${token.color};`;
+            // CAMBIO: Asegurar que la preview de la lista solo muestre la letra si no hay imagen
+            const previewContent = token.image ? '' : token.letter;
 
-            li.innerHTML = `<div class="token-list-preview" style="${imageStyle} ${borderStyle}">${token.image ? '' : token.letter}</div><div class="token-list-header"><span>${typeIcon}</span><span>${token.name}</span></div><div class="token-list-details"><span>Turno: ${token.turn}</span><span>❤️ Vida: ${token.health_current}/${token.health_max}</span><span>👁️ Vis: ${token.visionRadius}</span></div><button class="delete-token-btn" data-id="${token.id}" title="Eliminar Ficha">X</button>`;
+
+            li.innerHTML = `<div class="token-list-preview" style="${imageStyle} ${borderStyle}">${previewContent}</div><div class="token-list-header">${typeIconHTML}<span>${token.name}</span></div><div class="token-list-details"><span>Turno: ${token.turn}</span><span>❤️ Vida: ${token.health_current}/${token.health_max}</span><span>👁️ Vis: ${token.visionRadius}</span></div><button class="delete-token-btn" data-id="${token.id}" title="Eliminar Ficha">X</button>`;
             tokenListUl.appendChild(li);
         });
 
@@ -700,7 +710,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             // Si NO tiene imagen, mostrar la letra/color y ocultar la imagen
             edit_tokenImagePreview.style.display = 'none';
-            edit_tokenLetterPreview.style.display = 'flex';
+            edit_tokenLetterPreview.style.display = 'flex'; // Usar flex para centrar la letra
             removeTokenImageBtn.style.display = 'none'; // Ocultar botón de quitar
 
             // Aplicar estilos a la vista previa de la letra
@@ -715,7 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
         edit_tokenVision.value = token.visionRadius;
         edit_tokenHealthMax.value = token.health_max;
         edit_tokenColor.value = token.color;
-        edit_tokenBorderColor.value = token.borderColor || '#000000';
+        edit_tokenBorderColor.value = token.borderColor || '#000000'; // Establecer un valor por defecto si no hay borde
         edit_tokenNotes.value = token.notes;
 
         healthDisplay.textContent = token.health_current;
@@ -728,7 +738,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const oldToken = tokens.find(t => t.id === selectedTokenId);
         if (oldToken) oldToken.element.classList.remove('selected');
         selectedTokenId = null;
-        selectedTokenSection.classList.remove('has-selection');
+        selectedTokenSection.classList.remove('has-selection', 'active'); // Also remove 'active'
         tokenStatesEditor.style.display = 'none';
     }
 
@@ -768,11 +778,15 @@ document.addEventListener('DOMContentLoaded', () => {
         token.visionRadius = parseInt(edit_tokenVision.value) || 0;
         token.health_max = parseInt(edit_tokenHealthMax.value) || 0;
         token.color = edit_tokenColor.value;
-        token.borderColor = edit_tokenBorderColor.value; // Se manejará con lógica de borde
+        // Decide if border should be applied based on checkbox state (if you add one to edit section)
+        // For now, we'll just update the color if it changes.
+        token.borderColor = edit_tokenBorderColor.value;
         token.notes = edit_tokenNotes.value;
 
         if (!token.name || !token.letter) {
             alert("El nombre y la letra no pueden estar vacíos.");
+            // Potentially revert changes or prevent update
+            selectToken(selectedTokenId); // Revert form fields to current token data
             return;
         }
 
@@ -796,7 +810,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Solo actualizamos la barra de vida si cambió.
         healthDisplay.textContent = token.health_current;
         healthDisplay.className = `health-display ${getHealthColorClass(token.health_current, token.health_max)}`;
-        updatePlayerTurnTracker();
+        updatePlayerTurnTracker(); // Update tracker as initiative, name, or health max might change
     }
 
     // --- LÓGICA DE VIDA Y DAÑO ---
@@ -808,11 +822,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const typeClass = amount > 0 ? 'heal' : 'damage';
 
         // 1. Panel Float (en el editor de ficha seleccionada) - SIN CAMBIOS
-        const panelFloat = document.createElement('div');
-        panelFloat.className = `damage-float ${typeClass}`;
-        panelFloat.textContent = text;
-        healthDisplayContainer.appendChild(panelFloat);
-        setTimeout(() => panelFloat.remove(), 1000);
+        // Aseguramos que solo aparece si el panel de edición está abierto y el token está seleccionado
+         if (selectedTokenId === token.id && healthDisplayContainer) {
+            const panelFloat = document.createElement('div');
+            panelFloat.className = `damage-float ${typeClass}`;
+            panelFloat.textContent = text;
+            healthDisplayContainer.appendChild(panelFloat);
+            setTimeout(() => panelFloat.remove(), 1000);
+         }
+
 
         // 2. Map Float (sobre la ficha en el mapa) - SIN CAMBIOS
         const mapFloat = document.createElement('div');
@@ -854,9 +872,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const actualChange = newHealth - oldHealth;
         token.health_current = newHealth;
 
-        // Actualizar UI del panel de edición
-        healthDisplay.textContent = token.health_current;
-        healthDisplay.className = `health-display ${getHealthColorClass(token.health_current, token.health_max)}`;
+        // Actualizar UI del panel de edición (solo si el token está seleccionado)
+         if (selectedTokenId === token.id) {
+            healthDisplay.textContent = token.health_current;
+            healthDisplay.className = `health-display ${getHealthColorClass(token.health_current, token.health_max)}`;
+         }
+
 
         // Actualizar la lista de fichas y el tracker de turnos
         updateTokenList();
@@ -872,6 +893,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 2. Aplicar las animaciones de flash/sacudida
         const tokenElement = token.element;
+        const cardElement = trackerCard; // trackerCard ya es el elemento si se encontró
 
         if (actualChange < 0) {
             damageSound.currentTime = 0;
@@ -880,10 +902,11 @@ document.addEventListener('DOMContentLoaded', () => {
             tokenElement.classList.add('token-damaged');
             setTimeout(() => tokenElement.classList.remove('token-damaged'), 400);
 
-            if (trackerCard) {
-                trackerCard.classList.add('card-damaged');
-                setTimeout(() => trackerCard.classList.remove('card-damaged'), 400);
+            if (cardElement) { // Check if cardElement exists
+                cardElement.classList.add('card-damaged');
+                setTimeout(() => cardElement.classList.remove('card-damaged'), 400);
             }
+
 
         } else if (actualChange > 0) {
             healSound.currentTime = 0;
@@ -892,10 +915,10 @@ document.addEventListener('DOMContentLoaded', () => {
             tokenElement.classList.add('token-healed');
             setTimeout(() => tokenElement.classList.remove('token-healed'), 500);
 
-            if (trackerCard) {
-                trackerCard.classList.add('card-healed');
-                setTimeout(() => trackerCard.classList.remove('card-healed'), 500);
-            }
+             if (cardElement) { // Check if cardElement exists
+                cardElement.classList.add('card-healed');
+                setTimeout(() => cardElement.classList.remove('card-healed'), 500);
+             }
         }
     }
     // --- MANEJO DE RATÓN ---
@@ -905,13 +928,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (tokenElement) {
             const tokenId = parseInt(tokenElement.dataset.id);
             const token = tokens.find(t => t.id === tokenId);
+            // Solo arrastrar si es jugador o si el enemigo está descubierto en modo visión
             if (token && (token.type === 'player' || !visionModeActive || token.isDiscovered)) {
+                 // Deseleccionar el token si se inicia un arrastre en él
+                 if (selectedTokenId !== token.id) {
+                     selectToken(token.id);
+                 }
+
                 currentDraggedToken = token;
                 const tokenRect = token.element.getBoundingClientRect();
                 const mapRect = mapContainer.getBoundingClientRect();
                 dragOffsetX = event.clientX - tokenRect.left;
                 dragOffsetY = event.clientY - tokenRect.top;
                 currentDraggedToken.element.style.zIndex = 100;
+                 mapContainer.style.cursor = 'grabbing'; // Cursor de arrastre
+
+
             }
             return; // Termina la función aquí si estamos arrastrando una ficha
         }
@@ -923,6 +955,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Prioridad 3: Pintar niebla
+        // Solo si el botón izquierdo del ratón está presionado (buttons & type check redundancy for safety)
         if (visionModeActive && (event.buttons === 1 || event.type === 'mousedown')) {
             isPaintingFog = true;
             paintFog(event);
@@ -949,36 +982,53 @@ document.addEventListener('DOMContentLoaded', () => {
             return; // Importante: termina la función para no ejecutar otras lógicas de movimiento
         }
         if (isDrawingWallMode && wallStartPoint) {
-            drawWalls();
+            drawWalls(); // Clear canvas and redraw existing walls
             const mapRect = mapContainer.getBoundingClientRect();
+            // Get coordinates relative to the top-left of the *image* (considering scroll)
             const endX = event.clientX - mapRect.left + mapContainer.scrollLeft;
             const endY = event.clientY - mapRect.top + mapContainer.scrollTop;
+
             wallsCtx.beginPath();
             wallsCtx.moveTo(wallStartPoint.x, wallStartPoint.y);
+
             const previewDrawType = document.querySelector('input[name="drawType"]:checked').value;
             if (previewDrawType === 'door') {
                 wallsCtx.setLineDash([10, 8]);
-                wallsCtx.strokeStyle = '#87CEEB';
+                wallsCtx.strokeStyle = '#87CEEB'; // Light blue for door preview
             } else {
-                wallsCtx.setLineDash([]);
-                wallsCtx.strokeStyle = 'cyan';
+                wallsCtx.setLineDash([]); // Solid line
+                wallsCtx.strokeStyle = 'cyan'; // Cyan for wall preview
             }
+
             wallsCtx.lineWidth = 3;
             wallsCtx.lineTo(endX, endY);
             wallsCtx.stroke();
+
+            // Reset line dash for subsequent drawing
             wallsCtx.setLineDash([]);
+
         } else if (currentDraggedToken) {
             const mapRect = mapContainer.getBoundingClientRect();
             let newX = event.clientX - mapRect.left + mapContainer.scrollLeft - dragOffsetX;
             let newY = event.clientY - mapRect.top + mapContainer.scrollTop - dragOffsetY;
-            newX = Math.max(0, Math.min(newX, mapContentWrapper.offsetWidth - currentDraggedToken.size));
-            newY = Math.max(0, Math.min(newY, mapContentWrapper.offsetHeight - currentDraggedToken.size));
+
+            // Clamp token position to map boundaries
+            const mapWidth = mapImage.naturalWidth;
+            const mapHeight = mapImage.naturalHeight;
+            newX = Math.max(0, Math.min(newX, mapWidth - currentDraggedToken.size));
+            newY = Math.max(0, Math.min(newY, mapHeight - currentDraggedToken.size));
+
+
             currentDraggedToken.x = newX;
             currentDraggedToken.y = newY;
             currentDraggedToken.element.style.left = `${newX}px`;
             currentDraggedToken.element.style.top = `${newY}px`;
+
+            // Redraw vision if active, as token position affects sight
             if (visionModeActive) { drawVision(); }
+
         } else if (isPaintingFog) {
+            // Paint fog only if vision mode is active (already checked in mousedown)
             paintFog(event);
         }
     }
@@ -987,146 +1037,331 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isPanning) {
             isPanning = false;
             mapContainer.style.cursor = 'grab'; // Restaura el cursor a "mano abierta"
-        } if (currentDraggedToken) { currentDraggedToken.element.style.zIndex = ''; if (visionModeActive) drawVision(); currentDraggedToken = null; } isPaintingFog = false;
+        }
+        // Si estábamos arrastrando un token
+        if (currentDraggedToken) {
+            currentDraggedToken.element.style.zIndex = ''; // Restore z-index
+            if (visionModeActive) drawVision(); // Redraw vision after drop
+            currentDraggedToken = null;
+            mapContainer.style.cursor = 'grab'; // Restore cursor after dragging
+        }
+        // Si estábamos pintando niebla
+        isPaintingFog = false;
+
+         // Si estábamos en modo dibujo de muros y soltamos el clic sin terminar un muro, reset
+         if (isDrawingWallMode && wallStartPoint) {
+             // If mouseup happens but we are still in wall drawing mode and have a start point,
+             // it means the click was released outside the map or cancelled.
+             // The wall drawing logic in handleWallDrawing only completes on the second click.
+             // We might not need explicit handling here, as wallStartPoint will be cleared on the *next* mousedown/click.
+             // However, if we want to clear the preview line if the mouse goes up *outside* the map...
+             // For simplicity, let's keep the current wall drawing logic that relies on clicks.
+             // The preview line is redrawn/cleared by handleLayerMouseMove and handleLayerClick/handleWallDrawing.
+         }
     }
-    function handleLayerClick(event) { if (event.detail > 1) return; setTimeout(() => { if (currentDraggedToken) return; const tokenElement = event.target.closest('.token'); if (tokenElement) { selectToken(parseInt(tokenElement.dataset.id)); } else { deselectToken(); } }, 150); }
+     // Modified handleLayerClick to integrate with new drag logic and wall logic
+     function handleLayerClick(event) {
+         // Ignore if it was part of a drag (handled by mouseup) or multi-click
+         if (currentDraggedToken || event.detail > 1) {
+             // Reset wallStartPoint if a click happened but was part of a drag or double-click etc.
+             if (isDrawingWallMode) wallStartPoint = null;
+             return;
+         }
+
+         // Wall drawing mode takes precedence over token selection on click
+         if (isDrawingWallMode) {
+             // handleWallDrawing is already called on mousedown, it handles the click logic there
+             // But let's double-check if a simple click (down-up without move) should start/end walls
+             // The current design starts on mousedown and potentially ends on the *next* click (mousedown).
+             // If you want simple click-to-draw segments:
+             // The mousedown handles the first point. The *click* (which fires after mouseup) handles the second point.
+             // Let's keep the logic in handleWallDrawing for consistency with mousedown triggering the first point.
+             // If the click was not a drag, handleWallDrawing will be called on the mousedown that precedes this click.
+             // The second point is then handled by the mousedown for the next segment.
+
+             // However, if wallStartPoint is null, it means the mousedown was the first click.
+             // If wallStartPoint is not null, this click finishes the wall.
+             // Let's move the second point logic here from handleWallDrawing for clarity on 'click' behavior.
+
+             // We need to check if a point was *started* on mousedown
+             // No, the current handleWallDrawing logic is better: mousedown BEGINS a segment. The NEXT mousedown ENDS the segment and STARTS a new one.
+             // A single click (down/up) does nothing in wall mode unless you click twice in the same spot.
+             // Let's stick to the mousedown/mousedown pattern for wall drawing segments.
+
+             // The only click behaviour we need to check here is token selection IF not drawing walls.
+             // The wall logic is already handled by handleLayerMouseDown/MouseMove/MouseUp.
+             // So if not drawing walls, proceed with token selection.
+             const tokenElement = event.target.closest('.token');
+             if (tokenElement) {
+                 selectToken(parseInt(tokenElement.dataset.id));
+             } else {
+                 // Deselect token if clicking on map/canvas but not on a token
+                 deselectToken();
+             }
+
+         } else {
+             // Default behavior if not drawing walls: Select/Deselect Token
+             const tokenElement = event.target.closest('.token');
+             if (tokenElement) {
+                 selectToken(parseInt(tokenElement.dataset.id));
+             } else {
+                 // Deselect token if clicking on map/canvas but not on a token
+                 deselectToken();
+             }
+         }
+     }
+
 
     // --- VISIÓN, NIEBLA Y MUROS ---
     function toggleVisionMode() {
         visionModeActive = !visionModeActive;
         toggleVisionBtn.textContent = visionModeActive ? 'Detener Visión Dinámica' : 'Iniciar Visión Dinámica';
         if (visionModeActive) {
-            if (isDrawingWallMode) { toggleWallMode(); }
+            if (isDrawingWallMode) { toggleWallMode(); } // Auto-disable wall drawing
             toggleWallModeBtn.disabled = true; undoWallBtn.disabled = true; clearWallsBtn.disabled = true;
             wallsCanvas.style.display = 'none';
             visionCanvas.style.display = 'block';
-            updateAllTokenVisibility();
+            updateAllTokenVisibility(); // Hide enemy tokens unless discovered
             drawVision();
         } else {
             toggleWallModeBtn.disabled = false; undoWallBtn.disabled = false; clearWallsBtn.disabled = false;
-            wallsCanvas.style.display = 'block';
-            visionCanvas.style.display = 'none';
-            ctx.clearRect(0, 0, visionCanvas.width, visionCanvas.height);
-            updateAllTokenVisibility();
-            drawWalls();
+            wallsCanvas.style.display = 'block'; // Show walls layer again
+            visionCanvas.style.display = 'none'; // Hide vision layer
+            ctx.clearRect(0, 0, visionCanvas.width, visionCanvas.height); // Clear vision canvas
+            updateAllTokenVisibility(); // Show all tokens again
+            drawWalls(); // Redraw walls (they were hidden)
         }
     }
 
     function updateAllTokenVisibility() { tokens.forEach(token => updateTokenElementStyle(token)); }
-    function clearRevealedBuffer() { revealedBufferCtx.clearRect(0, 0, revealedBufferCanvas.width, revealedBufferCanvas.height); }
-    function resetFog() { if (!confirm("¿Estás seguro de que quieres reiniciar toda la niebla de guerra? Esta acción no se puede deshacer.")) return; clearRevealedBuffer(); if (visionModeActive) { tokens.forEach(t => { if (t.type === 'enemy') t.isDiscovered = false; }); drawVision(); updateAllTokenVisibility(); } }
+    function clearRevealedBuffer() { revealedBufferCtx.clearRect(0, 0, revealedBufferCanvas.width, revealedBufferCanvas.height); renderFogFromBuffer(); } // Render after clearing
+    function resetFog() { if (!confirm("¿Estás seguro de que quieres reiniciar toda la niebla de guerra? Esta acción no se puede deshacer.")) return; clearRevealedBuffer(); if (visionModeActive) { tokens.forEach(t => { if (t.type === 'enemy') t.isDiscovered = false; }); drawVision(); updateAllTokenVisibility(); updatePlayerTurnTracker(); } } // Added updatePlayerTurnTracker
+
 
     function paintFog(event) {
-        if (!visionModeActive) return;
+        if (!visionModeActive) return; // Should be redundant due to mousedown check, but safety first
+
+        // Use offset coordinates relative to mapContainer scroll
         const mapRect = mapContainer.getBoundingClientRect();
         const x = event.clientX - mapRect.left + mapContainer.scrollLeft;
         const y = event.clientY - mapRect.top + mapContainer.scrollTop;
+
+        // Clamp coordinates to canvas boundaries
+        const clampedX = Math.max(0, Math.min(x, revealedBufferCanvas.width));
+        const clampedY = Math.max(0, Math.min(y, revealedBufferCanvas.height));
+
+
         revealedBufferCtx.globalCompositeOperation = brushMode === 'reveal' ? 'source-over' : 'destination-out';
-        revealedBufferCtx.fillStyle = 'white';
+        revealedBufferCtx.fillStyle = 'white'; // Painting with white onto the buffer
         revealedBufferCtx.beginPath();
-        revealedBufferCtx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
+        // Ensure brush stays within map boundaries (optional but good practice)
+        revealedBufferCtx.arc(clampedX, clampedY, brushSize / 2, 0, Math.PI * 2);
         revealedBufferCtx.fill();
-        renderFogFromBuffer();
-        checkEnemyDiscovery();
+
+        renderFogFromBuffer(); // Render the vision canvas from the buffer
+        checkEnemyDiscovery(); // Check for newly discovered enemies
     }
 
     function renderFogFromBuffer() {
         ctx.clearRect(0, 0, visionCanvas.width, visionCanvas.height);
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.95)';
-        ctx.fillRect(0, 0, visionCanvas.width, visionCanvas.height);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.95)'; // Dark fog color
+        ctx.fillRect(0, 0, visionCanvas.width, visionCanvas.height); // Draw solid fog layer
+
+        // Use destination-out to cut out the revealed areas from the fog layer
         ctx.globalCompositeOperation = 'destination-out';
         ctx.drawImage(revealedBufferCanvas, 0, 0);
+
+        // Reset composite operation for drawing vision cones on top (if needed later) or default drawing
         ctx.globalCompositeOperation = 'source-over';
+
+        // Now draw player vision cones on top of the combined fog/revealed area
+        // This is where the main vision logic should ideally go, drawing *light* on top of the darkness
+        // Let's refactor drawVision slightly
+        drawPlayerVisionCones(ctx);
+
     }
+    // New function to draw only the dynamic vision cones
+     function drawPlayerVisionCones(targetCtx) {
+         if (!visionModeActive) return;
+
+         // Create a temporary canvas for this frame's light
+         const lightCanvas = document.createElement('canvas');
+         lightCanvas.width = targetCtx.canvas.width;
+         lightCanvas.height = targetCtx.canvas.height;
+         const lightCtx = lightCanvas.getContext('2d');
+
+         const mapBoundaries = [
+             { x1: 0, y1: 0, x2: lightCanvas.width, y2: 0 },
+             { x1: lightCanvas.width, y1: 0, x2: lightCanvas.width, y2: lightCanvas.height },
+             { x1: lightCanvas.width, y1: lightCanvas.height, x2: 0, y2: lightCanvas.height },
+             { x1: 0, y1: lightCanvas.height, x2: 0, y2: 0 }
+         ];
+         // Consider only solid walls and closed doors as vision blockers
+         const visionBlockingWalls = walls.filter(w => w.type === 'wall' || (w.type === 'door' && !w.isOpen));
+         const allObstacles = [...visionBlockingWalls, ...mapBoundaries];
+
+
+         tokens.filter(t => t.type === 'player').forEach(pToken => {
+             const centerX = pToken.x + pToken.size / 2;
+             const centerY = pToken.y + pToken.size / 2;
+             const visionRadiusPixels = pToken.visionRadius * cellSize;
+
+             // Only draw vision if radius is greater than 0
+             if (visionRadiusPixels <= 0) return;
+
+
+             // Collect all wall endpoints and sort them by angle relative to the token
+             let points = [];
+             allObstacles.forEach(wall => {
+                 points.push({ x: wall.x1, y: wall.y1 });
+                 points.push({ x: wall.x2, y: wall.y2 });
+             });
+
+             // Get unique points and sort by angle
+             let uniquePoints = Array.from(new Set(points.map(p => `${p.x},${p.y}`))).map(s => {
+                 const [x, y] = s.split(',').map(Number);
+                 return { x, y };
+             });
+
+             let angles = [];
+             uniquePoints.forEach(point => {
+                 const angle = Math.atan2(point.y - centerY, point.x - centerX);
+                 // Add small offsets to angles to shoot rays on either side of the point
+                 angles.push(angle - 0.00001);
+                 angles.push(angle);
+                 angles.push(angle + 0.00001);
+             });
+
+             // Also add rays pointing directly towards 0, 90, 180, 270 degrees to catch straight walls
+             [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2, 2 * Math.PI].forEach(baseAngle => {
+                  angles.push(baseAngle - 0.00001);
+                  angles.push(baseAngle);
+                  angles.push(baseAngle + 0.00001);
+             });
+
+
+             angles.sort((a, b) => a - b);
+
+             let intersects = [];
+             const rayLength = Math.max(lightCanvas.width, lightCanvas.height); // Ray needs to be longer than map dimensions
+
+             angles.forEach(angle => {
+                 const ray = {
+                     x1: centerX, y1: centerY,
+                     x2: centerX + Math.cos(angle) * rayLength,
+                     y2: centerY + Math.sin(angle) * rayLength
+                 };
+
+                 let closestIntersect = null;
+
+                 allObstacles.forEach(wall => {
+                     const intersect = getIntersection(ray, wall);
+                     if (intersect) {
+                         // Check if intersect is within the vision radius
+                         const distSq = (intersect.x - centerX)**2 + (intersect.y - centerY)**2;
+                         if (distSq <= visionRadiusPixels**2) {
+                             if (!closestIntersect || intersect.param < closestIntersect.param) {
+                                 closestIntersect = intersect;
+                             }
+                         }
+                     }
+                 });
+
+                 // If no wall intersection within radius, the ray goes to the radius limit
+                 if (!closestIntersect) {
+                    closestIntersect = {
+                         x: centerX + Math.cos(angle) * visionRadiusPixels,
+                         y: centerY + Math.sin(angle) * visionRadiusPixels,
+                         param: 1 // A dummy param, not used for sorting here
+                    };
+                 }
+
+                 // Ensure intersect is within map bounds (handles rays going off the map)
+                 closestIntersect.x = Math.max(0, Math.min(closestIntersect.x, lightCanvas.width));
+                 closestIntersect.y = Math.max(0, Math.min(closestIntersect.y, lightCanvas.height));
+
+
+                 closestIntersect.angle = angle; // Keep track of the original angle
+                 intersects.push(closestIntersect);
+
+             });
+
+              // Sort intersects by angle again, important after potentially adding radius limits
+             intersects.sort((a, b) => a.angle - b.angle);
+
+
+             if (intersects.length > 0) {
+                 lightCtx.fillStyle = 'white'; // Draw light areas in white
+                 lightCtx.beginPath();
+                 lightCtx.moveTo(centerX, centerY); // Start from the token center
+                 intersects.forEach(intersect => {
+                     lightCtx.lineTo(intersect.x, intersect.y);
+                 });
+                 lightCtx.closePath();
+                 lightCtx.fill();
+             }
+         });
+
+         // Add the calculated light for this frame onto the vision canvas
+         targetCtx.globalCompositeOperation = 'source-over'; // Draw on top of the fog
+         targetCtx.drawImage(lightCanvas, 0, 0); // Draw the combined light areas
+
+     }
+
 
     function drawVision() {
+        // This function now orchestrates rendering fog and player light
         if (!visionModeActive) return;
-        const visionThisFrameCanvas = document.createElement('canvas');
-        visionThisFrameCanvas.width = visionCanvas.width;
-        visionThisFrameCanvas.height = visionCanvas.height;
-        const visionThisFrameCtx = visionThisFrameCanvas.getContext('2d');
-        const mapBoundaries = [{ x1: 0, y1: 0, x2: visionCanvas.width, y2: 0 }, { x1: visionCanvas.width, y1: 0, x2: visionCanvas.width, y2: visionCanvas.height }, { x1: visionCanvas.width, y1: visionCanvas.height, x2: 0, y2: visionCanvas.height }, { x1: 0, y1: visionCanvas.height, x2: 0, y2: 0 }];
-        const activeWalls = walls.filter(w => w.type === 'wall' || (w.type === 'door' && !w.isOpen));
 
-        tokens.filter(t => t.type === 'player').forEach(pToken => {
-            const centerX = pToken.x + pToken.size / 2;
-            const centerY = pToken.y + pToken.size / 2;
-            const visionRadiusPixels = pToken.visionRadius * cellSize;
+        // 1. Render the permanent revealed fog from the buffer
+        renderFogFromBuffer(); // This draws the fog and cuts out the revealed areas
 
-            visionThisFrameCtx.save();
-            visionThisFrameCtx.beginPath();
-            visionThisFrameCtx.arc(centerX, centerY, visionRadiusPixels, 0, Math.PI * 2);
-            visionThisFrameCtx.clip();
+        // 2. The player vision cones are now drawn by renderFogFromBuffer calling drawPlayerVisionCones
+        // This avoids drawing cones *under* the fog.
+        // drawPlayerVisionCones(ctx); // This call is now inside renderFogFromBuffer
 
-            if (activeWalls.length === 0) {
-                visionThisFrameCtx.fillStyle = 'white';
-                visionThisFrameCtx.beginPath();
-                visionThisFrameCtx.arc(centerX, centerY, visionRadiusPixels, 0, Math.PI * 2);
-                visionThisFrameCtx.fill();
-            } else {
-                const allObstacles = [...activeWalls, ...mapBoundaries];
-                let points = [];
-                allObstacles.forEach(wall => { points.push({ x: wall.x1, y: wall.y1 }); points.push({ x: wall.x2, y: wall.y2 }); });
-
-                let rays = [];
-                points.forEach(point => {
-                    const angle = Math.atan2(point.y - centerY, point.x - centerX);
-                    const rayLength = visionRadiusPixels * 1.5;
-                    rays.push({ angle: angle - 0.0001, x1: centerX, y1: centerY, x2: centerX + Math.cos(angle - 0.0001) * rayLength, y2: centerY + Math.sin(angle - 0.0001) * rayLength });
-                    rays.push({ angle: angle, x1: centerX, y1: centerY, x2: centerX + Math.cos(angle) * rayLength, y2: centerY + Math.sin(angle) * rayLength });
-                    rays.push({ angle: angle + 0.0001, x1: centerX, y1: centerY, x2: centerX + Math.cos(angle + 0.0001) * rayLength, y2: centerY + Math.sin(angle + 0.0001) * rayLength });
-                });
-
-                let intersects = [];
-                rays.forEach(ray => {
-                    let closestIntersect = null;
-                    allObstacles.forEach(wall => {
-                        const intersect = getIntersection(ray, wall);
-                        if (intersect) { if (!closestIntersect || intersect.param < closestIntersect.param) { closestIntersect = intersect; } }
-                    });
-                    if (closestIntersect) { closestIntersect.angle = ray.angle; intersects.push(closestIntersect); } else { intersects.push({ angle: ray.angle, x: ray.x2, y: ray.y2 }); }
-                });
-
-                intersects.sort((a, b) => a.angle - b.angle);
-
-                if (intersects.length > 0) {
-                    visionThisFrameCtx.fillStyle = 'white';
-                    visionThisFrameCtx.beginPath();
-                    visionThisFrameCtx.moveTo(intersects[0].x, intersects[0].y);
-                    for (let i = 1; i < intersects.length; i++) {
-                        visionThisFrameCtx.lineTo(intersects[i].x, intersects[i].y);
-                    }
-                    visionThisFrameCtx.closePath();
-                    visionThisFrameCtx.fill();
-                }
-            }
-            visionThisFrameCtx.restore();
-        });
-
-        revealedBufferCtx.globalCompositeOperation = 'source-over';
-        revealedBufferCtx.drawImage(visionThisFrameCanvas, 0, 0);
-
-        renderFogFromBuffer();
+        // 3. Check discovery based on the *final* state of the visionCanvas (fog + light)
         checkEnemyDiscovery();
     }
 
+
     function checkEnemyDiscovery() {
-        let trackerNeedsUpdate = false; // <-- Usaremos una bandera para actualizar solo una vez
+        // Check discovery only if vision mode is active and there are enemy tokens
+        if (!visionModeActive || !tokens.some(t => t.type === 'enemy' && !t.isDiscovered)) {
+            return; // No enemies to discover or vision is off
+        }
+
+        let trackerNeedsUpdate = false;
 
         tokens.filter(t => t.type === 'enemy' && !t.isDiscovered).forEach(enemy => {
-            const data = revealedBufferCtx.getImageData(enemy.x + enemy.size / 2, enemy.y + enemy.size / 2, 1, 1).data;
-            if (data[3] > 0) { // El canal alfa es mayor que 0, significa que es visible
+            const enemyCenterX = enemy.x + enemy.size / 2;
+            const enemyCenterY = enemy.y + enemy.size / 2;
+
+            // Ensure coordinates are within canvas bounds before checking pixel data
+             if (enemyCenterX < 0 || enemyCenterX >= visionCanvas.width || enemyCenterY < 0 || enemyCenterY >= visionCanvas.height) {
+                return; // Skip if enemy center is outside the map boundaries
+             }
+
+            // Check the pixel color/alpha on the *final* vision canvas
+            // This canvas has the combined effect of revealed fog AND current player vision cones
+            const data = ctx.getImageData(enemyCenterX, enemyCenterY, 1, 1).data;
+
+            // Check if the pixel is NOT fully opaque black (the color of unlit/unrevealed fog)
+            // Alpha (data[3]) > 0 means it's not fully transparent
+            // Red (data[0]), Green (data[1]), Blue (data[2]) being > 0 means it's not black fog (0,0,0)
+            // We check if R, G, or B is > 0 (or alpha > say, 10 to be safe against anti-aliasing artifacts)
+            if (data[0] > 10 || data[1] > 10 || data[2] > 10 || data[3] > 10) {
                 enemy.isDiscovered = true;
                 updateTokenElementStyle(enemy);
-                trackerNeedsUpdate = true; // <-- Marcamos que el tracker necesita una actualización
+                trackerNeedsUpdate = true;
             }
         });
 
-        // Si al menos un enemigo fue descubierto en este frame, actualizamos el tracker
         if (trackerNeedsUpdate) {
-            updatePlayerTurnTracker(); // <-- ¡AQUÍ ESTÁ LA MAGIA!
+            updatePlayerTurnTracker();
         }
     }
+
 
     function updateCellSize() {
         const newSize = parseInt(cellSizeInput.value);
@@ -1134,6 +1369,8 @@ document.addEventListener('DOMContentLoaded', () => {
         cellSize = newSize;
         tokens.forEach(token => { token.size = cellSize; updateTokenElementStyle(token); });
         drawGrid();
+         // Walls and Vision depend on map size, not cell size directly, but wall drawing might be guided by cell size
+         // Re-rendering vision is needed as vision radius is calculated based on cellSize
         if (visionModeActive) drawVision();
     }
 
@@ -1155,47 +1392,60 @@ document.addEventListener('DOMContentLoaded', () => {
     function toggleWallMode() {
         if (visionModeActive) { alert("No se puede editar muros mientras la Visión Dinámica está activa. Desactívala primero."); return; }
         isDrawingWallMode = !isDrawingWallMode;
-        wallStartPoint = null;
+        wallStartPoint = null; // Ensure start point is cleared when toggling mode
         toggleWallModeBtn.classList.toggle('active', isDrawingWallMode);
-        document.body.classList.toggle('wall-drawing-mode', isDrawingWallMode);
+        document.body.classList.toggle('wall-drawing-mode', isDrawingWallMode); // Add/remove cursor class to body
         toggleWallModeBtn.textContent = isDrawingWallMode ? 'Desactivar Modo Dibujo' : 'Activar Modo Dibujo';
-        drawWalls();
+        drawWalls(); // Redraw to clear any preview line or reset wall appearance
     }
 
+    // Modified handleWallDrawing to only handle the first click (mousedown)
+    // The second click (mousedown) will end the segment and start a new one
     function handleWallDrawing(event) {
         const mapRect = mapContainer.getBoundingClientRect();
         const x = event.clientX - mapRect.left + mapContainer.scrollLeft;
         const y = event.clientY - mapRect.top + mapContainer.scrollTop;
 
+        // Clamp coordinates to map boundaries
+        const clampedX = Math.max(0, Math.min(x, mapImage.naturalWidth));
+        const clampedY = Math.max(0, Math.min(y, mapImage.naturalHeight));
+
         if (!wallStartPoint) {
-            wallStartPoint = { x, y };
+            // First click of a segment
+            wallStartPoint = { x: clampedX, y: clampedY };
         } else {
+            // Second click of a segment
             const currentDrawType = document.querySelector('input[name="drawType"]:checked').value;
 
             if (currentDrawType === 'door') {
-                // Si es una puerta, guardamos sus datos y abrimos el modal
+                // If it's a door, save data and open modal
                 pendingDoor = {
                     x1: wallStartPoint.x, y1: wallStartPoint.y,
-                    x2: x, y2: y
+                    x2: clampedX, y2: clampedY
                 };
-                doorNameInput.value = ''; // Limpiamos el input
+                doorNameInput.value = ''; // Clear input
                 doorNameModal.classList.add('open');
                 doorNameInput.focus();
 
             } else {
-                // Si es un muro, lo creamos directamente como antes
+                // If it's a wall, create it directly
                 const newWall = {
                     id: Date.now(),
                     x1: wallStartPoint.x, y1: wallStartPoint.y,
-                    x2: x, y2: y,
+                    x2: clampedX, y2: clampedY,
                     type: 'wall'
                 };
                 walls.push(newWall);
-                if (visionModeActive) drawVision();
+                // If vision is active, redrawing walls doesn't affect vision directly until drawVision is called
+                // It's usually better to redraw vision *after* confirming the wall/door state is saved
+                // if (visionModeActive) drawVision(); // Removed from here
             }
 
-            wallStartPoint = null; // Reiniciamos el punto de inicio para el siguiente trazo
-            drawWalls(); // Redibujamos para limpiar la línea de previsualización
+            wallStartPoint = { x: clampedX, y: clampedY }; // The end of this segment is the start of the next
+            drawWalls(); // Redraw walls *without* preview line (it's handled in mousemove)
+            updateDoorList(); // Update door list if a door was just added
+            if (visionModeActive) drawVision(); // Redraw vision to account for new wall/door
+
         }
     }
 
@@ -1209,56 +1459,72 @@ document.addEventListener('DOMContentLoaded', () => {
         if (pendingDoor) {
             const newDoor = {
                 id: Date.now(),
-                ...pendingDoor, // Usamos las coordenadas guardadas
+                ...pendingDoor, // Use saved coordinates
                 type: 'door',
-                isOpen: false,
+                isOpen: false, // Doors start closed
                 name: doorName
             };
             walls.push(newDoor);
 
-            // Limpieza y actualización
+            // Cleanup and update
             pendingDoor = null;
             doorNameModal.classList.remove('open');
             updateDoorList();
-            drawWalls();
-            if (visionModeActive) drawVision();
+            drawWalls(); // Redraw walls (now including the new door)
+            if (visionModeActive) drawVision(); // Redraw vision to account for the new door
         }
     }
 
     function drawWalls() {
         wallsCtx.clearRect(0, 0, wallsCanvas.width, wallsCanvas.height);
+         // Don't draw walls/doors if vision mode is active, they are handled by visionCanvas
+         if (visionModeActive) return;
+
         walls.forEach(wall => {
             wallsCtx.beginPath();
             wallsCtx.moveTo(wall.x1, wall.y1);
             wallsCtx.lineTo(wall.x2, wall.y2);
 
             if (wall.type === 'door') {
-                wallsCtx.strokeStyle = wall.isOpen ? '#5dc66f' : '#c65d5d';
-                wallsCtx.setLineDash([10, 8]);
+                wallsCtx.strokeStyle = wall.isOpen ? '#5dc66f' : '#c65d5d'; // Green if open, red if closed
+                wallsCtx.setLineDash([10, 8]); // Dashed line for doors
                 wallsCtx.lineWidth = 5;
-            } else {
-                wallsCtx.strokeStyle = '#e6c253';
-                wallsCtx.setLineDash([]);
+            } else { // type === 'wall'
+                wallsCtx.strokeStyle = '#e6c253'; // Gold for walls
+                wallsCtx.setLineDash([]); // Solid line for walls
                 wallsCtx.lineWidth = 4;
             }
             wallsCtx.stroke();
         });
+        // Reset line dash after drawing all walls
         wallsCtx.setLineDash([]);
     }
 
     function undoLastWall() {
-        walls.pop();
-        drawWalls();
-        updateDoorList();
-        if (visionModeActive) drawVision();
+        // If we're in wall drawing mode and have a start point, the "last wall"
+        // is actually the *pending* segment. Undoing should cancel that segment.
+        if (isDrawingWallMode && wallStartPoint) {
+             wallStartPoint = null; // Cancel the pending segment
+             drawWalls(); // Redraw to remove the preview line
+             return; // Stop here
+        }
+
+        // Otherwise, remove the last completed wall/door
+        if (walls.length > 0) {
+            walls.pop();
+            drawWalls();
+            updateDoorList(); // Update door list if a door was removed
+            if (visionModeActive) drawVision(); // Redraw vision if active
+        }
     }
 
     function clearAllWalls() {
-        if (confirm("¿Estás seguro de que quieres eliminar todos los muros y puertas?")) {
+        if (confirm("¿Estás seguro de que quieres eliminar todos los muros y puertas? Esta acción no se puede deshacer.")) {
             walls = [];
+            wallStartPoint = null; // Clear any pending wall segment
             drawWalls();
             updateDoorList();
-            if (visionModeActive) drawVision();
+            if (visionModeActive) drawVision(); // Redraw vision if active
         }
     }
 
@@ -1279,6 +1545,7 @@ document.addEventListener('DOMContentLoaded', () => {
             doorListUl.appendChild(li);
         });
 
+        // Attach listeners to the newly created buttons/spans
         doorListUl.querySelectorAll('.toggle-door-btn').forEach(btn => btn.addEventListener('click', toggleDoorState));
         doorListUl.querySelectorAll('.delete-door-btn').forEach(btn => btn.addEventListener('click', deleteDoor));
         doorListUl.querySelectorAll('.door-name').forEach(nameSpan => nameSpan.addEventListener('click', makeDoorNameEditable));
@@ -1301,14 +1568,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const newName = input.value.trim();
                 door.name = newName === '' ? originalName : newName;
             }
-            updateDoorList();
+            updateDoorList(); // Redraw the list to show the updated name (or original if empty)
         };
+        // Save changes when input loses focus or Enter key is pressed
         input.addEventListener('blur', saveChanges);
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                input.blur();
+                input.blur(); // Trigger blur to save
             } else if (e.key === 'Escape') {
-                updateDoorList();
+                // Revert changes and redraw list
+                updateDoorList(); // This will remove the input and redraw with original name
             }
         });
     }
@@ -1318,10 +1587,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const door = walls.find(w => w.id === doorId);
         if (door) {
             door.isOpen = !door.isOpen;
-            updateDoorList();
-            drawWalls();
+            updateDoorList(); // Update button text
+            drawWalls(); // Update wall appearance
             if (visionModeActive) {
-                drawVision();
+                drawVision(); // Update vision if active
             }
         }
     }
@@ -1329,22 +1598,38 @@ document.addEventListener('DOMContentLoaded', () => {
     function deleteDoor(event) {
         const doorId = parseInt(event.target.dataset.id);
         walls = walls.filter(w => w.id !== doorId);
-        updateDoorList();
-        drawWalls();
+        updateDoorList(); // Remove from list
+        drawWalls(); // Remove from canvas
         if (visionModeActive) {
-            drawVision();
+            drawVision(); // Update vision
         }
     }
 
+     // Corrected getIntersection function (using standard line-segment intersection)
     function getIntersection(ray, wall) {
         const r_px = ray.x1, r_py = ray.y1, r_dx = ray.x2 - r_px, r_dy = ray.y2 - r_py;
         const s_px = wall.x1, s_py = wall.y1, s_dx = wall.x2 - s_px, s_dy = wall.y2 - s_py;
-        const r_mag = Math.sqrt(r_dx * r_dx + r_dy * r_dy), s_mag = Math.sqrt(s_dx * s_dx + s_dy * s_dy);
-        if (r_dx / r_mag == s_dx / s_mag && r_dy / r_mag == s_dy / s_mag) { return null; }
-        const T2 = (r_dx * (s_py - r_py) + r_dy * (r_px - s_px)) / (s_dx * r_dy - s_dy * r_dx);
+
+        const divisor = (s_dx * r_dy - s_dy * r_dx);
+
+        // Check if lines are parallel
+        if (divisor === 0) {
+            return null; // Parallel lines do not intersect (or are collinear, which we ignore here)
+        }
+
+        const T2 = (r_dx * (s_py - r_py) + r_dy * (r_px - s_px)) / divisor;
         const T1 = (s_px + s_dx * T2 - r_px) / r_dx;
-        if (T1 < 0 || T2 < 0 || T2 > 1) return null;
-        return { x: r_px + r_dx * T1, y: r_py + r_dy * T1, param: T1 };
+
+        // Check if the intersection point lies within both the ray segment (T1 >= 0)
+        // and the wall segment (T2 >= 0 and T2 <= 1)
+        if (T1 >= 0 && T2 >= 0 && T2 <= 1) {
+             // Calculate intersection coordinates
+             const intersectX = r_px + r_dx * T1;
+             const intersectY = r_py + r_dy * T1;
+             return { x: intersectX, y: intersectY, param: T1 }; // param is distance along the ray (normalized)
+        }
+
+        return null; // No intersection within the segments
     }
 
     // --- FUNCIÓN CENTRAL PARA EL TRACKER DE JUGADORES (NUEVA) ---
@@ -1366,14 +1651,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? `background-image: url(${token.image});`
                 : `background-color: ${token.color};`;
 
+            // States are still emojis, so no change here
             const statesHTML = token.states.map(state =>
                 `<span title="${state.description}">${state.emoji}</span>`
             ).join('');
 
-            // 3. Generamos el HTML de la barra de vida de forma condicional
+            // 3. Generamos el HTML de la barra de vida de forma condicional (Solo para jugadores)
             let healthBarHTML = '';
-            if (token.type === 'player') {
-                const healthPercentage = token.health_max > 0 ? (token.health_current / token.health_max) * 100 : 0;
+            if (token.type === 'player' && token.health_max > 0) { // Only show health bar if it's a player and has max health > 0
+                const healthPercentage = (token.health_current / token.health_max) * 100;
                 const healthColorClass = getHealthColorClass(token.health_current, token.health_max);
                 healthBarHTML = `
                     <div class="health-bar-container">
@@ -1381,6 +1667,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
             }
+
 
             // 4. Construimos la tarjeta final
             card.innerHTML = `
@@ -1390,7 +1677,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="player-token-info">
                     <div class="player-token-name">${token.name}</div>
                     <div class="player-token-initiative">Ini 🎲: ${token.turn}</div>
-                    ${healthBarHTML} 
+                    ${healthBarHTML}
                     <div class="player-token-states">
                         ${statesHTML}
                     </div>
@@ -1404,7 +1691,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- GESTIÓN DE ESTADOS (NUEVAS FUNCIONES) ---
     function renderTokenStatesEditor(token) {
         editTokenStatesList.innerHTML = '';
-        if (!token || !token.states) return;
+        if (!token || !token.states) return; // Ensure token and states exist
 
         token.states.forEach((state, index) => {
             const li = document.createElement('li');
@@ -1424,9 +1711,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     function addStateToSelectedToken() {
-        if (!selectedTokenId) return;
+        if (!selectedTokenId) return; // No token selected
         const token = tokens.find(t => t.id === selectedTokenId);
-        if (!token) return;
+        if (!token) return; // Token not found (shouldn't happen if selectedTokenId is valid)
 
         const emoji = newStateEmoji.value.trim();
         const desc = newStateDesc.value.trim();
@@ -1436,37 +1723,44 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Ensure states array exists (should already be handled by recreateToken and load)
+        token.states = token.states || [];
         token.states.push({ emoji, description: desc });
 
         // Limpiar inputs y actualizar UI
         newStateEmoji.value = '';
         newStateDesc.value = '';
-        renderTokenStatesEditor(token);
-        updatePlayerTurnTracker();
+        renderTokenStatesEditor(token); // Update the editor list
+        updatePlayerTurnTracker(); // Update the tracker cards to show the new state
     }
 
     function removeStateFromSelectedToken(index) {
-        if (!selectedTokenId) return;
+        if (!selectedTokenId) return; // No token selected
         const token = tokens.find(t => t.id === selectedTokenId);
-        if (!token || !token.states[index]) return;
+        // Ensure token exists and the index is valid
+        if (!token || !token.states || index < 0 || index >= token.states.length) return;
+
 
         token.states.splice(index, 1);
 
         // Actualizar UI
-        renderTokenStatesEditor(token);
-        updatePlayerTurnTracker();
+        renderTokenStatesEditor(token); // Update the editor list
+        updatePlayerTurnTracker(); // Update the tracker cards to remove the state
     }
-    // Guardar y cargar estados
+    // Guardar y cargar estados - This part of the saveState function is fine,
+    // it correctly includes the 'states' property in the token data.
+    /*
     function saveState() {
         // ... (lógica existente)
         const state = {
             // ... (propiedades existentes)
             tokens: tokens.map(t => ({
                 // ... (propiedades de token existentes)
-                states: t.states // <-- AÑADIR ESTA LÍNEA
+                states: t.states // <-- AÑADIR ESTA LÍNEA (Already added)
             }))
             // ... (resto del objeto state)
         };
         // ...
     }
+    */
 });
