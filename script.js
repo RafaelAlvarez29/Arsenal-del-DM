@@ -1,9 +1,36 @@
+// --- SCRIPT.JS - VERSIÓN CON GESTOR DE ESCENAS ---
+
 document.addEventListener('DOMContentLoaded', () => {
+
+    // --- CONFIGURACIÓN DE INDEXEDDB ---
+    const DB_NAME = 'DMArsenalDB';
+    const DB_VERSION = 1;
+    const SCENES_STORE = 'scenes';
+    const ASSETS_STORE = 'assets';
+
+    let db; // Variable para mantener la conexión a la base de datos
+
+    async function initDB() {
+        db = await idb.openDB(DB_NAME, DB_VERSION, {
+            upgrade(db) {
+                if (!db.objectStoreNames.contains(SCENES_STORE)) {
+                    db.createObjectStore(SCENES_STORE, { keyPath: 'id' });
+                }
+                if (!db.objectStoreNames.contains(ASSETS_STORE)) {
+                    db.createObjectStore(ASSETS_STORE, { keyPath: 'id' });
+                }
+            },
+        });
+    }
+
+    // Llamamos a la inicialización de la DB al cargar la página
+    initDB();
+
+
     // --- NUEVOS SELECTORES DE MODAL ---
     const saveStateBtn = document.getElementById('saveStateBtn');
     const loadStateBtn = document.getElementById('loadStateBtn');
-    //const showSavedScenesBtn = document.getElementById('showSavedScenesBtn'); // Este selector ya no se usa si loadStateBtn abre el modal
-
+    //const showSavedScenesBtn = document.getElementById('showSavedScenesBtn');
 
     const saveSceneModal = document.getElementById('saveSceneModal');
     const sceneNameInput = document.getElementById('sceneNameInput');
@@ -36,6 +63,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const SCENES_STORAGE_KEY = 'dndArsenalSavedScenes';
 
     // --- SELECTORES DEL DOM (Existentes) ---
+    const aoeCanvas = document.getElementById('aoeCanvas'),
+        aoeCtx = aoeCanvas.getContext('2d'),
+        aoeHeader = document.getElementById('aoeHeader'),
+        aoeControlsContainer = document.getElementById('aoeControlsContainer'),
+        aoeShapeButtons = document.querySelectorAll('#aoeShapeSelector button'),
+        aoeParamsContainer = document.getElementById('aoeParamsContainer'),
+        aoeColorInput = document.getElementById('aoeColor');
     const mapImageInput = document.getElementById('mapImageInput');
     // ... (el resto de selectores existentes van aquí, sin cambios)
     const mapContainer = document.getElementById('mapContainer'),
@@ -58,6 +92,12 @@ document.addEventListener('DOMContentLoaded', () => {
         cellSizeInput = document.getElementById('cellSize'),
         cellSizeSlider = document.getElementById('cellSizeSlider');
 
+    // (junto con los otros selectores 'add_')
+    const add_tokenSizeMultiplier = document.getElementById('tokenSizeMultiplier');
+
+    // (junto con los otros selectores 'edit_')
+    const edit_tokenSizeMultiplier = document.getElementById('editTokenSizeMultiplier');
+
     const addTokenBtn = document.getElementById('addTokenBtn'),
         tokenListUl = document.getElementById('tokenList');
 
@@ -70,6 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
         clearWallsBtn = document.getElementById('clearWallsBtn');
     const doorListUl = document.getElementById('doorList'),
         noDoorsMessage = document.getElementById('noDoorsMessage');
+    const alignGridModeBtn = document.getElementById('alignGridModeBtn');
+    const resetGridOffsetBtn = document.getElementById('resetGridOffsetBtn');
+
 
     const fileNameDisplay = document.getElementById('fileNameDisplay');
 
@@ -113,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         healSound = document.getElementById('heal-sound');
 
     // --- VARIABLES DE ESTADO ---
-    // ... (el resto de variables de estado van aquí, sin cambios)
+
     let tokens = [],
         walls = [],
         selectedTokenId = null,
@@ -124,7 +167,12 @@ document.addEventListener('DOMContentLoaded', () => {
         wallStartPoint = null;
 
     let pendingDoor = null;
+    let activeLoopingSound = null;
+    let activeAoeType = null; // Almacenará 'line', 'cone', etc. o null si no hay ninguno activo.
 
+    let isAligningGrid = false;
+    let gridOffsetX = 0;
+    let gridOffsetY = 0;
 
     // --- NUEVAS VARIABLES DE ESTADO PARA EL PANEO ---
     let isPanning = false;
@@ -133,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     let dragOffsetX, dragOffsetY;
-    let cellSize = parseInt(cellSizeInput.value),
+    let cellSize = parseFloat(cellSizeInput.value),
         gridVisible = gridToggle.checked,
         gridColor = gridColorInput.value,
         gridOpacity = parseFloat(gridOpacityInput.value);
@@ -148,18 +196,41 @@ document.addEventListener('DOMContentLoaded', () => {
     updateDoorList();
 
     // --- EVENT LISTENERS ---
-    // ... (todos los listeners existentes van aquí)
+    aoeShapeButtons.forEach(button => {
+        button.addEventListener('click', () => toggleAoe(button.dataset.shape));
+    });
+    // Redibujar si cambian los parámetros
+    aoeParamsContainer.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', () => {
+            if (activeAoeType) {
+                // Forzamos un redibujo simulando un movimiento del ratón
+                // Esto es una forma sencilla de actualizar la vista previa en vivo
+                const fakeEvent = new MouseEvent('mousemove', { clientX: lastMouseX, clientY: lastMouseY });
+                handleLayerMouseMove(fakeEvent);
+            }
+        });
+    });
+    // Necesitamos una variable para recordar la última posición del ratón
+    let lastMouseX = 0, lastMouseY = 0;
     document.querySelectorAll('.collapsible-header').forEach(header => header.addEventListener('click', () => header.parentElement.classList.toggle('active')));
     mapImageInput.addEventListener('change', handleImageUpload);
     gridToggle.addEventListener('change', e => { gridVisible = e.target.checked; drawGrid(); });
+
+    alignGridModeBtn.addEventListener('click', toggleAlignGridMode);
+    resetGridOffsetBtn.addEventListener('click', resetGridOffset);
     gridColorInput.addEventListener('input', e => { gridColor = e.target.value; drawGrid(); });
     gridOpacityInput.addEventListener('input', e => { gridOpacity = parseFloat(e.target.value); drawGrid(); });
     brushModeInputs.forEach(input => input.addEventListener('change', e => brushMode = e.target.value));
     brushSizeInput.addEventListener('input', e => brushSize = parseInt(e.target.value));
     drawTypeInputs.forEach(input => input.addEventListener('change', e => drawType = e.target.value));
     cellSizeSlider.addEventListener('input', () => { cellSizeInput.value = cellSizeSlider.value; updateCellSize(); });
-    cellSizeInput.addEventListener('input', () => { const val = Math.min(parseInt(cellSizeInput.value) || 10, 150); cellSizeSlider.value = val; updateCellSize(); });
-    addTokenBtn.addEventListener('click', addToken);
+    cellSizeInput.addEventListener('input', () => {
+        // Usamos parseFloat para permitir decimales
+        const val = parseFloat(cellSizeInput.value) || 10;
+        // No necesitamos Math.min aquí porque el input type="number" ya respeta el max="150"
+        cellSizeSlider.value = val;
+        updateCellSize();
+    }); addTokenBtn.addEventListener('click', addToken);
     add_tokenImageInput.addEventListener('change', e => { add_tokenImageName.textContent = e.target.files[0] ? e.target.files[0].name : 'Ningún archivo...'; });
     edit_tokenImageInput.addEventListener('change', handleEditTokenImageChange);
     removeTokenImageBtn.addEventListener('click', removeEditTokenImage);
@@ -173,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mapContainer.addEventListener('click', handleLayerClick);
     healthModifierBtns.forEach(btn => btn.addEventListener('click', () => applyHealthChange(parseInt(btn.dataset.amount))));
     healthModifierInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); const amount = parseInt(healthModifierInput.value); if (!isNaN(amount)) { applyHealthChange(amount); healthModifierInput.value = ''; } } });
-    edit_tokenHealthMax.addEventListener('change', () => { if (!selectedTokenId) return; const token = tokens.find(t => t.id === selectedTokenId); if (!token) return; const newMax = parseInt(edit_tokenHealthMax.value) || 0; token.health_max = newMax; if (token.health_current > newMax) { token.health_current = newMax; healthDisplay.textContent = token.health_current; } healthDisplay.className = `health-display ${getHealthColorClass(token.health_current, token.health_max)}`; updateTokenList(); updatePlayerTurnTracker();}); // Added updatePlayerTurnTracker
+    edit_tokenHealthMax.addEventListener('change', () => { if (!selectedTokenId) return; const token = tokens.find(t => t.id === selectedTokenId); if (!token) return; const newMax = parseInt(edit_tokenHealthMax.value) || 0; token.health_max = newMax; if (token.health_current > newMax) { token.health_current = newMax; healthDisplay.textContent = token.health_current; } healthDisplay.className = `health-display ${getHealthColorClass(token.health_current, token.health_max)}`; updateTokenList(); });
     toggleWallModeBtn.addEventListener('click', toggleWallMode);
     undoWallBtn.addEventListener('click', undoLastWall);
     clearWallsBtn.addEventListener('click', clearAllWalls);
@@ -216,12 +287,9 @@ document.addEventListener('DOMContentLoaded', () => {
     confirmSaveSceneBtn.addEventListener('click', saveCurrentScene);
     closeSavedScenesBtn.addEventListener('click', () => savedScenesModal.classList.remove('open'));
 
-    // showSavedScenesBtn.addEventListener('click', () => { // Selector comentado en la parte superior
-    //     renderSavedScenesList();
-    //     savedScenesModal.classList.add('open');
-    // });
 
-    // closeSavedScenesBtn.addEventListener('click', () => savedScenesModal.classList.remove('open')); // Ya está definido arriba
+
+    closeSavedScenesBtn.addEventListener('click', () => savedScenesModal.classList.remove('open'));
 
     // Cierra el modal si se hace clic en el overlay
     [saveSceneModal, savedScenesModal].forEach(modal => {
@@ -238,166 +306,293 @@ document.addEventListener('DOMContentLoaded', () => {
         return JSON.parse(localStorage.getItem(SCENES_STORAGE_KEY)) || [];
     }
 
-    function saveCurrentScene() {
+    async function saveCurrentScene() {
         const sceneName = sceneNameInput.value.trim();
         if (!sceneName) {
             alert("Por favor, introduce un nombre para la escena.");
             return;
         }
 
-        const state = {
-            id: Date.now(),
-            name: sceneName,
-            date: new Date().toISOString(),
-            mapSrc: mapImage.src,
-            cellSize: cellSize,
-            // CORRECCIÓN CRÍTICA: Añadida la propiedad 'states' al guardado
-            tokens: tokens.map(t => ({
-                id: t.id, type: t.type, name: t.name, letter: t.letter,
-                image: t.image, turn: t.turn, health_max: t.health_max,
-                health_current: t.health_current, notes: t.notes,
-                color: t.color, borderColor: t.borderColor,
-                visionRadius: t.visionRadius, x: t.x, y: t.y, size: t.size,
-                isDiscovered: t.isDiscovered,
-                states: t.states || [] // Guardar estados (con fallback por si acaso)
-            })),
-            walls: walls,
-            revealedFogData: revealedBufferCanvas.toDataURL(),
-            gridSettings: { visible: gridVisible, color: gridColor, opacity: gridOpacity }
-        };
+        const sceneId = Date.now();
+        const tx = db.transaction([ASSETS_STORE], 'readwrite');
+        const assetStore = tx.objectStore(ASSETS_STORE);
 
-        const scenes = getSavedScenes();
-        scenes.push(state);
-        localStorage.setItem(SCENES_STORAGE_KEY, JSON.stringify(scenes));
+        try {
+            // Guardar imagen del mapa
+            const mapAssetId = `map_${sceneId}`;
+            await assetStore.put({ id: mapAssetId, data: mapImage.src });
 
-        saveSceneModal.classList.remove('open');
-        alert(`¡Escena "${sceneName}" guardada!`);
+            // Guardar niebla
+            const fogAssetId = `fog_${sceneId}`;
+            await assetStore.put({ id: fogAssetId, data: revealedBufferCanvas.toDataURL() });
+
+            // Guardar imágenes de las fichas y preparar metadatos de fichas
+            const tokenPromises = tokens.map(async (t, index) => {
+                let imageAssetId = null;
+                if (t.image) {
+                    imageAssetId = `token_${sceneId}_${index}`;
+                    await assetStore.put({ id: imageAssetId, data: t.image });
+                }
+                // Devolvemos el objeto token SIN la data de la imagen, solo con su ID de asset
+                return {
+                    id: t.id, type: t.type, name: t.name, letter: t.letter,
+                    imageAssetId: imageAssetId, // Guardamos la referencia, no la data
+                    turn: t.turn, health_max: t.health_max,
+                    health_current: t.health_current, notes: t.notes,
+                    color: t.color, borderColor: t.borderColor,
+                    visionRadius: t.visionRadius, x: t.x, y: t.y, size: t.size,
+                    sizeMultiplier: t.sizeMultiplier || 1,
+                    isDiscovered: t.isDiscovered,
+                    states: t.states || []
+                };
+            });
+
+            const tokenMetadata = await Promise.all(tokenPromises);
+            await tx.done; // Finalizar la transacción de assets
+
+            // Ahora, preparamos el objeto de metadatos para localStorage
+            const sceneMetadata = {
+                id: sceneId,
+                name: sceneName,
+                date: new Date().toISOString(),
+                mapAssetId: mapAssetId, // Referencia a la imagen del mapa
+                fogAssetId: fogAssetId, // Referencia a la niebla
+                cellSize: cellSize,
+                tokens: tokenMetadata, // Los metadatos de las fichas
+                walls: walls,
+                gridSettings: {
+                    visible: gridVisible, color: gridColor, opacity: gridOpacity, offsetX: gridOffsetX, offsetY: gridOffsetY
+                }
+            };
+
+            // Guardamos los metadatos en localStorage
+            const scenes = getSavedScenes();
+            scenes.push(sceneMetadata);
+            localStorage.setItem(SCENES_STORAGE_KEY, JSON.stringify(scenes));
+
+            saveSceneModal.classList.remove('open');
+            alert(`¡Escena "${sceneName}" guardada!`);
+
+        } catch (error) {
+            console.error('Error al guardar la escena:', error);
+            tx.abort(); // Abortar transacción si algo falla
+            alert('Hubo un error al guardar la escena. Revisa la consola para más detalles.');
+        }
     }
-
-    function renderSavedScenesList() {
+    async function renderSavedScenesList() {
         const scenes = getSavedScenes();
-        sceneListContainer.innerHTML = ''; // Limpiar la lista
+        sceneListContainer.innerHTML = '';
 
         if (scenes.length === 0) {
-            // Si no hay escenas, insertamos el mensaje con el div de icono ya preparado
-             sceneListContainer.innerHTML = `
-                <div id="no-scenes-message">
-                    <div class="icon icon-map-large"></div> <!-- Usamos la clase CSS para la imagen -->
-                    <h3>No hay mapas guardados</h3>
-                    <p>Aún no has guardado ninguna escena. Crea una y guárdala para poder cargarla más tarde.</p>
-                </div>`;
+            sceneListContainer.innerHTML = `
+            <div id="no-scenes-message">
+                <div class="icon icon-map-large"></div>
+                <h3>No hay mapas guardados</h3>
+                <p>Aún no has guardado ninguna escena. Crea una y guárdala para poder cargarla más tarde.</p>
+            </div>`;
             return;
         }
 
-        scenes.sort((a, b) => b.date.localeCompare(a.date)); // Mostrar las más nuevas primero
+        scenes.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        scenes.forEach(scene => {
+        // --- CORRECCIÓN AQUÍ ---
+        // 1. Filtramos para obtener solo las llaves (keys) que realmente existen.
+        const validMapKeys = scenes.map(scene => scene.mapAssetId).filter(key => key);
+
+        // 2. Creamos un mapa (diccionario) para acceder fácilmente a los assets por su ID.
+        const mapAssets = new Map();
+        if (validMapKeys.length > 0) {
+            // Usamos una transacción para obtener todos los assets válidos de una vez.
+            const tx = db.transaction(ASSETS_STORE, 'readonly');
+            const store = tx.objectStore(ASSETS_STORE);
+            const assets = await Promise.all(validMapKeys.map(key => store.get(key)));
+
+            // Llenamos nuestro mapa.
+            assets.forEach(asset => {
+                if (asset) {
+                    mapAssets.set(asset.id, asset.data);
+                }
+            });
+        }
+        // --- FIN DE LA CORRECCIÓN ---
+
+
+        scenes.forEach((scene) => {
+            // Obtenemos la imagen desde nuestro mapa, con un fallback seguro.
+            const mapSrc = mapAssets.get(scene.mapAssetId) || '';
             const formattedDate = new Date(scene.date).toLocaleString('es-ES', {
                 day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
             });
-
-            // Calcular estadísticas
             const tokenCount = scene.tokens.length;
             const wallCount = scene.walls.filter(w => w.type === 'wall').length;
             const doorCount = scene.walls.filter(w => w.type === 'door').length;
-
             const card = document.createElement('div');
             card.className = 'scene-card';
-            card.dataset.sceneId = scene.id; // Asignar ID a la tarjeta para el evento de carga
+            card.dataset.sceneId = scene.id;
 
             card.innerHTML = `
-                <div class="scene-card-image-container">
-                    <img src="${scene.mapSrc}" alt="Vista previa de ${scene.name}" class="scene-card-image">
-                    <div class="scene-card-info-overlay">
-                        <h3 class="scene-card-name">${scene.name}</h3>
-                        <p class="scene-card-date">Guardado: ${formattedDate}</p>
-                    </div>
-                    <button class="delete-scene-btn" data-scene-id="${scene.id}" title="Eliminar Escena">×</button>
+            <div class="scene-card-image-container">
+                <img src="${mapSrc}" alt="Vista previa de ${scene.name}" class="scene-card-image">
+                <div class="scene-card-info-overlay">
+                    <h3 class="scene-card-name">${scene.name}</h3>
+                    <p class="scene-card-date">Guardado: ${formattedDate}</p>
                 </div>
-                <div class="scene-card-body">
-                    <div class="scene-card-stats">
-                        <div class="scene-card-stat-item">
-                            <span class="scene-card-stat-icon icon-stat-token"></span> <!-- Usamos la clase CSS -->
-                            <span>${tokenCount} Fichas</span>
-                        </div>
-                        <div class="scene-card-stat-item">
-                             <span class="scene-card-stat-icon icon-stat-wall"></span> <!-- Usamos la clase CSS -->
-                            <span>${wallCount} Muros</span>
-                        </div>
-                        <div class="scene-card-stat-item">
-                             <span class="scene-card-stat-icon icon-stat-door"></span> <!-- Usamos la clase CSS -->
-                            <span>${doorCount} Puertas</span>
-                        </div>
+                <button class="delete-scene-btn" data-scene-id="${scene.id}" title="Eliminar Escena">×</button>
+            </div>
+            <div class="scene-card-body">
+                <div class="scene-card-stats">
+                    <div class="scene-card-stat-item">
+                        <span class="scene-card-stat-icon icon-stat-token"></span>
+                        <span>${tokenCount} Fichas</span>
+                    </div>
+                    <div class="scene-card-stat-item">
+                        <span class="scene-card-stat-icon icon-stat-wall"></span>
+                        <span>${wallCount} Muros</span>
+                    </div>
+                    <div class="scene-card-stat-item">
+                        <span class="scene-card-stat-icon icon-stat-door"></span>
+                        <span>${doorCount} Puertas</span>
                     </div>
                 </div>
-            `;
+            </div>
+        `;
             sceneListContainer.appendChild(card);
         });
 
-        // --- LÓGICA DE EVENTOS REDISEÑADA ---
-
-        // 1. Cargar escena al hacer clic en la tarjeta
+        // Listeners (no cambian)
         sceneListContainer.querySelectorAll('.scene-card').forEach(card => {
             card.addEventListener('click', (e) => {
-                // Solo cargar si no se hizo clic en el botón de eliminar
                 if (!e.target.classList.contains('delete-scene-btn')) {
                     loadSceneById(card.dataset.sceneId);
                 }
             });
         });
-
-        // 2. Eliminar escena al hacer clic en el botón 'X'
         sceneListContainer.querySelectorAll('.delete-scene-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Evita que el clic se propague a la tarjeta (y la cargue)
+                e.stopPropagation();
                 deleteSceneById(btn.dataset.sceneId);
             });
         });
     }
-
-    function loadSceneById(sceneId) {
+    async function loadSceneById(sceneId) {
         const scenes = getSavedScenes();
-        const sceneToLoad = scenes.find(s => s.id == sceneId); // Usar == por si el ID es string
+        const sceneMetadata = scenes.find(s => s.id == sceneId);
 
-        if (!sceneToLoad) {
+        if (!sceneMetadata) {
             alert("Error: No se encontró la escena seleccionada.");
             return;
         }
 
-        // Usar un callback para asegurarse de que la imagen del mapa se carga ANTES de restaurar todo lo demás
-        let hasRestored = false;
-        const restore = () => {
-            if (hasRestored) return;
-            hasRestored = true;
-            restoreSceneFromState(sceneToLoad);
-        };
-        mapImage.onload = restore;
-        mapImage.src = sceneToLoad.mapSrc;
-        // Si la imagen ya está en caché, `onload` podría no dispararse
-        if (mapImage.complete) {
-            restore();
+        try {
+            // Recuperar todos los assets de IndexedDB
+            const tx = db.transaction([ASSETS_STORE], 'readonly');
+            const assetStore = tx.objectStore(ASSETS_STORE);
+
+            const mapAsset = await assetStore.get(sceneMetadata.mapAssetId);
+            const fogAsset = await assetStore.get(sceneMetadata.fogAssetId);
+
+            // Cargar la imagen del mapa y esperar a que esté lista
+            const mapLoadedPromise = new Promise((resolve) => {
+                mapImage.onload = resolve;
+                mapImage.src = mapAsset.data;
+                if (mapImage.complete) resolve();
+            });
+
+            await mapLoadedPromise;
+
+            // Una vez que el mapa está cargado, restaurar todo lo demás
+            restoreSceneFromState(sceneMetadata, fogAsset.data);
+
+            // Cargar imágenes de las fichas asíncronamente
+            const tokenAssetPromises = sceneMetadata.tokens.map(tokenMeta => {
+                if (tokenMeta.imageAssetId) {
+                    return assetStore.get(tokenMeta.imageAssetId);
+                }
+                return Promise.resolve(null);
+            });
+
+            const tokenAssets = await Promise.all(tokenAssetPromises);
+
+            // Asignar las imágenes recuperadas a las fichas ya creadas
+            tokens.forEach((token, index) => {
+                const asset = tokenAssets[index];
+                if (asset) {
+                    token.image = asset.data;
+                }
+            });
+
+            // Actualizar visualmente todas las fichas y la UI
+            tokens.forEach(updateTokenElementStyle);
+            updateTokenList();
+            updatePlayerTurnTracker();
+            selectToken(selectedTokenId); // Re-seleccionar para refrescar el editor si había una ficha seleccionada
+
+        } catch (error) {
+            console.error('Error al cargar la escena:', error);
+            alert('Hubo un error al cargar los datos de la escena. Revisa la consola.');
         }
     }
 
-    function deleteSceneById(sceneId) {
-        if (!confirm("¿Estás seguro de que quieres eliminar esta escena? Esta acción no se puede rehacer.")) {
+    async function deleteSceneById(sceneId) {
+        if (!confirm("¿Estás seguro de que quieres eliminar esta escena? Esta acción no se puede deshacer.")) {
             return;
         }
 
         let scenes = getSavedScenes();
-        scenes = scenes.filter(s => s.id != sceneId);
-        localStorage.setItem(SCENES_STORAGE_KEY, JSON.stringify(scenes));
+        const sceneToDelete = scenes.find(s => s.id == sceneId);
 
-        // Refrescar la lista en el modal
-        renderSavedScenesList();
+        if (sceneToDelete) {
+            try {
+                const tx = db.transaction(ASSETS_STORE, 'readwrite');
+                const assetStore = tx.objectStore(ASSETS_STORE);
+                const deletePromises = [];
+
+                // --- CORRECCIÓN AQUÍ ---
+                // Añadimos una comprobación antes de intentar borrar.
+
+                if (sceneToDelete.mapAssetId) {
+                    deletePromises.push(assetStore.delete(sceneToDelete.mapAssetId));
+                }
+                if (sceneToDelete.fogAssetId) {
+                    deletePromises.push(assetStore.delete(sceneToDelete.fogAssetId));
+                }
+
+                sceneToDelete.tokens.forEach(token => {
+                    if (token.imageAssetId) {
+                        deletePromises.push(assetStore.delete(token.imageAssetId));
+                    }
+                });
+                // --- FIN DE LA CORRECCIÓN ---
+
+                await Promise.all(deletePromises);
+                await tx.done;
+
+                // Eliminar metadatos de localStorage
+                scenes = scenes.filter(s => s.id != sceneId);
+                localStorage.setItem(SCENES_STORAGE_KEY, JSON.stringify(scenes));
+
+                // Refrescar la lista en el modal
+                renderSavedScenesList();
+
+            } catch (error) {
+                console.error("Error al eliminar los assets de la escena:", error);
+                alert("Hubo un problema al limpiar los datos de la escena eliminada.");
+            }
+        }
     }
 
-    function restoreSceneFromState(state) {
+    function restoreSceneFromState(state, fogDataUrl) {
         showMapArea();
         removeAllTokens();
-        resizeAllCanvas();
 
-        // Restaurar estado
+        if (activeLoopingSound) {
+            activeLoopingSound.pause();
+            activeLoopingSound.currentTime = 0;
+            document.querySelector('.sound-btn.active')?.classList.remove('active');
+            activeLoopingSound = null;
+        }
+
+        resizeAllCanvas();
         cellSize = state.cellSize;
         cellSizeInput.value = cellSize;
         cellSizeSlider.value = cellSize;
@@ -409,6 +604,14 @@ document.addEventListener('DOMContentLoaded', () => {
             gridToggle.checked = gridVisible;
             gridColorInput.value = gridColor;
             gridOpacityInput.value = gridOpacity;
+
+            // --- NUEVA LÓGICA ---
+            gridOffsetX = state.gridSettings.offsetX || 0; // Cargar offset, con fallback a 0
+            gridOffsetY = state.gridSettings.offsetY || 0; // Cargar offset, con fallback a 0
+        } else {
+            // Fallback para escenas antiguas sin esta configuración
+            gridOffsetX = 0;
+            gridOffsetY = 0;
         }
 
         walls = state.walls || [];
@@ -422,21 +625,17 @@ document.addEventListener('DOMContentLoaded', () => {
             revealedBufferCtx.drawImage(fogImg, 0, 0);
             if (visionModeActive) drawVision();
         };
-        fogImg.src = state.revealedFogData;
+        fogImg.src = fogDataUrl;
 
-        state.tokens.forEach(tokenData => recreateToken(tokenData));
+        // Crear fichas SIN sus imágenes primero (estas se añadirán después)
+        state.tokens.forEach(tokenData => {
+            const tokenToCreate = { ...tokenData, image: null }; // Crear sin imagen
+            recreateToken(tokenToCreate);
+        });
+
         updateTokenList();
-
-        // Cerrar el modal
         savedScenesModal.classList.remove('open');
-
-        // --- AÑADIR ESTA LÍNEA ---
-        // Buscamos la sección "Mapa y Escena" y le quitamos la clase 'active' para colapsarla.
         mapImageInput.closest('.collapsible').classList.remove('active');
-
-        // Mostrar confirmación
-        /* setTimeout(() => alert(`Escena "${state.name}" cargada.`), 100);*/
-
         updatePlayerTurnTracker();
     }
 
@@ -465,9 +664,6 @@ document.addEventListener('DOMContentLoaded', () => {
             clearRevealedBuffer();
             removeAllTokens();
             drawGrid();
-             walls = []; // Clear walls and doors on new map load
-             updateDoorList();
-             drawWalls();
 
             // --- ASEGURARNOS DE QUE ESTA LÍNEA TAMBIÉN ESTÉ AQUÍ ---
             const mapSection = mapImageInput.closest('.collapsible');
@@ -484,7 +680,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function resizeAllCanvas() {
         const w = mapImage.naturalWidth, h = mapImage.naturalHeight;
-        [gridCanvas, wallsCanvas, visionCanvas, revealedBufferCanvas].forEach(c => { c.width = w; c.height = h; });
+        [gridCanvas, wallsCanvas, visionCanvas, revealedBufferCanvas, aoeCanvas].forEach(c => { c.width = w; c.height = h; });
         if (visionModeActive) drawVision();
         drawGrid();
         drawWalls();
@@ -558,7 +754,8 @@ document.addEventListener('DOMContentLoaded', () => {
             visionRadius: vision,
             x: 20,
             y: 20,
-            size: cellSize,
+            sizeMultiplier: parseFloat(add_tokenSizeMultiplier.value) || 1,
+
             isDiscovered: document.querySelector('input[name="tokenType"]:checked').value === 'player',
             states: []
         };
@@ -591,13 +788,16 @@ document.addEventListener('DOMContentLoaded', () => {
         tokenElement.className = 'token';
         tokenElement.dataset.id = tokenData.id;
 
-        // CORRECCIÓN CRÍTICA: Asegurarse de que el array de estados exista, incluso en guardados antiguos
+        // ... (el código de 'states' y 'health' que ya tienes se queda igual)
         tokenData.states = tokenData.states || [];
+        if (tokenData.health_max === undefined) { /* ... */ }
 
-        if (tokenData.health_max === undefined) {
-            tokenData.health_max = tokenData.health || 100;
-            tokenData.health_current = tokenData.health || 100;
-        }
+        // ========== LÓGICA DE TAMAÑO ACTUALIZADA ==========
+        // Asegura la retrocompatibilidad con fichas guardadas antiguas
+        tokenData.sizeMultiplier = tokenData.sizeMultiplier || 1;
+        // Calcula el tamaño en píxeles
+        tokenData.size = tokenData.sizeMultiplier * cellSize;
+
         tokenData.element = tokenElement;
         tokens.push(tokenData);
         updateTokenElementStyle(tokenData);
@@ -610,24 +810,22 @@ document.addEventListener('DOMContentLoaded', () => {
         el.style.width = `${token.size}px`; el.style.height = `${token.size}px`;
         el.style.lineHeight = `${token.size}px`;
         el.style.backgroundColor = token.color;
-        // Aseguramos que el borde se aplique solo si borderColor no es null
         el.style.border = token.borderColor ? `3px solid ${token.borderColor}` : 'none';
 
         if (token.image) {
             el.classList.add('has-image');
             el.style.backgroundImage = `url(${token.image})`;
-            el.textContent = ''; // Ocultamos el texto si hay imagen
+            el.textContent = '';
         } else {
             el.classList.remove('has-image');
             el.style.backgroundImage = 'none';
-            el.textContent = token.letter; // Mostramos el texto si no hay imagen
+            el.textContent = token.letter;
         }
 
         if (visionModeActive && token.type === 'enemy') { el.classList.toggle('hidden-enemy', !token.isDiscovered); } else { el.classList.remove('hidden-enemy'); }
     }
 
-
-    function removeAllTokens() { tokens = []; tokensLayer.innerHTML = ''; updateTokenList(); deselectToken(); updatePlayerTurnTracker(); } // Added updatePlayerTurnTracker
+    function removeAllTokens() { tokens = []; tokensLayer.innerHTML = ''; updateTokenList(); deselectToken(); }
     function deleteToken(tokenId) {
         tokens = tokens.filter(t => t.id !== tokenId);
         const el = tokensLayer.querySelector(`.token[data-id="${tokenId}"]`);
@@ -638,43 +836,24 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePlayerTurnTracker();
     }
     function updateTokenList() {
-        tokenListUl.innerHTML = ''; // Limpiamos la lista como siempre
-
-        // --- LÓGICA CORREGIDA ---
+        tokenListUl.innerHTML = '';
         if (tokens.length === 0) {
-            // Si no hay fichas, insertamos el párrafo directamente en el UL
             tokenListUl.innerHTML = `<p class="no-tokens-message">Aún no hay fichas en el tablero. ¡Añade una para empezar!</p>`;
-            return; // Terminamos la función aquí
+            return;
         }
-
-        // Si hay fichas, procedemos con la lógica normal
         const sortedTokens = [...tokens].sort((a, b) => b.turn - a.turn);
         sortedTokens.forEach(token => {
             const li = document.createElement('li');
             li.dataset.id = token.id;
-            // CAMBIO: Usar span para el icono de tipo
             const typeIconHTML = `<span class="token-list-icon ${token.type === 'player' ? 'icon-player-list' : 'icon-enemy-list'}"></span>`;
-
             const borderStyle = token.borderColor ? `border: 3px solid ${token.borderColor};` : 'none';
             const imageStyle = token.image ? `background-image: url(${token.image}); background-size: cover; background-position: center;` : `background-color: ${token.color};`;
-            // CAMBIO: Asegurar que la preview de la lista solo muestre la letra si no hay imagen
             const previewContent = token.image ? '' : token.letter;
-
-
             li.innerHTML = `<div class="token-list-preview" style="${imageStyle} ${borderStyle}">${previewContent}</div><div class="token-list-header">${typeIconHTML}<span>${token.name}</span></div><div class="token-list-details"><span>Turno: ${token.turn}</span><span>❤️ Vida: ${token.health_current}/${token.health_max}</span><span>👁️ Vis: ${token.visionRadius}</span></div><button class="delete-token-btn" data-id="${token.id}" title="Eliminar Ficha">X</button>`;
             tokenListUl.appendChild(li);
         });
-
-        // Los listeners se añaden después de crear la lista
-        tokenListUl.querySelectorAll('.delete-token-btn').forEach(btn => btn.addEventListener('click', e => {
-            e.stopPropagation();
-            deleteToken(parseInt(e.target.dataset.id));
-        }));
-
-        // Ya no necesitamos la comprobación extra aquí, porque si la lista está vacía, no hay 'li' a los que añadir listeners.
-        tokenListUl.querySelectorAll('li').forEach(li => {
-            li.addEventListener('click', e => selectToken(parseInt(e.currentTarget.dataset.id)));
-        });
+        tokenListUl.querySelectorAll('.delete-token-btn').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); deleteToken(parseInt(e.target.dataset.id)); }));
+        tokenListUl.querySelectorAll('li').forEach(li => { li.addEventListener('click', e => selectToken(parseInt(e.currentTarget.dataset.id))); });
     }
 
 
@@ -695,6 +874,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         tokenStatesEditor.style.display = 'block'; // Mostrar editor
+        aoeControlsContainer.style.display = 'block';
+        aoeHeader.style.display = 'block';
+
         renderTokenStatesEditor(token);
 
         token.element.classList.add('selected');
@@ -710,7 +892,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             // Si NO tiene imagen, mostrar la letra/color y ocultar la imagen
             edit_tokenImagePreview.style.display = 'none';
-            edit_tokenLetterPreview.style.display = 'flex'; // Usar flex para centrar la letra
+            edit_tokenLetterPreview.style.display = 'flex';
             removeTokenImageBtn.style.display = 'none'; // Ocultar botón de quitar
 
             // Aplicar estilos a la vista previa de la letra
@@ -725,9 +907,9 @@ document.addEventListener('DOMContentLoaded', () => {
         edit_tokenVision.value = token.visionRadius;
         edit_tokenHealthMax.value = token.health_max;
         edit_tokenColor.value = token.color;
-        edit_tokenBorderColor.value = token.borderColor || '#000000'; // Establecer un valor por defecto si no hay borde
+        edit_tokenBorderColor.value = token.borderColor || '#000000';
         edit_tokenNotes.value = token.notes;
-
+        edit_tokenSizeMultiplier.value = token.sizeMultiplier || 1;
         healthDisplay.textContent = token.health_current;
         healthDisplay.className = `health-display ${getHealthColorClass(token.health_current, token.health_max)}`;
     }
@@ -738,8 +920,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const oldToken = tokens.find(t => t.id === selectedTokenId);
         if (oldToken) oldToken.element.classList.remove('selected');
         selectedTokenId = null;
-        selectedTokenSection.classList.remove('has-selection', 'active'); // Also remove 'active'
+        selectedTokenSection.classList.remove('has-selection');
         tokenStatesEditor.style.display = 'none';
+        activeAoeType = null; // Resetea el tipo de AoE
+        aoeControlsContainer.style.display = 'none'; // Oculta los controles
+        aoeHeader.style.display = 'none';
+        updateAoeControls(); // Apaga los botones activos
+        clearAoeCanvas(); // Limpia cualquier dibujo
     }
 
     async function handleEditTokenImageChange(event) {
@@ -778,15 +965,19 @@ document.addEventListener('DOMContentLoaded', () => {
         token.visionRadius = parseInt(edit_tokenVision.value) || 0;
         token.health_max = parseInt(edit_tokenHealthMax.value) || 0;
         token.color = edit_tokenColor.value;
-        // Decide if border should be applied based on checkbox state (if you add one to edit section)
-        // For now, we'll just update the color if it changes.
-        token.borderColor = edit_tokenBorderColor.value;
+        token.borderColor = edit_tokenBorderColor.value; // Se manejará con lógica de borde
         token.notes = edit_tokenNotes.value;
+
+        const newSizeMultiplier = parseFloat(edit_tokenSizeMultiplier.value) || 1;
+        // Solo recalculamos y redibujamos si el tamaño realmente cambió
+        if (token.sizeMultiplier !== newSizeMultiplier) {
+            token.sizeMultiplier = newSizeMultiplier;
+            // Recalculamos el tamaño en píxeles
+            token.size = token.sizeMultiplier * cellSize;
+        }
 
         if (!token.name || !token.letter) {
             alert("El nombre y la letra no pueden estar vacíos.");
-            // Potentially revert changes or prevent update
-            selectToken(selectedTokenId); // Revert form fields to current token data
             return;
         }
 
@@ -810,7 +1001,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Solo actualizamos la barra de vida si cambió.
         healthDisplay.textContent = token.health_current;
         healthDisplay.className = `health-display ${getHealthColorClass(token.health_current, token.health_max)}`;
-        updatePlayerTurnTracker(); // Update tracker as initiative, name, or health max might change
+        updatePlayerTurnTracker();
     }
 
     // --- LÓGICA DE VIDA Y DAÑO ---
@@ -822,15 +1013,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const typeClass = amount > 0 ? 'heal' : 'damage';
 
         // 1. Panel Float (en el editor de ficha seleccionada) - SIN CAMBIOS
-        // Aseguramos que solo aparece si el panel de edición está abierto y el token está seleccionado
-         if (selectedTokenId === token.id && healthDisplayContainer) {
-            const panelFloat = document.createElement('div');
-            panelFloat.className = `damage-float ${typeClass}`;
-            panelFloat.textContent = text;
-            healthDisplayContainer.appendChild(panelFloat);
-            setTimeout(() => panelFloat.remove(), 1000);
-         }
-
+        const panelFloat = document.createElement('div');
+        panelFloat.className = `damage-float ${typeClass}`;
+        panelFloat.textContent = text;
+        healthDisplayContainer.appendChild(panelFloat);
+        setTimeout(() => panelFloat.remove(), 1000);
 
         // 2. Map Float (sobre la ficha en el mapa) - SIN CAMBIOS
         const mapFloat = document.createElement('div');
@@ -872,12 +1059,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const actualChange = newHealth - oldHealth;
         token.health_current = newHealth;
 
-        // Actualizar UI del panel de edición (solo si el token está seleccionado)
-         if (selectedTokenId === token.id) {
-            healthDisplay.textContent = token.health_current;
-            healthDisplay.className = `health-display ${getHealthColorClass(token.health_current, token.health_max)}`;
-         }
-
+        // Actualizar UI del panel de edición
+        healthDisplay.textContent = token.health_current;
+        healthDisplay.className = `health-display ${getHealthColorClass(token.health_current, token.health_max)}`;
 
         // Actualizar la lista de fichas y el tracker de turnos
         updateTokenList();
@@ -893,7 +1077,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 2. Aplicar las animaciones de flash/sacudida
         const tokenElement = token.element;
-        const cardElement = trackerCard; // trackerCard ya es el elemento si se encontró
 
         if (actualChange < 0) {
             damageSound.currentTime = 0;
@@ -902,11 +1085,10 @@ document.addEventListener('DOMContentLoaded', () => {
             tokenElement.classList.add('token-damaged');
             setTimeout(() => tokenElement.classList.remove('token-damaged'), 400);
 
-            if (cardElement) { // Check if cardElement exists
-                cardElement.classList.add('card-damaged');
-                setTimeout(() => cardElement.classList.remove('card-damaged'), 400);
+            if (trackerCard) {
+                trackerCard.classList.add('card-damaged');
+                setTimeout(() => trackerCard.classList.remove('card-damaged'), 400);
             }
-
 
         } else if (actualChange > 0) {
             healSound.currentTime = 0;
@@ -915,10 +1097,10 @@ document.addEventListener('DOMContentLoaded', () => {
             tokenElement.classList.add('token-healed');
             setTimeout(() => tokenElement.classList.remove('token-healed'), 500);
 
-             if (cardElement) { // Check if cardElement exists
-                cardElement.classList.add('card-healed');
-                setTimeout(() => cardElement.classList.remove('card-healed'), 500);
-             }
+            if (trackerCard) {
+                trackerCard.classList.add('card-healed');
+                setTimeout(() => trackerCard.classList.remove('card-healed'), 500);
+            }
         }
     }
     // --- MANEJO DE RATÓN ---
@@ -928,22 +1110,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (tokenElement) {
             const tokenId = parseInt(tokenElement.dataset.id);
             const token = tokens.find(t => t.id === tokenId);
-            // Solo arrastrar si es jugador o si el enemigo está descubierto en modo visión
             if (token && (token.type === 'player' || !visionModeActive || token.isDiscovered)) {
-                 // Deseleccionar el token si se inicia un arrastre en él
-                 if (selectedTokenId !== token.id) {
-                     selectToken(token.id);
-                 }
-
                 currentDraggedToken = token;
                 const tokenRect = token.element.getBoundingClientRect();
                 const mapRect = mapContainer.getBoundingClientRect();
                 dragOffsetX = event.clientX - tokenRect.left;
                 dragOffsetY = event.clientY - tokenRect.top;
                 currentDraggedToken.element.style.zIndex = 100;
-                 mapContainer.style.cursor = 'grabbing'; // Cursor de arrastre
-
-
             }
             return; // Termina la función aquí si estamos arrastrando una ficha
         }
@@ -955,7 +1128,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Prioridad 3: Pintar niebla
-        // Solo si el botón izquierdo del ratón está presionado (buttons & type check redundancy for safety)
         if (visionModeActive && (event.buttons === 1 || event.type === 'mousedown')) {
             isPaintingFog = true;
             paintFog(event);
@@ -973,6 +1145,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleLayerMouseMove(event) {
+        // Guarda la última posición del ratón. Añade estas dos líneas al principio de la función.
+        lastMouseX = event.clientX;
+        lastMouseY = event.clientY;
         // Si estamos paneando, esta es la única lógica que se ejecuta
         if (isPanning) {
             const dx = event.clientX - panStartX;
@@ -981,54 +1156,41 @@ document.addEventListener('DOMContentLoaded', () => {
             mapContainer.scrollTop = scrollStartY - dy;
             return; // Importante: termina la función para no ejecutar otras lógicas de movimiento
         }
+        // --- NUEVO BLOQUE PARA DIBUJAR EL ÁREA DE EFECTO ---
+        if (activeAoeType && selectedTokenId) {
+            drawAoePreview(event);
+        }
         if (isDrawingWallMode && wallStartPoint) {
-            drawWalls(); // Clear canvas and redraw existing walls
+            drawWalls();
             const mapRect = mapContainer.getBoundingClientRect();
-            // Get coordinates relative to the top-left of the *image* (considering scroll)
             const endX = event.clientX - mapRect.left + mapContainer.scrollLeft;
             const endY = event.clientY - mapRect.top + mapContainer.scrollTop;
-
             wallsCtx.beginPath();
             wallsCtx.moveTo(wallStartPoint.x, wallStartPoint.y);
-
             const previewDrawType = document.querySelector('input[name="drawType"]:checked').value;
             if (previewDrawType === 'door') {
                 wallsCtx.setLineDash([10, 8]);
-                wallsCtx.strokeStyle = '#87CEEB'; // Light blue for door preview
+                wallsCtx.strokeStyle = '#87CEEB';
             } else {
-                wallsCtx.setLineDash([]); // Solid line
-                wallsCtx.strokeStyle = 'cyan'; // Cyan for wall preview
+                wallsCtx.setLineDash([]);
+                wallsCtx.strokeStyle = 'cyan';
             }
-
             wallsCtx.lineWidth = 3;
             wallsCtx.lineTo(endX, endY);
             wallsCtx.stroke();
-
-            // Reset line dash for subsequent drawing
             wallsCtx.setLineDash([]);
-
         } else if (currentDraggedToken) {
             const mapRect = mapContainer.getBoundingClientRect();
             let newX = event.clientX - mapRect.left + mapContainer.scrollLeft - dragOffsetX;
             let newY = event.clientY - mapRect.top + mapContainer.scrollTop - dragOffsetY;
-
-            // Clamp token position to map boundaries
-            const mapWidth = mapImage.naturalWidth;
-            const mapHeight = mapImage.naturalHeight;
-            newX = Math.max(0, Math.min(newX, mapWidth - currentDraggedToken.size));
-            newY = Math.max(0, Math.min(newY, mapHeight - currentDraggedToken.size));
-
-
+            newX = Math.max(0, Math.min(newX, mapContentWrapper.offsetWidth - currentDraggedToken.size));
+            newY = Math.max(0, Math.min(newY, mapContentWrapper.offsetHeight - currentDraggedToken.size));
             currentDraggedToken.x = newX;
             currentDraggedToken.y = newY;
             currentDraggedToken.element.style.left = `${newX}px`;
             currentDraggedToken.element.style.top = `${newY}px`;
-
-            // Redraw vision if active, as token position affects sight
             if (visionModeActive) { drawVision(); }
-
         } else if (isPaintingFog) {
-            // Paint fog only if vision mode is active (already checked in mousedown)
             paintFog(event);
         }
     }
@@ -1037,320 +1199,224 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isPanning) {
             isPanning = false;
             mapContainer.style.cursor = 'grab'; // Restaura el cursor a "mano abierta"
-        }
-        // Si estábamos arrastrando un token
-        if (currentDraggedToken) {
-            currentDraggedToken.element.style.zIndex = ''; // Restore z-index
-            if (visionModeActive) drawVision(); // Redraw vision after drop
-            currentDraggedToken = null;
-            mapContainer.style.cursor = 'grab'; // Restore cursor after dragging
-        }
-        // Si estábamos pintando niebla
-        isPaintingFog = false;
-
-         // Si estábamos en modo dibujo de muros y soltamos el clic sin terminar un muro, reset
-         if (isDrawingWallMode && wallStartPoint) {
-             // If mouseup happens but we are still in wall drawing mode and have a start point,
-             // it means the click was released outside the map or cancelled.
-             // The wall drawing logic in handleWallDrawing only completes on the second click.
-             // We might not need explicit handling here, as wallStartPoint will be cleared on the *next* mousedown/click.
-             // However, if we want to clear the preview line if the mouse goes up *outside* the map...
-             // For simplicity, let's keep the current wall drawing logic that relies on clicks.
-             // The preview line is redrawn/cleared by handleLayerMouseMove and handleLayerClick/handleWallDrawing.
-         }
+        } if (currentDraggedToken) { currentDraggedToken.element.style.zIndex = ''; if (visionModeActive) drawVision(); currentDraggedToken = null; } isPaintingFog = false;
     }
-     // Modified handleLayerClick to integrate with new drag logic and wall logic
-     function handleLayerClick(event) {
-         // Ignore if it was part of a drag (handled by mouseup) or multi-click
-         if (currentDraggedToken || event.detail > 1) {
-             // Reset wallStartPoint if a click happened but was part of a drag or double-click etc.
-             if (isDrawingWallMode) wallStartPoint = null;
-             return;
-         }
+    function handleLayerClick(event) {
+        if (event.detail > 1 || isPanning) return;
 
-         // Wall drawing mode takes precedence over token selection on click
-         if (isDrawingWallMode) {
-             // handleWallDrawing is already called on mousedown, it handles the click logic there
-             // But let's double-check if a simple click (down-up without move) should start/end walls
-             // The current design starts on mousedown and potentially ends on the *next* click (mousedown).
-             // If you want simple click-to-draw segments:
-             // The mousedown handles the first point. The *click* (which fires after mouseup) handles the second point.
-             // Let's keep the logic in handleWallDrawing for consistency with mousedown triggering the first point.
-             // If the click was not a drag, handleWallDrawing will be called on the mousedown that precedes this click.
-             // The second point is then handled by the mousedown for the next segment.
+        // --- NUEVA LÓGICA DE ALINEACIÓN DE REJILLA ---
+        if (isAligningGrid) {
+            const mapRect = mapContainer.getBoundingClientRect();
+            const x = event.clientX - mapRect.left + mapContainer.scrollLeft;
+            const y = event.clientY - mapRect.top + mapContainer.scrollTop;
 
-             // However, if wallStartPoint is null, it means the mousedown was the first click.
-             // If wallStartPoint is not null, this click finishes the wall.
-             // Let's move the second point logic here from handleWallDrawing for clarity on 'click' behavior.
+            // El offset es el residuo de la posición del clic dividido por el tamaño de la celda.
+            gridOffsetX = x % cellSize;
+            gridOffsetY = y % cellSize;
 
-             // We need to check if a point was *started* on mousedown
-             // No, the current handleWallDrawing logic is better: mousedown BEGINS a segment. The NEXT mousedown ENDS the segment and STARTS a new one.
-             // A single click (down/up) does nothing in wall mode unless you click twice in the same spot.
-             // Let's stick to the mousedown/mousedown pattern for wall drawing segments.
+            drawGrid(); // Redibujar la rejilla con el nuevo offset.
+            toggleAlignGridMode(); // Salir del modo automáticamente.
+            return; // Detener la ejecución para no seleccionar fichas, etc.
+        }
+        // --- FIN DE LA NUEVA LÓGICA ---
 
-             // The only click behaviour we need to check here is token selection IF not drawing walls.
-             // The wall logic is already handled by handleLayerMouseDown/MouseMove/MouseUp.
-             // So if not drawing walls, proceed with token selection.
-             const tokenElement = event.target.closest('.token');
-             if (tokenElement) {
-                 selectToken(parseInt(tokenElement.dataset.id));
-             } else {
-                 // Deselect token if clicking on map/canvas but not on a token
-                 deselectToken();
-             }
-
-         } else {
-             // Default behavior if not drawing walls: Select/Deselect Token
-             const tokenElement = event.target.closest('.token');
-             if (tokenElement) {
-                 selectToken(parseInt(tokenElement.dataset.id));
-             } else {
-                 // Deselect token if clicking on map/canvas but not on a token
-                 deselectToken();
-             }
-         }
-     }
-
-
+        setTimeout(() => {
+            if (currentDraggedToken) return;
+            const tokenElement = event.target.closest('.token');
+            if (tokenElement) {
+                selectToken(parseInt(tokenElement.dataset.id));
+            } else {
+                deselectToken();
+            }
+        }, 150);
+    }
     // --- VISIÓN, NIEBLA Y MUROS ---
     function toggleVisionMode() {
         visionModeActive = !visionModeActive;
         toggleVisionBtn.textContent = visionModeActive ? 'Detener Visión Dinámica' : 'Iniciar Visión Dinámica';
         if (visionModeActive) {
-            if (isDrawingWallMode) { toggleWallMode(); } // Auto-disable wall drawing
+            if (isDrawingWallMode) { toggleWallMode(); }
             toggleWallModeBtn.disabled = true; undoWallBtn.disabled = true; clearWallsBtn.disabled = true;
             wallsCanvas.style.display = 'none';
             visionCanvas.style.display = 'block';
-            updateAllTokenVisibility(); // Hide enemy tokens unless discovered
+            updateAllTokenVisibility();
             drawVision();
         } else {
             toggleWallModeBtn.disabled = false; undoWallBtn.disabled = false; clearWallsBtn.disabled = false;
-            wallsCanvas.style.display = 'block'; // Show walls layer again
-            visionCanvas.style.display = 'none'; // Hide vision layer
-            ctx.clearRect(0, 0, visionCanvas.width, visionCanvas.height); // Clear vision canvas
-            updateAllTokenVisibility(); // Show all tokens again
-            drawWalls(); // Redraw walls (they were hidden)
+            wallsCanvas.style.display = 'block';
+            visionCanvas.style.display = 'none';
+            ctx.clearRect(0, 0, visionCanvas.width, visionCanvas.height);
+            updateAllTokenVisibility();
+            drawWalls();
         }
     }
 
     function updateAllTokenVisibility() { tokens.forEach(token => updateTokenElementStyle(token)); }
-    function clearRevealedBuffer() { revealedBufferCtx.clearRect(0, 0, revealedBufferCanvas.width, revealedBufferCanvas.height); renderFogFromBuffer(); } // Render after clearing
-    function resetFog() { if (!confirm("¿Estás seguro de que quieres reiniciar toda la niebla de guerra? Esta acción no se puede deshacer.")) return; clearRevealedBuffer(); if (visionModeActive) { tokens.forEach(t => { if (t.type === 'enemy') t.isDiscovered = false; }); drawVision(); updateAllTokenVisibility(); updatePlayerTurnTracker(); } } // Added updatePlayerTurnTracker
-
+    function clearRevealedBuffer() { revealedBufferCtx.clearRect(0, 0, revealedBufferCanvas.width, revealedBufferCanvas.height); }
+    function resetFog() { if (!confirm("¿Estás seguro de que quieres reiniciar toda la niebla de guerra? Esta acción no se puede deshacer.")) return; clearRevealedBuffer(); if (visionModeActive) { tokens.forEach(t => { if (t.type === 'enemy') t.isDiscovered = false; }); drawVision(); updateAllTokenVisibility(); } }
 
     function paintFog(event) {
-        if (!visionModeActive) return; // Should be redundant due to mousedown check, but safety first
-
-        // Use offset coordinates relative to mapContainer scroll
+        if (!visionModeActive) return;
         const mapRect = mapContainer.getBoundingClientRect();
         const x = event.clientX - mapRect.left + mapContainer.scrollLeft;
         const y = event.clientY - mapRect.top + mapContainer.scrollTop;
-
-        // Clamp coordinates to canvas boundaries
-        const clampedX = Math.max(0, Math.min(x, revealedBufferCanvas.width));
-        const clampedY = Math.max(0, Math.min(y, revealedBufferCanvas.height));
-
-
         revealedBufferCtx.globalCompositeOperation = brushMode === 'reveal' ? 'source-over' : 'destination-out';
-        revealedBufferCtx.fillStyle = 'white'; // Painting with white onto the buffer
+        revealedBufferCtx.fillStyle = 'white';
         revealedBufferCtx.beginPath();
-        // Ensure brush stays within map boundaries (optional but good practice)
-        revealedBufferCtx.arc(clampedX, clampedY, brushSize / 2, 0, Math.PI * 2);
+        revealedBufferCtx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
         revealedBufferCtx.fill();
-
-        renderFogFromBuffer(); // Render the vision canvas from the buffer
-        checkEnemyDiscovery(); // Check for newly discovered enemies
+        renderFogFromBuffer();
+        checkEnemyDiscovery();
     }
 
     function renderFogFromBuffer() {
         ctx.clearRect(0, 0, visionCanvas.width, visionCanvas.height);
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.95)'; // Dark fog color
-        ctx.fillRect(0, 0, visionCanvas.width, visionCanvas.height); // Draw solid fog layer
-
-        // Use destination-out to cut out the revealed areas from the fog layer
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.95)';
+        ctx.fillRect(0, 0, visionCanvas.width, visionCanvas.height);
         ctx.globalCompositeOperation = 'destination-out';
         ctx.drawImage(revealedBufferCanvas, 0, 0);
-
-        // Reset composite operation for drawing vision cones on top (if needed later) or default drawing
         ctx.globalCompositeOperation = 'source-over';
-
-        // Now draw player vision cones on top of the combined fog/revealed area
-        // This is where the main vision logic should ideally go, drawing *light* on top of the darkness
-        // Let's refactor drawVision slightly
-        drawPlayerVisionCones(ctx);
-
     }
-    // New function to draw only the dynamic vision cones
-     function drawPlayerVisionCones(targetCtx) {
-         if (!visionModeActive) return;
-
-         // Create a temporary canvas for this frame's light
-         const lightCanvas = document.createElement('canvas');
-         lightCanvas.width = targetCtx.canvas.width;
-         lightCanvas.height = targetCtx.canvas.height;
-         const lightCtx = lightCanvas.getContext('2d');
-
-         const mapBoundaries = [
-             { x1: 0, y1: 0, x2: lightCanvas.width, y2: 0 },
-             { x1: lightCanvas.width, y1: 0, x2: lightCanvas.width, y2: lightCanvas.height },
-             { x1: lightCanvas.width, y1: lightCanvas.height, x2: 0, y2: lightCanvas.height },
-             { x1: 0, y1: lightCanvas.height, x2: 0, y2: 0 }
-         ];
-         // Consider only solid walls and closed doors as vision blockers
-         const visionBlockingWalls = walls.filter(w => w.type === 'wall' || (w.type === 'door' && !w.isOpen));
-         const allObstacles = [...visionBlockingWalls, ...mapBoundaries];
-
-
-         tokens.filter(t => t.type === 'player').forEach(pToken => {
-             const centerX = pToken.x + pToken.size / 2;
-             const centerY = pToken.y + pToken.size / 2;
-             const visionRadiusPixels = pToken.visionRadius * cellSize;
-
-             // Only draw vision if radius is greater than 0
-             if (visionRadiusPixels <= 0) return;
-
-
-             // Collect all wall endpoints and sort them by angle relative to the token
-             let points = [];
-             allObstacles.forEach(wall => {
-                 points.push({ x: wall.x1, y: wall.y1 });
-                 points.push({ x: wall.x2, y: wall.y2 });
-             });
-
-             // Get unique points and sort by angle
-             let uniquePoints = Array.from(new Set(points.map(p => `${p.x},${p.y}`))).map(s => {
-                 const [x, y] = s.split(',').map(Number);
-                 return { x, y };
-             });
-
-             let angles = [];
-             uniquePoints.forEach(point => {
-                 const angle = Math.atan2(point.y - centerY, point.x - centerX);
-                 // Add small offsets to angles to shoot rays on either side of the point
-                 angles.push(angle - 0.00001);
-                 angles.push(angle);
-                 angles.push(angle + 0.00001);
-             });
-
-             // Also add rays pointing directly towards 0, 90, 180, 270 degrees to catch straight walls
-             [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2, 2 * Math.PI].forEach(baseAngle => {
-                  angles.push(baseAngle - 0.00001);
-                  angles.push(baseAngle);
-                  angles.push(baseAngle + 0.00001);
-             });
-
-
-             angles.sort((a, b) => a - b);
-
-             let intersects = [];
-             const rayLength = Math.max(lightCanvas.width, lightCanvas.height); // Ray needs to be longer than map dimensions
-
-             angles.forEach(angle => {
-                 const ray = {
-                     x1: centerX, y1: centerY,
-                     x2: centerX + Math.cos(angle) * rayLength,
-                     y2: centerY + Math.sin(angle) * rayLength
-                 };
-
-                 let closestIntersect = null;
-
-                 allObstacles.forEach(wall => {
-                     const intersect = getIntersection(ray, wall);
-                     if (intersect) {
-                         // Check if intersect is within the vision radius
-                         const distSq = (intersect.x - centerX)**2 + (intersect.y - centerY)**2;
-                         if (distSq <= visionRadiusPixels**2) {
-                             if (!closestIntersect || intersect.param < closestIntersect.param) {
-                                 closestIntersect = intersect;
-                             }
-                         }
-                     }
-                 });
-
-                 // If no wall intersection within radius, the ray goes to the radius limit
-                 if (!closestIntersect) {
-                    closestIntersect = {
-                         x: centerX + Math.cos(angle) * visionRadiusPixels,
-                         y: centerY + Math.sin(angle) * visionRadiusPixels,
-                         param: 1 // A dummy param, not used for sorting here
-                    };
-                 }
-
-                 // Ensure intersect is within map bounds (handles rays going off the map)
-                 closestIntersect.x = Math.max(0, Math.min(closestIntersect.x, lightCanvas.width));
-                 closestIntersect.y = Math.max(0, Math.min(closestIntersect.y, lightCanvas.height));
-
-
-                 closestIntersect.angle = angle; // Keep track of the original angle
-                 intersects.push(closestIntersect);
-
-             });
-
-              // Sort intersects by angle again, important after potentially adding radius limits
-             intersects.sort((a, b) => a.angle - b.angle);
-
-
-             if (intersects.length > 0) {
-                 lightCtx.fillStyle = 'white'; // Draw light areas in white
-                 lightCtx.beginPath();
-                 lightCtx.moveTo(centerX, centerY); // Start from the token center
-                 intersects.forEach(intersect => {
-                     lightCtx.lineTo(intersect.x, intersect.y);
-                 });
-                 lightCtx.closePath();
-                 lightCtx.fill();
-             }
-         });
-
-         // Add the calculated light for this frame onto the vision canvas
-         targetCtx.globalCompositeOperation = 'source-over'; // Draw on top of the fog
-         targetCtx.drawImage(lightCanvas, 0, 0); // Draw the combined light areas
-
-     }
-
 
     function drawVision() {
-        // This function now orchestrates rendering fog and player light
         if (!visionModeActive) return;
+        const visionThisFrameCanvas = document.createElement('canvas');
+        visionThisFrameCanvas.width = visionCanvas.width;
+        visionThisFrameCanvas.height = visionCanvas.height;
+        const visionThisFrameCtx = visionThisFrameCanvas.getContext('2d');
+        const mapBoundaries = [{ x1: 0, y1: 0, x2: visionCanvas.width, y2: 0 }, { x1: visionCanvas.width, y1: 0, x2: visionCanvas.width, y2: visionCanvas.height }, { x1: visionCanvas.width, y1: visionCanvas.height, x2: 0, y2: visionCanvas.height }, { x1: 0, y1: visionCanvas.height, x2: 0, y2: 0 }];
+        const activeWalls = walls.filter(w => w.type === 'wall' || (w.type === 'door' && !w.isOpen));
 
-        // 1. Render the permanent revealed fog from the buffer
-        renderFogFromBuffer(); // This draws the fog and cuts out the revealed areas
+        tokens.filter(t => t.type === 'player').forEach(pToken => {
+            const centerX = pToken.x + pToken.size / 2;
+            const centerY = pToken.y + pToken.size / 2;
+            const visionRadiusPixels = pToken.visionRadius * cellSize;
 
-        // 2. The player vision cones are now drawn by renderFogFromBuffer calling drawPlayerVisionCones
-        // This avoids drawing cones *under* the fog.
-        // drawPlayerVisionCones(ctx); // This call is now inside renderFogFromBuffer
+            visionThisFrameCtx.save();
+            visionThisFrameCtx.beginPath();
+            visionThisFrameCtx.arc(centerX, centerY, visionRadiusPixels, 0, Math.PI * 2);
+            visionThisFrameCtx.clip();
 
-        // 3. Check discovery based on the *final* state of the visionCanvas (fog + light)
+            if (activeWalls.length === 0) {
+                visionThisFrameCtx.fillStyle = 'white';
+                visionThisFrameCtx.beginPath();
+                visionThisFrameCtx.arc(centerX, centerY, visionRadiusPixels, 0, Math.PI * 2);
+                visionThisFrameCtx.fill();
+            } else {
+                const allObstacles = [...activeWalls, ...mapBoundaries];
+                let points = [];
+                allObstacles.forEach(wall => { points.push({ x: wall.x1, y: wall.y1 }); points.push({ x: wall.x2, y: wall.y2 }); });
+
+                let rays = [];
+                points.forEach(point => {
+                    const angle = Math.atan2(point.y - centerY, point.x - centerX);
+                    const rayLength = visionRadiusPixels * 1.5;
+                    rays.push({ angle: angle - 0.0001, x1: centerX, y1: centerY, x2: centerX + Math.cos(angle - 0.0001) * rayLength, y2: centerY + Math.sin(angle - 0.0001) * rayLength });
+                    rays.push({ angle: angle, x1: centerX, y1: centerY, x2: centerX + Math.cos(angle) * rayLength, y2: centerY + Math.sin(angle) * rayLength });
+                    rays.push({ angle: angle + 0.0001, x1: centerX, y1: centerY, x2: centerX + Math.cos(angle + 0.0001) * rayLength, y2: centerY + Math.sin(angle + 0.0001) * rayLength });
+                });
+
+                let intersects = [];
+                rays.forEach(ray => {
+                    let closestIntersect = null;
+                    allObstacles.forEach(wall => {
+                        const intersect = getIntersection(ray, wall);
+                        if (intersect) { if (!closestIntersect || intersect.param < closestIntersect.param) { closestIntersect = intersect; } }
+                    });
+                    if (closestIntersect) { closestIntersect.angle = ray.angle; intersects.push(closestIntersect); } else { intersects.push({ angle: ray.angle, x: ray.x2, y: ray.y2 }); }
+                });
+
+                intersects.sort((a, b) => a.angle - b.angle);
+
+                if (intersects.length > 0) {
+                    visionThisFrameCtx.fillStyle = 'white';
+                    visionThisFrameCtx.beginPath();
+                    visionThisFrameCtx.moveTo(intersects[0].x, intersects[0].y);
+                    for (let i = 1; i < intersects.length; i++) {
+                        visionThisFrameCtx.lineTo(intersects[i].x, intersects[i].y);
+                    }
+                    visionThisFrameCtx.closePath();
+                    visionThisFrameCtx.fill();
+                }
+            }
+            visionThisFrameCtx.restore();
+        });
+
+        revealedBufferCtx.globalCompositeOperation = 'source-over';
+        revealedBufferCtx.drawImage(visionThisFrameCanvas, 0, 0);
+
+        renderFogFromBuffer();
         checkEnemyDiscovery();
     }
 
-
     function checkEnemyDiscovery() {
-        // Check discovery only if vision mode is active and there are enemy tokens
-        if (!visionModeActive || !tokens.some(t => t.type === 'enemy' && !t.isDiscovered)) {
-            return; // No enemies to discover or vision is off
-        }
-
         let trackerNeedsUpdate = false;
 
+        const fogImageData = revealedBufferCtx.getImageData(0, 0, revealedBufferCanvas.width, revealedBufferCanvas.height);
+        const fogData = fogImageData.data;
+        const canvasWidth = revealedBufferCanvas.width;
+
         tokens.filter(t => t.type === 'enemy' && !t.isDiscovered).forEach(enemy => {
-            const enemyCenterX = enemy.x + enemy.size / 2;
-            const enemyCenterY = enemy.y + enemy.size / 2;
 
-            // Ensure coordinates are within canvas bounds before checking pixel data
-             if (enemyCenterX < 0 || enemyCenterX >= visionCanvas.width || enemyCenterY < 0 || enemyCenterY >= visionCanvas.height) {
-                return; // Skip if enemy center is outside the map boundaries
-             }
+            let isVisible = false;
 
-            // Check the pixel color/alpha on the *final* vision canvas
-            // This canvas has the combined effect of revealed fog AND current player vision cones
-            const data = ctx.getImageData(enemyCenterX, enemyCenterY, 1, 1).data;
+            // Si la ficha es de tamaño normal (1x1), comprobamos solo el centro por eficiencia.
+            if (enemy.sizeMultiplier <= 1) {
+                const centerX = Math.floor(enemy.x + enemy.size / 2);
+                const centerY = Math.floor(enemy.y + enemy.size / 2);
 
-            // Check if the pixel is NOT fully opaque black (the color of unlit/unrevealed fog)
-            // Alpha (data[3]) > 0 means it's not fully transparent
-            // Red (data[0]), Green (data[1]), Blue (data[2]) being > 0 means it's not black fog (0,0,0)
-            // We check if R, G, or B is > 0 (or alpha > say, 10 to be safe against anti-aliasing artifacts)
-            if (data[0] > 10 || data[1] > 10 || data[2] > 10 || data[3] > 10) {
+                const pixelIndex = (centerY * canvasWidth + centerX) * 4;
+
+                if (fogData[pixelIndex + 3] > 0) {
+                    isVisible = true;
+                }
+            }
+            // Si la ficha es grande, comprobamos 9 puntos (centro, cardinales y diagonales).
+            else {
+                const centerX = enemy.x + enemy.size / 2;
+                const centerY = enemy.y + enemy.size / 2;
+                const radius = enemy.size / 2;
+
+                // =============================================
+                // ========== LÓGICA DE PUNTOS AMPLIADA ==========
+                // =============================================
+                // Ahora comprobamos 9 puntos para máxima precisión.
+                const cornerOffset = radius * 0.7071; // Usamos 0.7071 (seno/coseno de 45°) para las esquinas
+
+                const checkPoints = [
+                    // Centro
+                    { x: centerX, y: centerY },
+                    // Cardinales
+                    { x: centerX + radius, y: centerY }, // Derecha
+                    { x: centerX - radius, y: centerY }, // Izquierda
+                    { x: centerX, y: centerY + radius }, // Abajo
+                    { x: centerX, y: centerY - radius }, // Arriba
+                    // Diagonales (Esquinas)
+                    { x: centerX + cornerOffset, y: centerY + cornerOffset }, // Abajo-Derecha
+                    { x: centerX - cornerOffset, y: centerY + cornerOffset }, // Abajo-Izquierda
+                    { x: centerX + cornerOffset, y: centerY - cornerOffset }, // Arriba-Derecha
+                    { x: centerX - cornerOffset, y: centerY - cornerOffset }  // Arriba-Izquierda
+                ];
+                // =============================================
+                // =============================================
+
+                for (const point of checkPoints) {
+                    const px = Math.floor(point.x);
+                    const py = Math.floor(point.y);
+
+                    if (px < 0 || py < 0 || px >= canvasWidth || py >= revealedBufferCanvas.height) {
+                        continue;
+                    }
+
+                    const pixelIndex = (py * canvasWidth + px) * 4;
+                    if (fogData[pixelIndex + 3] > 0) {
+                        isVisible = true;
+                        break;
+                    }
+                }
+            }
+
+            if (isVisible) {
                 enemy.isDiscovered = true;
                 updateTokenElementStyle(enemy);
                 trackerNeedsUpdate = true;
@@ -1362,15 +1428,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
     function updateCellSize() {
-        const newSize = parseInt(cellSizeInput.value);
+        const newSize = parseFloat(cellSizeInput.value);
         if (isNaN(newSize) || newSize < 10) { cellSizeInput.value = cellSize; return; }
         cellSize = newSize;
-        tokens.forEach(token => { token.size = cellSize; updateTokenElementStyle(token); });
+
+        tokens.forEach(token => {
+            // Asegura que cada token tiene un multiplicador (retrocompatibilidad)
+            token.sizeMultiplier = token.sizeMultiplier || 1;
+            // Recalcula el tamaño en píxeles para CADA token
+            token.size = token.sizeMultiplier * cellSize;
+            // Aplica el nuevo tamaño al elemento del DOM
+            updateTokenElementStyle(token);
+        });
+
         drawGrid();
-         // Walls and Vision depend on map size, not cell size directly, but wall drawing might be guided by cell size
-         // Re-rendering vision is needed as vision radius is calculated based on cellSize
         if (visionModeActive) drawVision();
     }
 
@@ -1378,12 +1450,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const w = gridCanvas.width, h = gridCanvas.height;
         gridCtx.clearRect(0, 0, w, h);
         if (!gridVisible || cellSize <= 0) return;
+
         gridCtx.strokeStyle = gridColor;
         gridCtx.globalAlpha = gridOpacity;
         gridCtx.lineWidth = 1;
         gridCtx.beginPath();
-        for (let x = cellSize; x < w; x += cellSize) { gridCtx.moveTo(x, 0); gridCtx.lineTo(x, h); }
-        for (let y = cellSize; y < h; y += cellSize) { gridCtx.moveTo(0, y); gridCtx.lineTo(w, y); }
+
+        // Dibuja las líneas verticales, empezando desde el offset
+        for (let x = gridOffsetX; x < w; x += cellSize) {
+            gridCtx.moveTo(x, 0);
+            gridCtx.lineTo(x, h);
+        }
+        // Dibuja las líneas horizontales, empezando desde el offset
+        for (let y = gridOffsetY; y < h; y += cellSize) {
+            gridCtx.moveTo(0, y);
+            gridCtx.lineTo(w, y);
+        }
         gridCtx.stroke();
         gridCtx.globalAlpha = 1.0;
     }
@@ -1392,60 +1474,69 @@ document.addEventListener('DOMContentLoaded', () => {
     function toggleWallMode() {
         if (visionModeActive) { alert("No se puede editar muros mientras la Visión Dinámica está activa. Desactívala primero."); return; }
         isDrawingWallMode = !isDrawingWallMode;
-        wallStartPoint = null; // Ensure start point is cleared when toggling mode
+        wallStartPoint = null;
         toggleWallModeBtn.classList.toggle('active', isDrawingWallMode);
-        document.body.classList.toggle('wall-drawing-mode', isDrawingWallMode); // Add/remove cursor class to body
+        document.body.classList.toggle('wall-drawing-mode', isDrawingWallMode);
         toggleWallModeBtn.textContent = isDrawingWallMode ? 'Desactivar Modo Dibujo' : 'Activar Modo Dibujo';
-        drawWalls(); // Redraw to clear any preview line or reset wall appearance
+        drawWalls();
     }
 
-    // Modified handleWallDrawing to only handle the first click (mousedown)
-    // The second click (mousedown) will end the segment and start a new one
+    function toggleAlignGridMode() {
+        isAligningGrid = !isAligningGrid;
+        alignGridModeBtn.classList.toggle('active', isAligningGrid);
+        document.body.classList.toggle('grid-align-mode', isAligningGrid); // <-- FIX IMPORTANTE
+        alignGridModeBtn.textContent = isAligningGrid ? 'Cancelar Alineación' : 'Activar Modo Alineación';
+
+        // Desactivar otros modos para evitar conflictos
+        if (isAligningGrid && isDrawingWallMode) {
+            toggleWallMode();
+        }
+    }
+
+    function resetGridOffset() {
+        if (confirm("¿Restablecer la alineación de la rejilla a la esquina superior izquierda?")) {
+            gridOffsetX = 0;
+            gridOffsetY = 0;
+            drawGrid();
+            if (isAligningGrid) { // Salir del modo si se resetea
+                toggleAlignGridMode();
+            }
+        }
+    }
     function handleWallDrawing(event) {
         const mapRect = mapContainer.getBoundingClientRect();
         const x = event.clientX - mapRect.left + mapContainer.scrollLeft;
         const y = event.clientY - mapRect.top + mapContainer.scrollTop;
 
-        // Clamp coordinates to map boundaries
-        const clampedX = Math.max(0, Math.min(x, mapImage.naturalWidth));
-        const clampedY = Math.max(0, Math.min(y, mapImage.naturalHeight));
-
         if (!wallStartPoint) {
-            // First click of a segment
-            wallStartPoint = { x: clampedX, y: clampedY };
+            wallStartPoint = { x, y };
         } else {
-            // Second click of a segment
             const currentDrawType = document.querySelector('input[name="drawType"]:checked').value;
 
             if (currentDrawType === 'door') {
-                // If it's a door, save data and open modal
+                // Si es una puerta, guardamos sus datos y abrimos el modal
                 pendingDoor = {
                     x1: wallStartPoint.x, y1: wallStartPoint.y,
-                    x2: clampedX, y2: clampedY
+                    x2: x, y2: y
                 };
-                doorNameInput.value = ''; // Clear input
+                doorNameInput.value = ''; // Limpiamos el input
                 doorNameModal.classList.add('open');
                 doorNameInput.focus();
 
             } else {
-                // If it's a wall, create it directly
+                // Si es un muro, lo creamos directamente como antes
                 const newWall = {
                     id: Date.now(),
                     x1: wallStartPoint.x, y1: wallStartPoint.y,
-                    x2: clampedX, y2: clampedY,
+                    x2: x, y2: y,
                     type: 'wall'
                 };
                 walls.push(newWall);
-                // If vision is active, redrawing walls doesn't affect vision directly until drawVision is called
-                // It's usually better to redraw vision *after* confirming the wall/door state is saved
-                // if (visionModeActive) drawVision(); // Removed from here
+                if (visionModeActive) drawVision();
             }
 
-            wallStartPoint = { x: clampedX, y: clampedY }; // The end of this segment is the start of the next
-            drawWalls(); // Redraw walls *without* preview line (it's handled in mousemove)
-            updateDoorList(); // Update door list if a door was just added
-            if (visionModeActive) drawVision(); // Redraw vision to account for new wall/door
-
+            wallStartPoint = null; // Reiniciamos el punto de inicio para el siguiente trazo
+            drawWalls(); // Redibujamos para limpiar la línea de previsualización
         }
     }
 
@@ -1459,72 +1550,56 @@ document.addEventListener('DOMContentLoaded', () => {
         if (pendingDoor) {
             const newDoor = {
                 id: Date.now(),
-                ...pendingDoor, // Use saved coordinates
+                ...pendingDoor, // Usamos las coordenadas guardadas
                 type: 'door',
-                isOpen: false, // Doors start closed
+                isOpen: false,
                 name: doorName
             };
             walls.push(newDoor);
 
-            // Cleanup and update
+            // Limpieza y actualización
             pendingDoor = null;
             doorNameModal.classList.remove('open');
             updateDoorList();
-            drawWalls(); // Redraw walls (now including the new door)
-            if (visionModeActive) drawVision(); // Redraw vision to account for the new door
+            drawWalls();
+            if (visionModeActive) drawVision();
         }
     }
 
     function drawWalls() {
         wallsCtx.clearRect(0, 0, wallsCanvas.width, wallsCanvas.height);
-         // Don't draw walls/doors if vision mode is active, they are handled by visionCanvas
-         if (visionModeActive) return;
-
         walls.forEach(wall => {
             wallsCtx.beginPath();
             wallsCtx.moveTo(wall.x1, wall.y1);
             wallsCtx.lineTo(wall.x2, wall.y2);
 
             if (wall.type === 'door') {
-                wallsCtx.strokeStyle = wall.isOpen ? '#5dc66f' : '#c65d5d'; // Green if open, red if closed
-                wallsCtx.setLineDash([10, 8]); // Dashed line for doors
+                wallsCtx.strokeStyle = wall.isOpen ? '#5dc66f' : '#c65d5d';
+                wallsCtx.setLineDash([10, 8]);
                 wallsCtx.lineWidth = 5;
-            } else { // type === 'wall'
-                wallsCtx.strokeStyle = '#e6c253'; // Gold for walls
-                wallsCtx.setLineDash([]); // Solid line for walls
+            } else {
+                wallsCtx.strokeStyle = '#e6c253';
+                wallsCtx.setLineDash([]);
                 wallsCtx.lineWidth = 4;
             }
             wallsCtx.stroke();
         });
-        // Reset line dash after drawing all walls
         wallsCtx.setLineDash([]);
     }
 
     function undoLastWall() {
-        // If we're in wall drawing mode and have a start point, the "last wall"
-        // is actually the *pending* segment. Undoing should cancel that segment.
-        if (isDrawingWallMode && wallStartPoint) {
-             wallStartPoint = null; // Cancel the pending segment
-             drawWalls(); // Redraw to remove the preview line
-             return; // Stop here
-        }
-
-        // Otherwise, remove the last completed wall/door
-        if (walls.length > 0) {
-            walls.pop();
-            drawWalls();
-            updateDoorList(); // Update door list if a door was removed
-            if (visionModeActive) drawVision(); // Redraw vision if active
-        }
+        walls.pop();
+        drawWalls();
+        updateDoorList();
+        if (visionModeActive) drawVision();
     }
 
     function clearAllWalls() {
-        if (confirm("¿Estás seguro de que quieres eliminar todos los muros y puertas? Esta acción no se puede deshacer.")) {
+        if (confirm("¿Estás seguro de que quieres eliminar todos los muros y puertas?")) {
             walls = [];
-            wallStartPoint = null; // Clear any pending wall segment
             drawWalls();
             updateDoorList();
-            if (visionModeActive) drawVision(); // Redraw vision if active
+            if (visionModeActive) drawVision();
         }
     }
 
@@ -1545,7 +1620,6 @@ document.addEventListener('DOMContentLoaded', () => {
             doorListUl.appendChild(li);
         });
 
-        // Attach listeners to the newly created buttons/spans
         doorListUl.querySelectorAll('.toggle-door-btn').forEach(btn => btn.addEventListener('click', toggleDoorState));
         doorListUl.querySelectorAll('.delete-door-btn').forEach(btn => btn.addEventListener('click', deleteDoor));
         doorListUl.querySelectorAll('.door-name').forEach(nameSpan => nameSpan.addEventListener('click', makeDoorNameEditable));
@@ -1568,16 +1642,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const newName = input.value.trim();
                 door.name = newName === '' ? originalName : newName;
             }
-            updateDoorList(); // Redraw the list to show the updated name (or original if empty)
+            updateDoorList();
         };
-        // Save changes when input loses focus or Enter key is pressed
         input.addEventListener('blur', saveChanges);
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                input.blur(); // Trigger blur to save
+                input.blur();
             } else if (e.key === 'Escape') {
-                // Revert changes and redraw list
-                updateDoorList(); // This will remove the input and redraw with original name
+                updateDoorList();
             }
         });
     }
@@ -1587,10 +1659,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const door = walls.find(w => w.id === doorId);
         if (door) {
             door.isOpen = !door.isOpen;
-            updateDoorList(); // Update button text
-            drawWalls(); // Update wall appearance
+            updateDoorList();
+            drawWalls();
             if (visionModeActive) {
-                drawVision(); // Update vision if active
+                drawVision();
             }
         }
     }
@@ -1598,38 +1670,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function deleteDoor(event) {
         const doorId = parseInt(event.target.dataset.id);
         walls = walls.filter(w => w.id !== doorId);
-        updateDoorList(); // Remove from list
-        drawWalls(); // Remove from canvas
+        updateDoorList();
+        drawWalls();
         if (visionModeActive) {
-            drawVision(); // Update vision
+            drawVision();
         }
     }
 
-     // Corrected getIntersection function (using standard line-segment intersection)
     function getIntersection(ray, wall) {
         const r_px = ray.x1, r_py = ray.y1, r_dx = ray.x2 - r_px, r_dy = ray.y2 - r_py;
         const s_px = wall.x1, s_py = wall.y1, s_dx = wall.x2 - s_px, s_dy = wall.y2 - s_py;
-
-        const divisor = (s_dx * r_dy - s_dy * r_dx);
-
-        // Check if lines are parallel
-        if (divisor === 0) {
-            return null; // Parallel lines do not intersect (or are collinear, which we ignore here)
-        }
-
-        const T2 = (r_dx * (s_py - r_py) + r_dy * (r_px - s_px)) / divisor;
+        const r_mag = Math.sqrt(r_dx * r_dx + r_dy * r_dy), s_mag = Math.sqrt(s_dx * s_dx + s_dy * s_dy);
+        if (r_dx / r_mag == s_dx / s_mag && r_dy / r_mag == s_dy / s_mag) { return null; }
+        const T2 = (r_dx * (s_py - r_py) + r_dy * (r_px - s_px)) / (s_dx * r_dy - s_dy * r_dx);
         const T1 = (s_px + s_dx * T2 - r_px) / r_dx;
-
-        // Check if the intersection point lies within both the ray segment (T1 >= 0)
-        // and the wall segment (T2 >= 0 and T2 <= 1)
-        if (T1 >= 0 && T2 >= 0 && T2 <= 1) {
-             // Calculate intersection coordinates
-             const intersectX = r_px + r_dx * T1;
-             const intersectY = r_py + r_dy * T1;
-             return { x: intersectX, y: intersectY, param: T1 }; // param is distance along the ray (normalized)
-        }
-
-        return null; // No intersection within the segments
+        if (T1 < 0 || T2 < 0 || T2 > 1) return null;
+        return { x: r_px + r_dx * T1, y: r_py + r_dy * T1, param: T1 };
     }
 
     // --- FUNCIÓN CENTRAL PARA EL TRACKER DE JUGADORES (NUEVA) ---
@@ -1651,15 +1707,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? `background-image: url(${token.image});`
                 : `background-color: ${token.color};`;
 
-            // States are still emojis, so no change here
             const statesHTML = token.states.map(state =>
                 `<span title="${state.description}">${state.emoji}</span>`
             ).join('');
 
-            // 3. Generamos el HTML de la barra de vida de forma condicional (Solo para jugadores)
+            // 3. Generamos el HTML de la barra de vida de forma condicional
             let healthBarHTML = '';
-            if (token.type === 'player' && token.health_max > 0) { // Only show health bar if it's a player and has max health > 0
-                const healthPercentage = (token.health_current / token.health_max) * 100;
+            if (token.type === 'player') {
+                const healthPercentage = token.health_max > 0 ? (token.health_current / token.health_max) * 100 : 0;
                 const healthColorClass = getHealthColorClass(token.health_current, token.health_max);
                 healthBarHTML = `
                     <div class="health-bar-container">
@@ -1667,7 +1722,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
             }
-
 
             // 4. Construimos la tarjeta final
             card.innerHTML = `
@@ -1677,7 +1731,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="player-token-info">
                     <div class="player-token-name">${token.name}</div>
                     <div class="player-token-initiative">Ini 🎲: ${token.turn}</div>
-                    ${healthBarHTML}
+                    ${healthBarHTML} 
                     <div class="player-token-states">
                         ${statesHTML}
                     </div>
@@ -1691,7 +1745,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- GESTIÓN DE ESTADOS (NUEVAS FUNCIONES) ---
     function renderTokenStatesEditor(token) {
         editTokenStatesList.innerHTML = '';
-        if (!token || !token.states) return; // Ensure token and states exist
+        if (!token || !token.states) return;
 
         token.states.forEach((state, index) => {
             const li = document.createElement('li');
@@ -1711,9 +1765,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     function addStateToSelectedToken() {
-        if (!selectedTokenId) return; // No token selected
+        if (!selectedTokenId) return;
         const token = tokens.find(t => t.id === selectedTokenId);
-        if (!token) return; // Token not found (shouldn't happen if selectedTokenId is valid)
+        if (!token) return;
 
         const emoji = newStateEmoji.value.trim();
         const desc = newStateDesc.value.trim();
@@ -1723,44 +1777,197 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Ensure states array exists (should already be handled by recreateToken and load)
-        token.states = token.states || [];
         token.states.push({ emoji, description: desc });
 
         // Limpiar inputs y actualizar UI
         newStateEmoji.value = '';
         newStateDesc.value = '';
-        renderTokenStatesEditor(token); // Update the editor list
-        updatePlayerTurnTracker(); // Update the tracker cards to show the new state
+        renderTokenStatesEditor(token);
+        updatePlayerTurnTracker();
     }
 
     function removeStateFromSelectedToken(index) {
-        if (!selectedTokenId) return; // No token selected
+        if (!selectedTokenId) return;
         const token = tokens.find(t => t.id === selectedTokenId);
-        // Ensure token exists and the index is valid
-        if (!token || !token.states || index < 0 || index >= token.states.length) return;
-
+        if (!token || !token.states[index]) return;
 
         token.states.splice(index, 1);
 
         // Actualizar UI
-        renderTokenStatesEditor(token); // Update the editor list
-        updatePlayerTurnTracker(); // Update the tracker cards to remove the state
+        renderTokenStatesEditor(token);
+        updatePlayerTurnTracker();
     }
-    // Guardar y cargar estados - This part of the saveState function is fine,
-    // it correctly includes the 'states' property in the token data.
-    /*
+    // Guardar y cargar estados
     function saveState() {
         // ... (lógica existente)
         const state = {
             // ... (propiedades existentes)
             tokens: tokens.map(t => ({
                 // ... (propiedades de token existentes)
-                states: t.states // <-- AÑADIR ESTA LÍNEA (Already added)
+                states: t.states // <-- AÑADIR ESTA LÍNEA
             }))
             // ... (resto del objeto state)
         };
         // ...
     }
-    */
+    const soundButtons = document.querySelectorAll('.sound-btn');
+
+    soundButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // 1. Identificamos el botón presionado y su audio correspondiente.
+            const soundId = button.dataset.soundId;
+            const audio = document.getElementById(soundId);
+
+            // Si por alguna razón el audio no existe, no hacemos nada.
+            if (!audio) return;
+
+            // 2. Comprobamos si el audio tiene el atributo 'loop'.
+            if (audio.loop) {
+                // --- LÓGICA PARA SONIDOS DE AMBIENTE (CON LOOP) ---
+
+                // Si hacemos clic en el sonido que ya está en loop...
+                if (activeLoopingSound === audio) {
+                    // ...lo detenemos.
+                    audio.pause();
+                    audio.currentTime = 0;
+                    activeLoopingSound = null; // Olvidamos que había un sonido activo.
+                    button.classList.remove('active'); // Le quitamos el estilo de "activo".
+                } else {
+                    // Si hacemos clic en un NUEVO sonido en loop...
+
+                    // a) Detenemos el que sonaba antes (si había uno).
+                    if (activeLoopingSound) {
+                        activeLoopingSound.pause();
+                        activeLoopingSound.currentTime = 0;
+                        // Buscamos el botón antiguo y le quitamos el estilo activo.
+                        document.querySelector('.sound-btn.active')?.classList.remove('active');
+                    }
+
+                    // b) Reproducimos el nuevo sonido, lo recordamos y le damos el estilo activo.
+                    audio.play();
+                    activeLoopingSound = audio;
+                    button.classList.add('active');
+                }
+            } else {
+                // --- LÓGICA PARA EFECTOS DE SONIDO (SIN LOOP) ---
+
+                // Simplemente lo reproducimos desde el principio.
+                // Esto no afecta a `activeLoopingSound`, por lo que la música de fondo sigue sonando.
+                audio.currentTime = 0;
+                audio.play();
+            }
+        });
+    });
+    // --- FUNCIONES DE ÁREA DE EFECTO (NUEVO) ---
+
+    function toggleAoe(shape) {
+        // Si hacemos clic en el botón ya activo, lo desactivamos todo.
+        if (activeAoeType === shape) {
+            activeAoeType = null;
+        } else {
+            activeAoeType = shape;
+        }
+
+        updateAoeControls();
+        clearAoeCanvas();
+    }
+
+    function updateAoeControls() {
+        // Sincroniza el estado de los botones
+        aoeShapeButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.shape === activeAoeType);
+        });
+
+        // Muestra solo los parámetros para la forma activa
+        document.querySelectorAll('.aoe-params').forEach(paramDiv => {
+            paramDiv.style.display = paramDiv.id === `params-${activeAoeType}` ? 'block' : 'none';
+        });
+
+        // Si no hay ninguna forma activa, limpiamos el canvas
+        if (!activeAoeType) {
+            clearAoeCanvas();
+        }
+    }
+
+    function clearAoeCanvas() {
+        aoeCtx.clearRect(0, 0, aoeCanvas.width, aoeCanvas.height);
+    }
+
+    function drawAoePreview(event) {
+        if (!activeAoeType || !selectedTokenId) {
+            clearAoeCanvas();
+            return;
+        }
+
+        const token = tokens.find(t => t.id === selectedTokenId);
+        if (!token) return;
+
+        clearAoeCanvas();
+
+        const mapRect = mapContainer.getBoundingClientRect();
+        const mouseX = event.clientX - mapRect.left + mapContainer.scrollLeft;
+        const mouseY = event.clientY - mapRect.top + mapContainer.scrollTop;
+
+        const centerX = token.x + token.size / 2;
+        const centerY = token.y + token.size / 2;
+
+        aoeCtx.fillStyle = aoeColorInput.value;
+        aoeCtx.strokeStyle = aoeColorInput.value;
+
+        switch (activeAoeType) {
+            case 'line':
+                const lineWidth = (parseInt(document.getElementById('aoeLineWidth').value) || 1) * cellSize;
+                aoeCtx.lineWidth = lineWidth;
+                aoeCtx.lineCap = 'butt';
+                aoeCtx.beginPath();
+                aoeCtx.moveTo(centerX, centerY);
+                aoeCtx.lineTo(mouseX, mouseY);
+                aoeCtx.stroke();
+                break;
+
+            case 'cone':
+                const coneLength = (parseInt(document.getElementById('aoeConeLength').value) || 1) * cellSize;
+                const angle = Math.atan2(mouseY - centerY, mouseX - centerX);
+                // El ancho de un cono de 5e es igual a su longitud.
+                const endPointX = centerX + Math.cos(angle) * coneLength;
+                const endPointY = centerY + Math.sin(angle) * coneLength;
+
+                // Calcular los dos puntos de la base del cono
+                const halfWidth = coneLength / 2;
+                const p1x = endPointX - halfWidth * Math.sin(angle);
+                const p1y = endPointY + halfWidth * Math.cos(angle);
+                const p2x = endPointX + halfWidth * Math.sin(angle);
+                const p2y = endPointY - halfWidth * Math.cos(angle);
+
+                aoeCtx.beginPath();
+                aoeCtx.moveTo(centerX, centerY); // El origen es el token
+                aoeCtx.lineTo(p1x, p1y);
+                aoeCtx.lineTo(p2x, p2y);
+                aoeCtx.closePath();
+                aoeCtx.fill();
+                break;
+
+            case 'cube':
+                const cubeSize = (parseInt(document.getElementById('aoeCubeSize').value) || 1) * cellSize;
+                // El origen es una cara, así que dibujamos el cubo centrado en el cursor.
+                aoeCtx.fillRect(mouseX - cubeSize / 2, mouseY - cubeSize / 2, cubeSize, cubeSize);
+                break;
+
+            case 'sphere':
+                const sphereRadius = (parseInt(document.getElementById('aoeSphereRadius').value) || 1) * cellSize;
+                // El origen es el centro de la esfera (la ficha)
+                aoeCtx.beginPath();
+                aoeCtx.arc(centerX, centerY, sphereRadius, 0, Math.PI * 2);
+                aoeCtx.fill();
+                break;
+
+            case 'cylinder':
+                const cylinderRadius = (parseInt(document.getElementById('aoeCylinderRadius').value) || 1) * cellSize;
+                // El origen es el centro de la base, la cual dibujamos en el cursor.
+                aoeCtx.beginPath();
+                aoeCtx.arc(mouseX, mouseY, cylinderRadius, 0, Math.PI * 2);
+                aoeCtx.fill();
+                break;
+        }
+    }
 });

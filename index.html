@@ -62,10 +62,16 @@
                     <input type="range" class="range1" id="gridOpacity" min="0" max="1" step="0.1" value="0.5">
 
                     <label for="cellSize">Tamaño de Casilla (px):</label>
-                    <input type="number" id="cellSize" value="50" min="10">
-                    <input type="range" id="cellSizeSlider" min="10" max="150" value="50">
-
-
+                    <input type="number" id="cellSize" value="50" min="10" step="0.1">
+                    <input type="range" id="cellSizeSlider" min="10" max="150" value="50" step="0.1"
+                        aria-label="Ajustar tamaño de casilla">
+                    <h4 class="top-margin"><span class="header-icon icon-align-grid"></span> Alinear Rejilla</h4>
+                    <p class="help-text">Activa este modo y luego haz clic en la esquina superior izquierda de una
+                        casilla en la imagen de tu mapa para alinear la rejilla.</p>
+                    <div class="button-group">
+                        <button id="alignGridModeBtn">Activar Modo Alineación</button>
+                        <button id="resetGridOffsetBtn" class="secondary">Resetear</button>
+                    </div>
                     <h4 class="top-margin"><span class="header-icon icon-brush"></span> Pincel de Niebla</h4>
                     <div class="radio-group">
                         <div class="radio-group">
@@ -129,6 +135,44 @@
                         <!-- La lista de puertas se generará aquí con JavaScript -->
                     </ul>
                     <p id="noDoorsMessage" class="help-text">No has dibujado ninguna puerta o acceso secreto.</p>
+                </div>
+            </section>
+
+            <section class="collapsible">
+                <h3 class="collapsible-header"><span class="header-icon icon-ambiance"></span> Ambientación</h3>
+                <div class="collapsible-content">
+                    <div id="soundBoardGrid" class="sound-board-grid">
+                        <!-- Fila 1: Ambientes (Loop) -->
+                        <button class="sound-btn" data-sound-id="sound-tavern">Taverna</button>
+                        <button class="sound-btn" data-sound-id="sound-forest">Bosque</button>
+                        <button class="sound-btn" data-sound-id="sound-cave">Cueva</button>
+                        <button class="sound-btn" data-sound-id="sound-rain">Lluvia</button>
+
+                        <!-- Fila 2: Música (Loop) -->
+                        <button class="sound-btn" data-sound-id="sound-combat">Combate</button>
+                        <button class="sound-btn" data-sound-id="sound-tension">Tensión</button>
+                        <button class="sound-btn" data-sound-id="sound-end-battle">Fin Batalla</button>
+                        <button class="sound-btn" data-sound-id="sound-eendigolongroar">Roar Monstruo</button>
+
+                        <!-- Fila 3: Efectos de Combate -->
+                        <button class="sound-btn" data-sound-id="sound-Sword-slash">Espadazo</button>
+                        <button class="sound-btn" data-sound-id="sound-sword-hit">Golpe Espada</button>
+                        <button class="sound-btn" data-sound-id="sound-Fireball">Bola de Fuego</button>
+                        <button class="sound-btn" data-sound-id="sound-explosion">Explosión</button>
+
+                        <!-- Fila 4: Efectos de Entorno -->
+                        <button class="sound-btn" data-sound-id="sound-magic">Hechizo</button>
+                        <button class="sound-btn" data-sound-id="sound-monster">Grito</button>
+                        <button class="sound-btn" data-sound-id="sound-coin">Moneda</button>
+                        <button class="sound-btn" data-sound-id="sound-door-1">Puerta Chirría</button>
+                        <button class="sound-btn" data-sound-id="sound-risasenlatadas">Risas enltatadas</button>
+
+
+                        <!-- Fila 5: Efectos de Puerta -->
+                        <button class="sound-btn" data-sound-id="sound-noknok">Toc-Toc</button>
+                        <button class="sound-btn" data-sound-id="sound-noknok-1">Aporrear</button>
+
+                    </div>
                 </div>
             </section>
 
@@ -218,6 +262,10 @@
                                     <label for="addBorderCheckbox">Añadir Borde</label>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label for="tokenSizeMultiplier">Tamaño (x casillas):</label>
+                                <input type="number" id="tokenSizeMultiplier" value="1" min="0.5" step="0.5">
+                            </div>
                         </div>
 
                         <h4>Notas</h4>
@@ -298,13 +346,75 @@
                             </div>
                             <p class="help-text">Usa los botones o escribe un número y presiona Enter.</p>
                         </div>
+                        <h4 id="aoeHeader">Alcance y Áreas de Efecto</h4>
 
+                        <!-- Contenedor principal para los controles de AoE -->
+                        <div id="aoeControlsContainer" style="display: none;">
+
+                            <!-- Botones para seleccionar la forma del área -->
+                            <div id="aoeShapeSelector" class="button-group">
+                                <button id="aoeBtnLine" data-shape="line" title="Línea">Línea</button>
+                                <button id="aoeBtnCone" data-shape="cone" title="Cono">Cono</button>
+                                <button id="aoeBtnCube" data-shape="cube" title="Cubo">Cubo</button>
+                                <button id="aoeBtnSphere" data-shape="sphere" title="Esfera">Esfera</button>
+                                <button id="aoeBtnCylinder" data-shape="cylinder" title="Cilindro">Cilindro</button>
+                            </div>
+
+                            <!-- Contenedor para los parámetros (se mostrará el apropiado con JS) -->
+                            <div id="aoeParamsContainer" style="margin-top: 15px;">
+                                <!-- Parámetros para Línea -->
+                                <div id="params-line" class="aoe-params" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="aoeLineWidth">Ancho de la Línea (casillas):</label>
+                                        <input type="number" id="aoeLineWidth" value="1" min="1">
+                                    </div>
+                                </div>
+                                <!-- Parámetros para Cono -->
+                                <div id="params-cone" class="aoe-params" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="aoeConeLength">Longitud del Cono (casillas):</label>
+                                        <input type="number" id="aoeConeLength" value="6" min="1">
+                                    </div>
+                                </div>
+                                <!-- Parámetros para Cubo -->
+                                <div id="params-cube" class="aoe-params" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="aoeCubeSize">Tamaño del Cubo (casillas):</label>
+                                        <input type="number" id="aoeCubeSize" value="3" min="1">
+                                    </div>
+                                </div>
+                                <!-- Parámetros para Esfera -->
+                                <div id="params-sphere" class="aoe-params" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="aoeSphereRadius">Radio de la Esfera (casillas):</label>
+                                        <input type="number" id="aoeSphereRadius" value="4" min="1">
+                                    </div>
+                                </div>
+                                <!-- Parámetros para Cilindro -->
+                                <div id="params-cylinder" class="aoe-params" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="aoeCylinderRadius">Radio del Cilindro (casillas):</label>
+                                        <input type="number" id="aoeCylinderRadius" value="2" min="1">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Selector de color para la previsualización -->
+                            <div class="form-group">
+                                <label for="aoeColor">Color de Previsualización:</label>
+                                <input type="color" id="aoeColor" value="#ff4500">
+                            </div>
+                        </div>
                         <h4>Apariencia</h4>
                         <div class="form-row">
                             <div class="form-group"><label for="editTokenColor">Color Relleno*</label><input
                                     type="color" id="editTokenColor"></div>
                             <div class="form-group"><label for="editTokenBorderColor">Color Borde*</label><input
                                     type="color" id="editTokenBorderColor"></div>
+                            <div class="form-group">
+                                <label for="editTokenSizeMultiplier">Tamaño (x casillas):</label>
+                                <input type="number" id="editTokenSizeMultiplier" value="1" min="0.5" step="0.5">
+                            </div>
                         </div>
 
                         <h4>Notas</h4>
@@ -378,6 +488,7 @@
                 <canvas id="wallsCanvas"></canvas>
                 <canvas id="visionCanvas"></canvas>
                 <div id="tokensLayer"></div>
+                <canvas id="aoeCanvas"></canvas>
             </div>
             <div id="playerTurnTracker">
             </div>
@@ -434,11 +545,48 @@
     </div>
 
 
-    <audio id="damage-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_895037d330.mp3"
+    <audio id="damage-sound" src="https://www.myinstants.com/media/sounds/crap-dnd-song.mp3" preload="auto"></audio>
+    <audio id="heal-sound" src="https://www.myinstants.com/media/sounds/crap-dnd-song.mp3" preload="auto"></audio>
+
+
+    <!-- ======================================================= -->
+    <!-- ========== NUEVOS AUDIOS DE AMBIENTE ================== -->
+    <!-- ======================================================= -->
+    <audio id="sound-tavern" src="https://www.myinstants.com/media/sounds/crapdndsong_ICcww3d.mp3" preload="auto"
+        loop></audio>
+    <audio id="sound-forest" src="https://www.myinstants.com/media/sounds/forest-night.mp3" preload="auto" loop></audio>
+    <audio id="sound-cave" src="https://www.myinstants.com/media/sounds/cave-ambience-3.mp3" preload="auto"
+        loop></audio>
+    <audio id="sound-combat" src="https://www.myinstants.com/media/sounds/.mp3" preload="auto" loop></audio>
+    <audio id="sound-tension" src="https://www.myinstants.com/media/sounds/64-000-500-000-questions-mp3cut.mp3"
+        preload="auto" loop></audio>
+    <audio id="sound-magic" src="https://www.myinstants.com/media/sounds/magia.mp3" preload="auto"></audio>
+    <audio id="sound-monster" src="https://www.myinstants.com/media/sounds/monster-scream-aggressive.mp3"
         preload="auto"></audio>
-    <audio id="heal-sound" src="https://cdn.pixabay.com/download/audio/2022/02/07/audio_a54f1f5062.mp3"
+    <audio id="sound-eendigolongroar" src="https://www.myinstants.com/media/sounds/wendigo-long-roar.mp3" preload="auto"
+        loop></audio>
+    <audio id="sound-rain" src="https://www.myinstants.com/media/sounds/lluvia.mp3" preload="auto" loop></audio>
+    <audio id="sound-coin" src="https://www.myinstants.com/media/sounds/coin.mp3" preload="auto"></audio>
+    <audio id="sound-Sword-slash" src="https://www.myinstants.com/media/sounds/sword-slash.mp3" preload="auto"></audio>
+    <audio id="sound-sword-hit" src="https://www.myinstants.com/media/sounds/sword-swing-hit.mp3"
+        preload="auto"></audio>
+    <audio id="sound-Fireball"
+        src="https://www.myinstants.com/media/sounds/ghast-fireball-minecraft-sound-sound-effect-for-editing.mp3"
+        preload="auto"></audio>
+    <audio id="sound-noknok" src="https://www.myinstants.com/media/sounds/dnd-puerta.mp3" preload="auto"></audio>
+    <audio id="sound-noknok-1" src="https://www.myinstants.com/media/sounds/dnd-aporreando.mp3" preload="auto"></audio>
+    <audio id="sound-end-battle" src="https://www.myinstants.com/media/sounds/end-battle.mp3" preload="auto"
+        loop></audio>
+    <audio id="sound-door-1" src="https://www.myinstants.com/media/sounds/dndoor-squeak.mp3" preload="auto"></audio>
+    <audio id="sound-explosion" src="https://www.myinstants.com/media/sounds/dnd-explosion.mp3" preload="auto"></audio>
+    <audio id="sound-risasenlatadas" src="https://www.myinstants.com/media/sounds/risas-enlatadas-tv.mp3"
         preload="auto"></audio>
 
+
+
+    <!-- ======================================================= -->
+    <!-- ======================================================= -->
+    <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script> <!--usaremos bd del navegador-->
     <script src="script.js"></script>
 </body>
 
