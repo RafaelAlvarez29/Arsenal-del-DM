@@ -119,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const add_tokenName = document.getElementById('tokenName'),
         add_tokenLetter = document.getElementById('tokenLetter'),
         add_tokenImageInput = document.getElementById('tokenImageInput'),
+        add_tokenImagePreviewContainer = document.getElementById('addTokenImagePreviewContainer'),
         add_tokenImageName = document.getElementById('tokenImageName'),
         add_tokenTurn = document.getElementById('tokenTurn'),
         add_tokenHealth = document.getElementById('tokenHealth'),
@@ -155,6 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const damageSound = document.getElementById('damage-sound'),
         healSound = document.getElementById('heal-sound');
 
+    const brushRevealCheckbox = document.getElementById('brushReveal');
+    const brushHideCheckbox = document.getElementById('brushHide');
+
     // --- VARIABLES DE ESTADO ---
 
     let tokens = [],
@@ -165,6 +169,8 @@ document.addEventListener('DOMContentLoaded', () => {
         isPaintingFog = false,
         isDrawingWallMode = false,
         wallStartPoint = null;
+    let activeBrushMode = null;
+
 
     let pendingDoor = null;
     let activeLoopingSound = null;
@@ -180,13 +186,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let scrollStartX, scrollStartY;
 
 
+
     let dragOffsetX, dragOffsetY;
     let cellSize = parseFloat(cellSizeInput.value),
         gridVisible = gridToggle.checked,
         gridColor = gridColorInput.value,
         gridOpacity = parseFloat(gridOpacityInput.value);
-    let brushMode = document.querySelector('input[name="brushMode"]:checked').value,
-        brushSize = parseInt(brushSizeInput.value);
+    //let brushMode = document.querySelector('input[name="brushMode"]:checked').value,
+    brushSize = parseInt(brushSizeInput.value);
     let drawType = 'wall';
     const revealedBufferCanvas = document.createElement('canvas'),
         revealedBufferCtx = revealedBufferCanvas.getContext('2d', { willReadFrequently: true });
@@ -220,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
     resetGridOffsetBtn.addEventListener('click', resetGridOffset);
     gridColorInput.addEventListener('input', e => { gridColor = e.target.value; drawGrid(); });
     gridOpacityInput.addEventListener('input', e => { gridOpacity = parseFloat(e.target.value); drawGrid(); });
-    brushModeInputs.forEach(input => input.addEventListener('change', e => brushMode = e.target.value));
+    //brushModeInputs.forEach(input => input.addEventListener('change', e => brushMode = e.target.value));
     brushSizeInput.addEventListener('input', e => brushSize = parseInt(e.target.value));
     drawTypeInputs.forEach(input => input.addEventListener('change', e => drawType = e.target.value));
     cellSizeSlider.addEventListener('input', () => { cellSizeInput.value = cellSizeSlider.value; updateCellSize(); });
@@ -231,8 +238,52 @@ document.addEventListener('DOMContentLoaded', () => {
         cellSizeSlider.value = val;
         updateCellSize();
     }); addTokenBtn.addEventListener('click', addToken);
-    add_tokenImageInput.addEventListener('change', e => { add_tokenImageName.textContent = e.target.files[0] ? e.target.files[0].name : 'Ningún archivo...'; });
-    edit_tokenImageInput.addEventListener('change', handleEditTokenImageChange);
+    add_tokenImageInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+
+        // Limpia la previsualización anterior
+        add_tokenImagePreviewContainer.innerHTML = '';
+
+        if (file) {
+            // 1. Mostrar el contenedor de la previsualización
+            add_tokenImagePreviewContainer.style.display = 'block';
+
+            // 2. Ocultar el texto "Ningún archivo..."
+            add_tokenImageName.style.display = 'none';
+
+            // 3. Crear el elemento de imagen para la miniatura
+            const image = document.createElement('img');
+
+            // Usamos URL.createObjectURL para una previsualización instantánea y eficiente
+            image.src = URL.createObjectURL(file);
+            image.alt = 'Previsualización de ficha';
+
+            // Limpiamos el objeto URL cuando la imagen se haya cargado para liberar memoria
+            image.onload = () => {
+                URL.revokeObjectURL(image.src);
+            }
+
+            // 4. Añadir la imagen al contenedor
+            add_tokenImagePreviewContainer.appendChild(image);
+
+        } else {
+            // Si el usuario cancela, volvemos al estado inicial
+            add_tokenImagePreviewContainer.style.display = 'none';
+            add_tokenImageName.style.display = 'block'; // Mostrar de nuevo el texto
+            add_tokenImageName.textContent = 'Ningún archivo...';
+        }
+    });
+
+    // Esta línea también es importante para el reseteo del formulario
+    function resetAddTokenForm() {
+        // ... (todo tu código de reseteo existente)
+
+        // AÑADIR ESTAS LÍNEAS AL FINAL DE LA FUNCIÓN resetAddTokenForm
+        add_tokenImagePreviewContainer.innerHTML = '';
+        add_tokenImagePreviewContainer.style.display = 'none';
+        add_tokenImageName.style.display = 'block';
+        add_tokenImageName.textContent = 'Ningún archivo...';
+    } edit_tokenImageInput.addEventListener('change', handleEditTokenImageChange);
     removeTokenImageBtn.addEventListener('click', removeEditTokenImage);
     updateTokenBtn.addEventListener('click', updateSelectedToken);
     deselectTokenBtn.addEventListener('click', deselectToken);
@@ -250,6 +301,41 @@ document.addEventListener('DOMContentLoaded', () => {
     clearWallsBtn.addEventListener('click', clearAllWalls);
     addStateBtn.addEventListener('click', addStateToSelectedToken);
 
+    //CURSOR PERZONALIDADO DE PINCEL
+    function handleBrushModeChange(event) {
+        const checkbox = event.target;
+        const otherCheckbox = checkbox.id === 'brushReveal' ? brushHideCheckbox : brushRevealCheckbox;
+
+        if (checkbox.checked) {
+            otherCheckbox.checked = false;
+            activeBrushMode = checkbox.value;
+            // AÑADIR CLASE: Si un modo se activa, añadimos la clase del cursor.
+            mapContainer.classList.add('brush-mode-active');
+        } else {
+            activeBrushMode = null;
+            // QUITAR CLASE: Si se desactiva, quitamos la clase del cursor.
+            mapContainer.classList.remove('brush-mode-active');
+        }
+    }
+    //ANTES DEL CURSOR PERZONALIDADO DE PINCEL
+    ///    function handleBrushModeChange(event) {
+    ///        const checkbox = event.target;
+    ///        const otherCheckbox = checkbox.id === 'brushReveal' ? brushHideCheckbox : brushRevealCheckbox;
+    ///
+    ///        // Si el checkbox que se acaba de marcar está activado...
+    ///        if (checkbox.checked) {
+    ///            // ...desactivamos el otro.
+    ///            otherCheckbox.checked = false;
+    ///            // Y guardamos el modo actual.
+    ///            activeBrushMode = checkbox.value;
+    ///        } else {
+    ///            // Si se acaba de desmarcar, no hay ningún modo activo.
+    ///            activeBrushMode = null;
+    ///        }
+    ///    }
+    ///
+    brushRevealCheckbox.addEventListener('change', handleBrushModeChange);
+    brushHideCheckbox.addEventListener('change', handleBrushModeChange);
 
     // --- NUEVOS LISTENERS PARA MODAL DE PUERTA ---
     confirmDoorNameBtn.addEventListener('click', createDoorFromModal);
@@ -754,8 +840,8 @@ document.addEventListener('DOMContentLoaded', () => {
             visionRadius: vision,
             x: 20,
             y: 20,
+            // --- LÍNEA MODIFICADA ---
             sizeMultiplier: parseFloat(add_tokenSizeMultiplier.value) || 1,
-
             isDiscovered: document.querySelector('input[name="tokenType"]:checked').value === 'player',
             states: []
         };
@@ -849,7 +935,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const borderStyle = token.borderColor ? `border: 3px solid ${token.borderColor};` : 'none';
             const imageStyle = token.image ? `background-image: url(${token.image}); background-size: cover; background-position: center;` : `background-color: ${token.color};`;
             const previewContent = token.image ? '' : token.letter;
-            li.innerHTML = `<div class="token-list-preview" style="${imageStyle} ${borderStyle}">${previewContent}</div><div class="token-list-header">${typeIconHTML}<span>${token.name}</span></div><div class="token-list-details"><span>Turno: ${token.turn}</span><span>❤️ Vida: ${token.health_current}/${token.health_max}</span><span>👁️ Vis: ${token.visionRadius}</span></div><button class="delete-token-btn" data-id="${token.id}" title="Eliminar Ficha">X</button>`;
+            li.innerHTML = `<div class="token-list-preview" style="${imageStyle} ${borderStyle}">${previewContent}</div><div class="token-list-header">${typeIconHTML}<span>${token.name}</span></div><div class="token-list-details"><span>Iniciativa: ${token.turn}</span><span>❤️ Vida: ${token.health_current}/${token.health_max}</span><span>👁️ Vis: ${token.visionRadius}</span></div><button class="delete-token-btn" data-id="${token.id}" title="Eliminar Ficha">X</button>`;
             tokenListUl.appendChild(li);
         });
         tokenListUl.querySelectorAll('.delete-token-btn').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); deleteToken(parseInt(e.target.dataset.id)); }));
@@ -863,8 +949,7 @@ document.addEventListener('DOMContentLoaded', () => {
         deselectToken(); // Limpia la selección anterior
 
         if (isAlreadySelected) {
-            // Si estábamos re-seleccionando la misma, no hacemos nada más que limpiarla y re-abrir el panel.
-            // Esto evita que al hacer clic en la misma ficha se cierre el panel.
+            // ... (el resto de tu lógica aquí no cambia)
         }
 
         selectedTokenId = tokenId;
@@ -873,34 +958,45 @@ document.addEventListener('DOMContentLoaded', () => {
             tokenStatesEditor.style.display = 'none'; // Ocultar si no hay token
             return;
         }
-        tokenStatesEditor.style.display = 'block'; // Mostrar editor
-        aoeControlsContainer.style.display = 'block';
-        aoeHeader.style.display = 'block';
 
+        // --- BLOQUE DE RESALTADO ACTUALIZADO (incluye el de la respuesta anterior) ---
+        const listItem = tokenListUl.querySelector(`li[data-id="${tokenId}"]`);
+        if (listItem) {
+            listItem.classList.add('selected-in-list');
+        }
+        const trackerCard = playerTurnTracker.querySelector(`.player-token-card[data-id="${tokenId}"]`);
+        if (trackerCard) {
+            trackerCard.classList.add('selected-in-tracker');
+        }
+        // --- FIN DEL BLOQUE DE RESALTADO ---
+
+        // =========================================================
+        // === NUEVO: MOSTRAR CONTROLES AOE AL SELECCIONAR FICHA ===
+        // =========================================================
+        aoeHeader.style.display = 'block';
+        aoeControlsContainer.style.display = 'block';
+        // =========================================================
+
+        tokenStatesEditor.style.display = 'block';
         renderTokenStatesEditor(token);
 
         token.element.classList.add('selected');
         selectedTokenSection.classList.add('has-selection', 'active');
 
-        // --- LÓGICA DE VISTA PREVIA ACTUALIZADA (Ahora siempre se ejecutará) ---
+        // ... (El resto de la función para rellenar el formulario no cambia)
         if (token.image) {
-            // Si tiene imagen, mostrarla y ocultar la letra
             edit_tokenImagePreview.src = token.image;
             edit_tokenImagePreview.style.display = 'block';
             edit_tokenLetterPreview.style.display = 'none';
-            removeTokenImageBtn.style.display = 'block'; // Mostrar botón de quitar
+            removeTokenImageBtn.style.display = 'block';
         } else {
-            // Si NO tiene imagen, mostrar la letra/color y ocultar la imagen
             edit_tokenImagePreview.style.display = 'none';
             edit_tokenLetterPreview.style.display = 'flex';
-            removeTokenImageBtn.style.display = 'none'; // Ocultar botón de quitar
-
-            // Aplicar estilos a la vista previa de la letra
+            removeTokenImageBtn.style.display = 'none';
             edit_tokenLetterPreview.textContent = token.letter;
             edit_tokenLetterPreview.style.backgroundColor = token.color;
         }
 
-        // Rellenar el resto del formulario como antes
         edit_tokenName.value = token.name;
         edit_tokenLetter.value = token.letter;
         edit_tokenTurn.value = token.turn;
@@ -909,7 +1005,9 @@ document.addEventListener('DOMContentLoaded', () => {
         edit_tokenColor.value = token.color;
         edit_tokenBorderColor.value = token.borderColor || '#000000';
         edit_tokenNotes.value = token.notes;
+        // --- NUEVO: Rellenar el campo de tamaño ---
         edit_tokenSizeMultiplier.value = token.sizeMultiplier || 1;
+
         healthDisplay.textContent = token.health_current;
         healthDisplay.className = `health-display ${getHealthColorClass(token.health_current, token.health_max)}`;
     }
@@ -917,16 +1015,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function deselectToken() {
         if (!selectedTokenId) return;
+
         const oldToken = tokens.find(t => t.id === selectedTokenId);
-        if (oldToken) oldToken.element.classList.remove('selected');
+        if (oldToken) {
+            oldToken.element.classList.remove('selected');
+        }
+
+        // --- BLOQUE PARA QUITAR RESALTADO (de la respuesta anterior) ---
+        const oldListItem = tokenListUl.querySelector(`li[data-id="${selectedTokenId}"]`);
+        if (oldListItem) {
+            oldListItem.classList.remove('selected-in-list');
+        }
+        const oldTrackerCard = playerTurnTracker.querySelector(`.player-token-card[data-id="${selectedTokenId}"]`);
+        if (oldTrackerCard) {
+            oldTrackerCard.classList.remove('selected-in-tracker');
+        }
+
+        // =======================================================
+        // === NUEVO: OCULTAR Y RESETEAR AOE AL DESELECCIONAR ===
+        // =======================================================
+        aoeHeader.style.display = 'none';
+        aoeControlsContainer.style.display = 'none';
+        if (activeAoeType) {
+            // Desactiva cualquier forma de AoE que estuviera activa
+            toggleAoe(activeAoeType);
+        }
+        // =======================================================
+
         selectedTokenId = null;
         selectedTokenSection.classList.remove('has-selection');
         tokenStatesEditor.style.display = 'none';
-        activeAoeType = null; // Resetea el tipo de AoE
-        aoeControlsContainer.style.display = 'none'; // Oculta los controles
-        aoeHeader.style.display = 'none';
-        updateAoeControls(); // Apaga los botones activos
-        clearAoeCanvas(); // Limpia cualquier dibujo
     }
 
     async function handleEditTokenImageChange(event) {
@@ -965,16 +1083,16 @@ document.addEventListener('DOMContentLoaded', () => {
         token.visionRadius = parseInt(edit_tokenVision.value) || 0;
         token.health_max = parseInt(edit_tokenHealthMax.value) || 0;
         token.color = edit_tokenColor.value;
-        token.borderColor = edit_tokenBorderColor.value; // Se manejará con lógica de borde
+        token.borderColor = edit_tokenBorderColor.value;
         token.notes = edit_tokenNotes.value;
 
+        // --- LÓGICA DE TAMAÑO ACTUALIZADA ---
         const newSizeMultiplier = parseFloat(edit_tokenSizeMultiplier.value) || 1;
-        // Solo recalculamos y redibujamos si el tamaño realmente cambió
         if (token.sizeMultiplier !== newSizeMultiplier) {
             token.sizeMultiplier = newSizeMultiplier;
-            // Recalculamos el tamaño en píxeles
-            token.size = token.sizeMultiplier * cellSize;
+            token.size = token.sizeMultiplier * cellSize; // Recalcular tamaño en píxeles
         }
+        // --- FIN DE LÓGICA DE TAMAÑO ---
 
         if (!token.name || !token.letter) {
             alert("El nombre y la letra no pueden estar vacíos.");
@@ -985,25 +1103,18 @@ document.addEventListener('DOMContentLoaded', () => {
             token.health_current = token.health_max;
         }
 
-        // Actualizar elementos visuales
         updateTokenElementStyle(token);
         updateTokenList();
 
-        // --- ACTUALIZACIÓN DE VISTA PREVIA EN VIVO ---
-        // Refresca la vista previa de la letra si no hay imagen
         if (!token.image) {
             edit_tokenLetterPreview.textContent = token.letter;
             edit_tokenLetterPreview.style.backgroundColor = token.color;
         }
 
-        // No es necesario llamar a selectToken(token.id) de nuevo, ya que
-        // actualizamos los componentes necesarios aquí mismo.
-        // Solo actualizamos la barra de vida si cambió.
         healthDisplay.textContent = token.health_current;
         healthDisplay.className = `health-display ${getHealthColorClass(token.health_current, token.health_max)}`;
         updatePlayerTurnTracker();
     }
-
     // --- LÓGICA DE VIDA Y DAÑO ---
     function getHealthColorClass(current, max) { if (max === 0) return 'health-mid'; const percentage = (current / max) * 100; if (percentage <= 10) return 'health-critical'; if (percentage <= 40) return 'health-low'; if (percentage <= 70) return 'health-mid'; return 'health-high'; }
     function showDamageFloat(amount, token, trackerCard) { // Añadimos trackerCard como parámetro
@@ -1105,7 +1216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // --- MANEJO DE RATÓN ---
     function handleLayerMouseDown(event) {
-        // Prioridad 1: Arrastrar una ficha
+        // Prioridad 1: Arrastrar una ficha (si el cursor está sobre una)
         const tokenElement = event.target.closest('.token');
         if (tokenElement) {
             const tokenId = parseInt(tokenElement.dataset.id);
@@ -1113,7 +1224,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (token && (token.type === 'player' || !visionModeActive || token.isDiscovered)) {
                 currentDraggedToken = token;
                 const tokenRect = token.element.getBoundingClientRect();
-                const mapRect = mapContainer.getBoundingClientRect();
                 dragOffsetX = event.clientX - tokenRect.left;
                 dragOffsetY = event.clientY - tokenRect.top;
                 currentDraggedToken.element.style.zIndex = 100;
@@ -1127,21 +1237,21 @@ document.addEventListener('DOMContentLoaded', () => {
             return; // Termina la función aquí
         }
 
-        // Prioridad 3: Pintar niebla
-        if (visionModeActive && (event.buttons === 1 || event.type === 'mousedown')) {
+        // Prioridad 3: Pintar niebla (SOLO si un modo pincel está activo)
+        if (visionModeActive && activeBrushMode && (event.buttons === 1 || event.type === 'mousedown')) {
             isPaintingFog = true;
             paintFog(event);
             return; // Termina la función aquí
         }
 
-        // Si ninguna de las anteriores es cierta, iniciamos el paneo
+        // Si ninguna de las anteriores es cierta, iniciamos el paneo del mapa
         event.preventDefault(); // Previene la selección de texto o el arrastre de la imagen
         isPanning = true;
         panStartX = event.clientX;
         panStartY = event.clientY;
         scrollStartX = mapContainer.scrollLeft;
         scrollStartY = mapContainer.scrollTop;
-        mapContainer.style.cursor = 'grabbing'; // Cambia el cursor a "mano agarrando"
+        mapContainer.classList.add('panning');
     }
 
     function handleLayerMouseMove(event) {
@@ -1198,9 +1308,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleLayerMouseUp() {    // Si estábamos paneando, lo detenemos
         if (isPanning) {
             isPanning = false;
-            mapContainer.style.cursor = 'grab'; // Restaura el cursor a "mano abierta"
+            mapContainer.classList.remove('panning');
         } if (currentDraggedToken) { currentDraggedToken.element.style.zIndex = ''; if (visionModeActive) drawVision(); currentDraggedToken = null; } isPaintingFog = false;
     }
+
     function handleLayerClick(event) {
         if (event.detail > 1 || isPanning) return;
 
@@ -1242,6 +1353,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateAllTokenVisibility();
             drawVision();
         } else {
+            mapContainer.classList.remove('brush-mode-active');
             toggleWallModeBtn.disabled = false; undoWallBtn.disabled = false; clearWallsBtn.disabled = false;
             wallsCanvas.style.display = 'block';
             visionCanvas.style.display = 'none';
@@ -1256,11 +1368,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetFog() { if (!confirm("¿Estás seguro de que quieres reiniciar toda la niebla de guerra? Esta acción no se puede deshacer.")) return; clearRevealedBuffer(); if (visionModeActive) { tokens.forEach(t => { if (t.type === 'enemy') t.isDiscovered = false; }); drawVision(); updateAllTokenVisibility(); } }
 
     function paintFog(event) {
-        if (!visionModeActive) return;
+        if (!visionModeActive || !activeBrushMode) return; // Doble chequeo de seguridad
         const mapRect = mapContainer.getBoundingClientRect();
         const x = event.clientX - mapRect.left + mapContainer.scrollLeft;
         const y = event.clientY - mapRect.top + mapContainer.scrollTop;
-        revealedBufferCtx.globalCompositeOperation = brushMode === 'reveal' ? 'source-over' : 'destination-out';
+
+        // AHORA USA LA VARIABLE activeBrushMode
+        revealedBufferCtx.globalCompositeOperation = activeBrushMode === 'reveal' ? 'source-over' : 'destination-out';
+
         revealedBufferCtx.fillStyle = 'white';
         revealedBufferCtx.beginPath();
         revealedBufferCtx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
@@ -1430,17 +1545,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateCellSize() {
         const newSize = parseFloat(cellSizeInput.value);
-        if (isNaN(newSize) || newSize < 10) { cellSizeInput.value = cellSize; return; }
+        if (isNaN(newSize) || newSize < 10) {
+            cellSizeInput.value = cellSize;
+            return;
+        }
         cellSize = newSize;
 
+        // --- LÓGICA ACTUALIZADA ---
+        // Ahora, recorremos cada ficha y recalculamos su tamaño individualmente
         tokens.forEach(token => {
-            // Asegura que cada token tiene un multiplicador (retrocompatibilidad)
-            token.sizeMultiplier = token.sizeMultiplier || 1;
-            // Recalcula el tamaño en píxeles para CADA token
-            token.size = token.sizeMultiplier * cellSize;
-            // Aplica el nuevo tamaño al elemento del DOM
+            token.size = (token.sizeMultiplier || 1) * cellSize;
             updateTokenElementStyle(token);
         });
+        // --- FIN DE LÓGICA ---
 
         drawGrid();
         if (visionModeActive) drawVision();
@@ -1711,32 +1828,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 `<span title="${state.description}">${state.emoji}</span>`
             ).join('');
 
-            // 3. Generamos el HTML de la barra de vida de forma condicional
-            let healthBarHTML = '';
+            // 3. --- CAMBIO PRINCIPAL AQUÍ ---
+            // Generamos un bloque completo de información de vida para jugadores
+            let healthInfoHTML = '';
             if (token.type === 'player') {
                 const healthPercentage = token.health_max > 0 ? (token.health_current / token.health_max) * 100 : 0;
                 const healthColorClass = getHealthColorClass(token.health_current, token.health_max);
-                healthBarHTML = `
-                    <div class="health-bar-container">
-                        <div class="health-bar-fill ${healthColorClass}" style="width: ${healthPercentage}%;"></div>
-                    </div>
-                `;
+                healthInfoHTML = `
+                <div class="health-bar-container">
+                    <div class="health-bar-fill ${healthColorClass}" style="width: ${healthPercentage}%;"></div>
+                </div>
+                <div class="player-token-health-text">Vida: ${token.health_current}/${token.health_max}</div>
+            `;
             }
 
-            // 4. Construimos la tarjeta final
+            // 4. Construimos la tarjeta final usando el nuevo bloque
             card.innerHTML = `
-                <div class="player-token-preview" style="${imageStyle}">
-                    ${token.image ? '' : token.letter}
+            <div class="player-token-preview" style="${imageStyle}">
+                ${token.image ? '' : token.letter}
+            </div>
+            <div class="player-token-info">
+                <div class="player-token-name">${token.name}</div>
+                <div class="player-token-initiative">Iniciativa: ${token.turn}</div>
+                ${healthInfoHTML} 
+                <div class="player-token-states">
+                    ${statesHTML}
                 </div>
-                <div class="player-token-info">
-                    <div class="player-token-name">${token.name}</div>
-                    <div class="player-token-initiative">Ini 🎲: ${token.turn}</div>
-                    ${healthBarHTML} 
-                    <div class="player-token-states">
-                        ${statesHTML}
-                    </div>
-                </div>
-            `;
+            </div>
+        `;
             playerTurnTracker.appendChild(card);
         });
     }

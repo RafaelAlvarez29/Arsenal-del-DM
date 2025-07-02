@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=IM+Fell+English+SC&display=swap");
+
 :root {
   --bg-dark: #1a1a1a;
   --panel-bg: #1f1614;
@@ -23,20 +24,25 @@ body {
   color: var(--text-light);
   overflow: hidden;
 }
+
 .container {
   display: flex;
   height: 100vh;
 }
+
 .controls-panel {
   width: 450px;
   background: var(--panel-bg);
   padding: 20px;
   box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
-  overflow-y: auto; /* Muestra el scroll solo si es necesario */
-  scrollbar-gutter: stable; /* ¡LA SOLUCIÓN! Reserva el espacio siempre */
+  overflow-y: auto;
+  /* Muestra el scroll solo si es necesario */
+  scrollbar-gutter: stable;
+  /* ¡LA SOLUCIÓN! Reserva el espacio siempre */
   flex-shrink: 0;
   border-right: 2px solid var(--panel-border);
 }
+
 h2 {
   font-family: "IM Fell English SC", serif;
   font-size: 2em;
@@ -45,15 +51,18 @@ h2 {
   margin: 0 0;
   text-shadow: 1px 1px 3px #000;
 }
+
 .divisor {
   border-bottom: 1px solid var(--text-gold);
   text-align: center;
   margin-bottom: 20px !important;
   padding-bottom: 10px;
 }
+
 .leyenda {
   text-align: center;
 }
+
 h4 {
   font-family: "IM Fell English SC", serif;
   color: var(--text-gold);
@@ -61,15 +70,18 @@ h4 {
   padding-bottom: 5px;
   margin-bottom: 10px;
 }
+
 h4.top-margin {
   margin-top: 20px;
 }
+
 .collapsible {
   margin-bottom: 10px;
   border: 1px solid var(--input-border);
   border-radius: 5px;
   background-color: rgba(0, 0, 0, 0.1);
 }
+
 .collapsible-header {
   background: var(--header-bg);
   color: #d4b574;
@@ -81,12 +93,16 @@ h4.top-margin {
   margin: 0;
   font-size: 1.1em;
   font-family: "Cinzel", serif;
-  display: flex; /* Habilitar flexbox para alinear icono y texto */
-  align-items: center; /* Centrar verticalmente icono y texto */
+  display: flex;
+  /* Habilitar flexbox para alinear icono y texto */
+  align-items: center;
+  /* Centrar verticalmente icono y texto */
 }
+
 .collapsible-header:hover {
   background: var(--header-hover);
 }
+
 .collapsible-header::after {
   content: "+";
   font-weight: bold;
@@ -98,9 +114,11 @@ h4.top-margin {
   transform: translateY(-50%);
   transition: 0.3s;
 }
+
 .collapsible.active .collapsible-header::after {
   transform: translateY(-50%) rotate(45deg);
 }
+
 .collapsible-content {
   max-height: 0;
   overflow: auto;
@@ -108,21 +126,31 @@ h4.top-margin {
   padding: 0 15px;
   background-color: var(--content-bg);
 }
+
 .collapsible.active .collapsible-content {
-  max-height: 1900px; /* Valor alto para permitir contenido grande */
+  max-height: 1900px;
+  /* Valor alto para permitir contenido grande */
   padding: 15px;
 }
 
 /* --- NUEVO: ESTILOS PARA LOS ICONOS EN LOS HEADERS --- */
 .header-icon {
-  display: inline-block; /* Asegura que el span se comporte como un bloque en línea */
-  width: 1.3em; /* Ajusta el tamaño del icono */
-  height: 1.3em; /* Ajusta el tamaño del icono */
-  margin-right: 10px; /* Espacio entre el icono y el texto */
-  vertical-align: middle; /* Alinea el icono con el centro del texto */
-  background-size: contain; /* Ajusta la imagen para que quepa sin distorsionarse */
-  background-repeat: no-repeat; /* Evita que la imagen se repita */
-  background-position: center; /* Centra la imagen en el espacio del span */
+  display: inline-block;
+  /* Asegura que el span se comporte como un bloque en línea */
+  width: 1.3em;
+  /* Ajusta el tamaño del icono */
+  height: 1.3em;
+  /* Ajusta el tamaño del icono */
+  margin-right: 10px;
+  /* Espacio entre el icono y el texto */
+  vertical-align: middle;
+  /* Alinea el icono con el centro del texto */
+  background-size: contain;
+  /* Ajusta la imagen para que quepa sin distorsionarse */
+  background-repeat: no-repeat;
+  /* Evita que la imagen se repita */
+  background-position: center;
+  /* Centra la imagen en el espacio del span */
 }
 
 /* --- NUEVO: CLASES ESPECÍFICAS PARA CADA ICONO DE HEADER --- */
@@ -130,21 +158,27 @@ h4.top-margin {
 .icon-map {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk2807e-bf125877-efc8-4136-97d7-e6b8bd53da39.png/v1/fit/w_674,h_707/mapa_icon_by_rafaelalvarez29_dk2807e-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzA3IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI4MDdlLWJmMTI1ODc3LWVmYzgtNDEzNi05N2Q3LWU2YjhiZDUzZGEzOS5wbmciLCJ3aWR0aCI6Ijw9Njc0In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.KFdtHEY3m67t_O4ES74Pr_pH9yK6Oa3n0Yc6MJR3tAA");
 }
+
 .icon-tools {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27wwu-0fccb350-f3fd-4e7d-a4d4-102adad26f4e.png/v1/fill/w_902,h_859/herramientas_icon_by_rafaelalvarez29_dk27wwu-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODU5IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3d3d1LTBmY2NiMzUwLWYzZmQtNGU3ZC1hNGQ0LTEwMmFkYWQyNmY0ZS5wbmciLCJ3aWR0aCI6Ijw9OTAyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.ok1Yedsu8VvTHTDBLl9AnbutC-UIhQ2IKtd-jzarkqY");
 }
+
 .icon-walls {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27xrv-d8c11b91-d059-42e1-922c-39233f7d587f.png/v1/fill/w_884,h_837/muro_icon_by_rafaelalvarez29_dk27xrv-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODM3IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3eHJ2LWQ4YzExYjkxLWQwNTktNDJlMS05MjJjLTM5MjMzZjdkNTg3Zi5wbmciLCJ3aWR0aCI6Ijw9ODg0In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.Gsorh3ss3jCQIFRYym-JjKfx7KIgnU6l3DuI3KM02bw");
 }
+
 .icon-doors {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27xzc-36669da6-1875-409f-83e5-61a04b750924.png/v1/fit/w_602,h_848/puerta_icon_by_rafaelalvarez29_dk27xzc-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODQ4IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3eHpjLTM2NjY5ZGE2LTE4NzUtNDA5Zi04M2U1LTYxYTA0Yjc1MDkyNC5wbmciLCJ3aWR0aCI6Ijw9NjAyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.Y989bL2cMG4fX4jmwQvfM2hTQZmPqv1oTh9DEXIIp44");
 }
+
 .icon-add-token {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27ye7-655a6bcb-69d8-47cf-9e4f-787f7df50155.png/v1/fit/w_709,h_709/mas_icon_by_rafaelalvarez29_dk27ye7-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzA5IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3eWU3LTY1NWE2YmNiLTY5ZDgtNDdjZi05ZTRmLTc4N2Y3ZGY1MDE1NS5wbmciLCJ3aWR0aCI6Ijw9NzA5In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.zANMzZbMmR267V7d1EHx_0KrkjNwGrFw1pnf34Lk3rU");
 }
+
 .icon-selected-token {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27yjb-e545e4ee-c2dd-4905-b1b8-416737a0265b.png/v1/fit/w_493,h_721/seleccionado_icon_by_rafaelalvarez29_dk27yjb-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzIxIiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3eWpiLWU1NDVlNGVlLWMyZGQtNDkwNS1iMWI4LTQxNjczN2EwMjY1Yi5wbmciLCJ3aWR0aCI6Ijw9NDkzIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.AHsXpddc5nKb4Et8VyhMGhF75DnyJ8Msi_YiVa_cb8U");
 }
+
 .icon-tokens {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk29d0m-fbc2566a-dfea-4e3d-9b40-752f87b4cd24.png/v1/fit/w_719,h_775/fichas_icon_1_by_rafaelalvarez29_dk29d0m-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9Nzc1IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI5ZDBtLWZiYzI1NjZhLWRmZWEtNGUzZC05YjQwLTc1MmY4N2I0Y2QyNC5wbmciLCJ3aWR0aCI6Ijw9NzE5In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.H9jU7bpIClEtk0r0joZ56VmIaFeM3-H8wu69owImg-g");
 }
@@ -155,11 +189,13 @@ label {
   margin: 10px 0 5px;
   font-size: 0.9em;
 }
+
 label.inline-label {
   display: flex;
   align-items: center;
   margin: 5px 0;
 }
+
 input[type="text"],
 input[type="number"],
 input[type="file"],
@@ -173,9 +209,11 @@ textarea {
   font-family: "Cinzel", serif;
   margin-bottom: 5px;
 }
+
 textarea {
   resize: vertical;
 }
+
 input[type="color"] {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -187,23 +225,28 @@ input[type="color"] {
   cursor: pointer;
   padding: 0;
 }
+
 input[type="color"]::-webkit-color-swatch {
-  border: none;
   border-radius: 3px;
+  border: none;
 }
+
 input[type="color"]::-moz-color-swatch {
   border: none;
   border-radius: 3px;
 }
+
 input[type="checkbox"],
 input[type="radio"] {
   margin-right: 8px;
 }
+
 .radio-group {
   display: flex;
   gap: 15px;
   margin: 5px 0 10px;
 }
+
 button {
   width: 100%;
   padding: 12px;
@@ -220,22 +263,27 @@ button {
   transition: all 0.2s;
   background: var(--button-primary-bg);
 }
+
 button:hover {
   background: var(--button-primary-hover);
   color: #fff;
 }
+
 button.secondary {
   background: var(--header-hover);
   border-color: var(--input-border);
 }
+
 button.secondary:hover {
   background: var(--header-bg);
 }
+
 .button-group {
   display: flex;
   gap: 10px;
   margin-top: 10px;
 }
+
 .button-group button {
   width: 50%;
   margin-top: 0;
@@ -248,6 +296,7 @@ button.secondary:hover {
   margin-top: 15px;
   align-items: stretch;
 }
+
 #toggleVisionBtn {
   flex-grow: 1;
   margin-top: 0;
@@ -255,10 +304,12 @@ button.secondary:hover {
   border-color: #5dc66f;
   color: #5dc66f;
 }
+
 #toggleVisionBtn:hover {
   background: var(--button-vision-hover);
   color: #fff;
 }
+
 #resetFogBtn {
   flex-grow: 0;
   flex-shrink: 0;
@@ -271,6 +322,7 @@ button.secondary:hover {
   border-color: #c65d5d;
   color: #c65d5d;
 }
+
 #resetFogBtn:hover {
   background: linear-gradient(to bottom, #a13535, #6b2323);
   color: #fff;
@@ -281,23 +333,28 @@ button.secondary:hover {
 #tokenEditor {
   display: none;
 }
+
 #selectedTokenSection.has-selection #noTokenSelected {
   display: none;
 }
+
 #selectedTokenSection.has-selection #tokenEditor {
   display: block;
 }
+
 .token-editor-form {
   padding: 10px;
   background: rgba(0, 0, 0, 0.1);
   border-radius: 5px;
 }
+
 .token-editor-form .form-header h3 {
   text-align: center;
   margin: 0 0 15px;
   color: #c0c0c0;
   font-size: 1em;
 }
+
 .token-editor-form h4 {
   font-family: "IM Fell English SC", serif;
   color: var(--text-gold);
@@ -306,17 +363,21 @@ button.secondary:hover {
   margin: 20px 0 10px;
   font-size: 1.2em;
 }
+
 .form-row {
   display: flex;
   gap: 10px;
 }
+
 .form-group {
   flex-grow: 1;
   margin-bottom: 10px;
 }
+
 .form-group label {
   margin-top: 0;
 }
+
 .token-editor-form .button-group {
   margin-top: 20px;
 }
@@ -330,52 +391,63 @@ button.secondary:hover {
   margin-top: 15px;
   text-align: center;
 }
+
 .health-controls label {
   font-size: 0.8em;
   color: #a0a0a0;
 }
+
 .health-display-container {
   position: relative;
   margin-bottom: 15px;
 }
+
 .health-display {
   font-size: 32px;
   font-weight: bold;
   font-family: "Cinzel", serif;
   transition: color 0.3s ease;
 }
+
 .health-high {
   color: #5dff8b;
   text-shadow: 0 0 8px rgba(93, 255, 139, 0.7);
 }
+
 .health-mid {
   color: #ffee5d;
   text-shadow: 0 0 8px rgba(255, 238, 93, 0.7);
 }
+
 .health-low {
   color: #ff5d5d;
   text-shadow: 0 0 8px rgba(255, 93, 93, 0.7);
 }
+
 .health-critical {
   animation: blink-red 1s infinite;
 }
+
 @keyframes blink-red {
   0%,
   100% {
     color: #ff5d5d;
     text-shadow: 0 0 8px rgba(255, 93, 93, 0.7);
   }
+
   50% {
     color: #a93232;
     text-shadow: none;
   }
 }
+
 .health-modifier-row {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 8px;
 }
+
 .health-modifier-btn {
   width: 40px;
   height: 35px;
@@ -388,22 +460,27 @@ button.secondary:hover {
   margin-top: 0;
   top: 0;
 }
+
 .health-modifier-btn.negative {
   border: 1px solid #c65d5d;
   color: #c65d5d;
 }
+
 .health-modifier-btn.negative:hover {
   background: #4a3f3c;
   color: #ff8a8a;
 }
+
 .health-modifier-btn.positive {
   border: 1px solid #5dc66f;
   color: #5dc66f;
 }
+
 .health-modifier-btn.positive:hover {
   background: #4a3f3c;
   color: #8affad;
 }
+
 .health-modifier-input {
   width: 60px;
   text-align: center;
@@ -411,6 +488,7 @@ button.secondary:hover {
   padding: 4px;
   margin: 0;
 }
+
 .help-text {
   font-size: 0.8em;
   color: #888;
@@ -430,12 +508,15 @@ button.secondary:hover {
   animation: float-and-fade 1s ease-out forwards;
   z-index: 1001;
 }
+
 .damage-float.heal {
   color: #5dff8b;
 }
+
 .damage-float.damage {
   color: #ff5d5d;
 }
+
 @keyframes float-and-fade {
   to {
     transform: translate(-50%, -150%);
@@ -450,6 +531,7 @@ button.secondary:hover {
   max-height: 350px;
   overflow-y: auto;
 }
+
 #tokenList li {
   background-color: rgba(0, 0, 0, 0.2);
   border-bottom: 1px solid var(--input-border);
@@ -463,9 +545,11 @@ button.secondary:hover {
   gap: 2px 10px;
   align-items: center;
 }
+
 #tokenList li:hover {
   background-color: var(--header-hover);
 }
+
 .token-list-preview {
   grid-row: 1 / 3;
   width: 40px;
@@ -479,6 +563,7 @@ button.secondary:hover {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
   box-sizing: border-box;
 }
+
 .token-list-header {
   grid-column: 2 / 3;
   display: flex;
@@ -487,6 +572,7 @@ button.secondary:hover {
   font-weight: bold;
   color: var(--text-light);
 }
+
 /* Removimos el span del emoji aquí en el HTML, pero en JS lo manejaremos */
 /* .token-list-header span {
   margin-right: 8px;
@@ -495,8 +581,10 @@ button.secondary:hover {
 /* --- NUEVO: ESTILO PARA EL ICONO EN LA LISTA DE FICHAS --- */
 .token-list-icon {
   display: inline-block;
-  width: 1.1em; /* Tamaño ajustado para la lista */
-  height: 1.1em; /* Tamaño ajustado para la lista */
+  width: 1.1em;
+  /* Tamaño ajustado para la lista */
+  height: 1.1em;
+  /* Tamaño ajustado para la lista */
   margin-right: 8px;
   background-size: contain;
   background-repeat: no-repeat;
@@ -511,7 +599,9 @@ button.secondary:hover {
     /* Un resplandor exterior, rojo y más difuso */
     drop-shadow(0 0 15px #ffd30e);
   pointer-events: none;
-} /* Reusamos el icono de tipo jugador/enemigo */
+}
+
+/* Reusamos el icono de tipo jugador/enemigo */
 .icon-enemy-list {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk280si-23ebfeac-29eb-4e9a-9cf3-af3d666e6828.png/v1/fit/w_679,h_874/enemigo_icon_by_rafaelalvarez29_dk280si-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODc0IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI4MHNpLTIzZWJmZWFjLTI5ZWItNGU5YS05Y2YzLWFmM2Q2NjZlNjgyOC5wbmciLCJ3aWR0aCI6Ijw9Njc5In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.SEXeiU9RgxFAglrgdhWff-z-FCA_TyOJZ9SGd1CVsWU");
   filter: drop-shadow(0 0 12px rgb(255, 75, 255));
@@ -525,6 +615,7 @@ button.secondary:hover {
   display: flex;
   gap: 15px;
 }
+
 .delete-token-btn {
   grid-column: 3 / 4;
   grid-row: 1 / 3;
@@ -541,6 +632,7 @@ button.secondary:hover {
   cursor: pointer;
   font-family: monospace;
 }
+
 .delete-token-btn:hover {
   background-color: #a13535;
 }
@@ -548,9 +640,11 @@ button.secondary:hover {
 /* --- ÁREA DEL MAPA Y FICHAS --- */
 
 #mapContainer {
-  position: relative; /* Para centrar el loading-state */
+  position: relative;
+  /* Para centrar el loading-state */
   flex-grow: 1;
-  overflow: auto; /* ¡Este es nuestro scroller principal! */
+  overflow: auto;
+  /* ¡Este es nuestro scroller principal! */
   background-color: var(--bg-dark);
   cursor: grab;
 }
@@ -562,9 +656,12 @@ button.secondary:hover {
 }*/
 /* El nuevo wrapper que da tamaño al contenido */
 #mapContentWrapper {
-  position: relative; /* Es el contexto para apilar los canvas */
-  display: none; /* Lo ocultamos hasta que se cargue un mapa */
-  line-height: 0; /* Evita espacios extra fantasma */
+  position: relative;
+  /* Es el contexto para apilar los canvas */
+  display: none;
+  /* Lo ocultamos hasta que se cargue un mapa */
+  line-height: 0;
+  /* Evita espacios extra fantasma */
 }
 
 /* La imagen base NO es absoluta. Su tamaño define el del wrapper */
@@ -581,18 +678,22 @@ button.secondary:hover {
   position: absolute;
   top: 0;
   left: 0;
-  pointer-events: none; /* Por defecto no se puede hacer clic en ellos */
+  pointer-events: none;
+  /* Por defecto no se puede hacer clic en ellos */
 }
 
 #tokensLayer {
-  pointer-events: auto; /* Habilitamos clics en las fichas */
+  pointer-events: auto;
+  /* Habilitamos clics en las fichas */
 }
 
 #visionCanvas {
   z-index: 4;
   display: none;
-  pointer-events: none; /* ¡LA SOLUCIÓN! Los clics atravesarán este canvas */
+  pointer-events: none;
+  /* ¡LA SOLUCIÓN! Los clics atravesarán este canvas */
 }
+
 .token {
   position: absolute;
   border-radius: 50%;
@@ -607,14 +708,17 @@ button.secondary:hover {
   transition: opacity 0.3s ease, box-shadow 0.2s ease;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
+
 .token:active {
   cursor: grabbing;
   z-index: 100;
 }
+
 .token.hidden-enemy {
   opacity: 0;
   pointer-events: none;
 }
+
 .token.selected {
   box-shadow: 0 0 15px 5px #fffa86, 0 0 5px 2px #fff;
   z-index: 50;
@@ -624,6 +728,7 @@ button.secondary:hover {
 .token.token-damaged {
   animation: token-flash-red 0.4s, token-shake 0.4s;
 }
+
 .token.token-healed {
   animation: token-pulse-green 0.5s;
 }
@@ -633,49 +738,63 @@ button.secondary:hover {
   90% {
     transform: translate3d(-1px, 0, 0);
   }
+
   20%,
   80% {
     transform: translate3d(2px, 0, 0);
   }
+
   30%,
   50%,
   70% {
     transform: translate3d(-4px, 0, 0);
   }
+
   40%,
   60% {
     transform: translate3d(4px, 0, 0);
   }
 }
+
 @keyframes token-flash-red {
   0%,
   100% {
     box-shadow: inherit;
   }
+
   50% {
     box-shadow: 0 0 20px 10px rgba(255, 0, 0, 0.8);
   }
 }
+
 @keyframes token-pulse-green {
   0%,
   100% {
     box-shadow: inherit;
   }
+
   50% {
     box-shadow: 0 0 20px 10px rgba(0, 255, 100, 0.7);
   }
 }
+
 /* --- ESTILOS PARA EL LOGO DEL PANEL --- */
 .panel-logo-container {
-  text-align: center; /* Centra la imagen horizontalmente */
-  padding: 5px 0; /* Añade un poco de espacio vertical */
-  margin-bottom: 8px; /* Espacio entre el logo y el título h2 */
+  text-align: center;
+  /* Centra la imagen horizontalmente */
+  padding: 5px 0;
+  /* Añade un poco de espacio vertical */
+  margin-bottom: 8px;
+  /* Espacio entre el logo y el título h2 */
 }
 
 .panel-logo {
-  max-width: 150px; /* Define el ancho máximo del logo. Ajústalo a tu gusto. */
-  height: auto; /* Mantiene la proporción de la imagen */
+  max-width: 150px;
+  /* Define el ancho máximo del logo. Ajústalo a tu gusto. */
+  height: auto;
+  /* Mantiene la proporción de la imagen */
 }
+
 /* Estilos para el nuevo contenedor de título del panel */
 .panel-title-container {
   text-align: center;
@@ -687,16 +806,19 @@ button.secondary:hover {
 .panel-title-container h2 {
   margin: 0;
   padding: 0;
-  border: none; /* Quitamos el borde que tenía antes h2 */
+  border: none;
+  /* Quitamos el borde que tenía antes h2 */
 }
 
 .panel-subtitle {
   margin: 5px 0 0 0;
-  color: #c0c0c0; /* Un gris claro para no competir con el título */
+  color: #c0c0c0;
+  /* Un gris claro para no competir con el título */
   font-size: 0.9em;
   font-style: italic;
   font-family: "Cinzel", serif;
 }
+
 /* --- ESTILOS PARA EL INPUT DE ARCHIVO PERSONALIZADO --- */
 
 /* Ocultamos el input de archivo por defecto de forma accesible */
@@ -711,10 +833,13 @@ button.secondary:hover {
 
 /* Damos al label la apariencia de un botón */
 .custom-file-upload-btn {
-  display: inline-block; /* Para que respete el padding y margen */
-  width: calc(100% - 24px); /* Ocupa todo el ancho menos el padding */
+  display: inline-block;
+  /* Para que respete el padding y margen */
+  width: calc(100% - 24px);
+  /* Ocupa todo el ancho menos el padding */
   padding: 12px;
-  margin: 0 0 10px 0; /* Margen inferior para separarlo del nombre del archivo */
+  margin: 0 0 10px 0;
+  /* Margen inferior para separarlo del nombre del archivo */
   font-family: "IM Fell English SC", serif;
   font-size: 1.1em;
   color: var(--text-gold);
@@ -733,15 +858,20 @@ button.secondary:hover {
 
 /* Estilo para el texto que muestra el nombre del archivo */
 .file-name-display {
-  display: block; /* Para que ocupe su propia línea */
+  display: block;
+  /* Para que ocupe su propia línea */
   font-size: 0.8em;
   font-style: italic;
   color: #a0a0a0;
-  margin-bottom: 15px; /* Espacio antes del siguiente grupo de botones */
-  white-space: nowrap; /* Evita que el nombre del archivo se parta en varias líneas */
+  margin-bottom: 15px;
+  /* Espacio antes del siguiente grupo de botones */
+  white-space: nowrap;
+  /* Evita que el nombre del archivo se parta en varias líneas */
   overflow: hidden;
-  text-overflow: ellipsis; /* Añade "..." si el nombre es muy largo */
+  text-overflow: ellipsis;
+  /* Añade "..." si el nombre es muy largo */
 }
+
 /* --- ESTILOS PERSONALIZADOS PARA CHECKBOX Y RADIO BUTTONS (CORREGIDO) --- */
 
 /* Contenedores para el layout */
@@ -750,6 +880,7 @@ button.secondary:hover {
   gap: 15px;
   align-items: center;
 }
+
 .radio-group > div,
 .checkbox-container {
   display: flex;
@@ -765,9 +896,11 @@ input[type="radio"] {
   width: 0;
   height: 0;
 }
+
 input[type="range"] {
   width: 100%;
 }
+
 input[type="range"] {
   width: 100%;
 }
@@ -776,7 +909,8 @@ input[type="range"] {
 .radio-group label,
 .checkbox-container label {
   position: relative;
-  padding-left: 30px; /* Espacio para el nuevo checkbox/radio */
+  padding-left: 30px;
+  /* Espacio para el nuevo checkbox/radio */
   cursor: pointer;
   user-select: none;
   font-size: 1em;
@@ -822,14 +956,16 @@ input[type="radio"]:checked + label::before {
   position: absolute;
   left: 0;
   top: 50%;
-  transform: translateY(-50%) scale(0); /* Empieza invisible */
+  transform: translateY(-50%) scale(0);
+  /* Empieza invisible */
   opacity: 0;
   transition: all 0.2s ease-in-out;
 }
 
 /* Estilo para la marca del radio button (círculo dorado) */
 input[type="radio"] + label::after {
-  left: 5px; /* Centrado en la caja de 20px */
+  left: 5px;
+  /* Centrado en la caja de 20px */
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -839,7 +975,8 @@ input[type="radio"] + label::after {
 /* Estilo para la marca del checkbox (checkmark) */
 input[type="checkbox"] + label::after {
   left: 7px;
-  top: 40%; /* Ajuste para centrar visualmente el checkmark */
+  top: 40%;
+  /* Ajuste para centrar visualmente el checkmark */
   width: 6px;
   height: 12px;
   border: solid var(--text-gold);
@@ -851,7 +988,8 @@ input[type="checkbox"] + label::after {
 input[type="checkbox"]:checked + label::after,
 input[type="radio"]:checked + label::after {
   opacity: 1;
-  transform: translateY(-50%) scale(1); /* La escala se anima desde 0 a 1 */
+  transform: translateY(-50%) scale(1);
+  /* La escala se anima desde 0 a 1 */
 }
 
 /* Regla específica para el checkmark para mantener la rotación */
@@ -865,6 +1003,7 @@ input[type="radio"]:focus-visible + label::before {
   outline: 2px solid var(--text-gold);
   outline-offset: 2px;
 }
+
 /* width */
 ::-webkit-scrollbar {
   width: 10px;
@@ -884,9 +1023,11 @@ input[type="radio"]:focus-visible + label::before {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
 /* --- ESTILOS PARA EL MODO DE DIBUJO DE MUROS --- */
 body.wall-drawing-mode .map-area {
-  cursor: crosshair; /* Cambia el cursor cuando el modo está activo */
+  cursor: crosshair;
+  /* Cambia el cursor cuando el modo está activo */
 }
 
 #toggleWallModeBtn.active {
@@ -965,6 +1106,7 @@ input[type="range"]::-moz-range-thumb {
 #cellSizeSlider {
   margin-bottom: 15px;
 }
+
 #mapContainer.no-map {
   display: flex;
   align-items: center;
@@ -985,17 +1127,22 @@ input[type="range"]::-moz-range-thumb {
 .loading-state p {
   font-size: 1.2em;
 }
+
 .loading-state img {
   width: 75%;
 }
 
 /* --- NUEVO: ESTILOS PARA EL ICONO GRANDE EN LOADING STATE --- */
 .loading-state .icon {
-  width: 80px; /* Tamaño del contenedor del icono */
-  height: 80px; /* Tamaño del contenedor del icono */
+  width: 80px;
+  /* Tamaño del contenedor del icono */
+  height: 80px;
+  /* Tamaño del contenedor del icono */
   margin-bottom: 16px;
-  opacity: 0.7; /* Ajusta opacidad si es necesario */
-  animation: bounce 2s infinite ease-in-out; /* Mantén la animación */
+  opacity: 0.7;
+  /* Ajusta opacidad si es necesario */
+  animation: bounce 2s infinite ease-in-out;
+  /* Mantén la animación */
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -1010,12 +1157,15 @@ input[type="range"]::-moz-range-thumb {
 .icon-brush {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk282gr-f1662dbf-3e31-4a2d-8551-27b0f154b2a2.png/v1/fit/w_655,h_856/pincel_icon_by_rafaelalvarez29_dk282gr-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODU2IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI4MmdyLWYxNjYyZGJmLTNlMzEtNGEyZC04NTUxLTI3YjBmMTU0YjJhMi5wbmciLCJ3aWR0aCI6Ijw9NjU1In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.FFnNcEtf7gnPRLYhEZpmus8jAuMT6PO-uvi-solkONc");
 }
+
 .icon-grid {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk2bxyl-b1b71100-45cc-4aa2-b7e2-850eae7a4108.png/v1/fit/w_546,h_586/editarrejilla_icon2__by_rafaelalvarez29_dk2bxyl-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NTg2IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazJieHlsLWIxYjcxMTAwLTQ1Y2MtNGFhMi1iN2UyLTg1MGVhZTdhNDEwOC5wbmciLCJ3aWR0aCI6Ijw9NTQ2In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.PzvDY41ptuym_x4NnxOABsIsy_TqVX4l_sD5Cp7EsyQ");
 }
+
 .icon-align-grid {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk2bxyl-b1b71100-45cc-4aa2-b7e2-850eae7a4108.png/v1/fit/w_546,h_586/editarrejilla_icon2__by_rafaelalvarez29_dk2bxyl-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NTg2IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazJieHlsLWIxYjcxMTAwLTQ1Y2MtNGFhMi1iN2UyLTg1MGVhZTdhNDEwOC5wbmciLCJ3aWR0aCI6Ijw9NTQ2In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.PzvDY41ptuym_x4NnxOABsIsy_TqVX4l_sD5Cp7EsyQ");
 }
+
 /* Una pequeña animación para el icono */
 @keyframes bounce {
   0%,
@@ -1025,17 +1175,21 @@ input[type="range"]::-moz-range-thumb {
   100% {
     transform: translateY(0);
   }
+
   40% {
     transform: translateY(-20px);
   }
+
   60% {
     transform: translateY(-10px);
   }
 }
+
 /* Estilo para el título principal */
 .loading-state h1 {
   font-family: "IM Fell English SC", serif;
-  font-size: 2.5em; /* Un poco más grande para que destaque */
+  font-size: 2.5em;
+  /* Un poco más grande para que destaque */
   color: var(--text-gold);
   margin: 0 0 10px 0;
   text-shadow: 1px 1px 3px #000;
@@ -1045,20 +1199,28 @@ input[type="range"]::-moz-range-thumb {
 .loading-state h2 {
   font-family: "Cinzel", serif;
   font-size: 1.2em;
-  font-weight: normal; /* Para no competir con el h1 */
-  color: #c0c0c0; /* Un gris claro */
+  font-weight: normal;
+  /* Para no competir con el h1 */
+  color: #c0c0c0;
+  /* Un gris claro */
   margin: 0 0 20px 0;
   padding: 0;
-  border: none; /* Aseguramos que no tenga bordes */
-  text-shadow: none; /* Quitamos cualquier sombra de texto */
+  border: none;
+  /* Aseguramos que no tenga bordes */
+  text-shadow: none;
+  /* Quitamos cualquier sombra de texto */
 }
 
 /* Ajustamos el párrafo para que no sea tan grande */
 .loading-state p {
-  max-width: 400px; /* Evita que el texto se haga demasiado ancho en pantallas grandes */
-  font-size: 1em; /* Un tamaño de fuente más estándar */
-  line-height: 1.5; /* Mejora la legibilidad */
+  max-width: 400px;
+  /* Evita que el texto se haga demasiado ancho en pantallas grandes */
+  font-size: 1em;
+  /* Un tamaño de fuente más estándar */
+  line-height: 1.5;
+  /* Mejora la legibilidad */
 }
+
 body.wall-drawing-mode #mapContainer {
   cursor: crosshair;
 }
@@ -1099,17 +1261,20 @@ body.wall-drawing-mode #mapContainer {
   padding: 5px 10px;
   font-size: 0.9em;
   font-family: "Cinzel", serif;
-  min-width: 80px; /* Ancho fijo para que no salte al cambiar el texto */
+  min-width: 80px;
+  /* Ancho fijo para que no salte al cambiar el texto */
   margin: 0;
   border-radius: 3px;
   background: var(--header-hover);
   border: 1px solid var(--input-border);
   color: var(--text-light);
 }
+
 .toggle-door-btn:hover {
   background: var(--header-bg);
   color: white;
 }
+
 .toggle-door-btn.open {
   border-color: #5dc66f;
   color: #5dc66f;
@@ -1128,6 +1293,7 @@ body.wall-drawing-mode #mapContainer {
   line-height: 26px;
   border-radius: 3px;
 }
+
 .delete-door-btn:hover {
   background: #a13535;
   color: white;
@@ -1149,8 +1315,10 @@ body.wall-drawing-mode #mapContainer {
   font-size: 1.1em;
   padding: 4px 6px;
   border-radius: 3px;
-  width: 50%; /* Ocupa un espacio razonable */
+  width: 50%;
+  /* Ocupa un espacio razonable */
 }
+
 /* --- ESTILOS PARA IMÁGENES DE FICHAS --- */
 
 /* 1. Botón de carga de imagen más pequeño */
@@ -1158,10 +1326,14 @@ body.wall-drawing-mode #mapContainer {
   padding: 8px 12px;
   font-size: 0.9em;
   margin-bottom: 5px;
-  border-style: solid; /* Cambiamos a sólido para que se vea más como un botón normal */
+  border-style: solid;
+  /* Cambiamos a sólido para que se vea más como un botón normal */
 }
+
 #tokenImageName {
   margin-bottom: 10px;
+  max-width: 0px;
+  max-height: 0px;
 }
 
 /* 2. Estilos para la ficha en el mapa cuando tiene imagen */
@@ -1169,7 +1341,8 @@ body.wall-drawing-mode #mapContainer {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  font-size: 0; /* Oculta el texto de la letra si hay imagen */
+  font-size: 0;
+  /* Oculta el texto de la letra si hay imagen */
 }
 
 /* 3. Estilos para la vista previa de imagen en el editor */
@@ -1177,7 +1350,8 @@ body.wall-drawing-mode #mapContainer {
   position: relative;
   width: 100px;
   height: 100px;
-  margin: 0 auto 15px; /* Centra el contenedor */
+  margin: 0 auto 15px;
+  /* Centra el contenedor */
 }
 
 #editTokenImagePreview {
@@ -1185,7 +1359,8 @@ body.wall-drawing-mode #mapContainer {
   height: 100%;
   border-radius: 50%;
   border: 3px solid var(--text-gold);
-  object-fit: cover; /* Asegura que la imagen llene el círculo sin deformarse */
+  object-fit: cover;
+  /* Asegura que la imagen llene el círculo sin deformarse */
 }
 
 /* El círculo para la letra/color */
@@ -1198,10 +1373,12 @@ body.wall-drawing-mode #mapContainer {
   align-items: center;
   justify-content: center;
   font-family: "IM Fell English SC", serif;
-  font-size: 3.5em; /* Tamaño grande para la letra */
+  font-size: 3.5em;
+  /* Tamaño grande para la letra */
   color: white;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-  box-sizing: border-box; /* Incluye el borde en el tamaño total */
+  box-sizing: border-box;
+  /* Incluye el borde en el tamaño total */
 }
 
 /* Aseguramos que la imagen y el preview de letra ocupen el mismo espacio */
@@ -1230,6 +1407,7 @@ body.wall-drawing-mode #mapContainer {
   font-size: 1.2em;
   transition: background-color 0.2s;
 }
+
 .change-image-btn:hover {
   background: var(--header-hover);
 }
@@ -1251,9 +1429,11 @@ body.wall-drawing-mode #mapContainer {
   line-height: 22px;
   cursor: pointer;
 }
+
 .remove-image-btn:hover {
   background: #a13535;
 }
+
 /* --- ESTILOS PARA MODALES (ACTUALIZADO CON TU DISEÑO) --- */
 .modal-overlay {
   position: fixed;
@@ -1263,7 +1443,8 @@ body.wall-drawing-mode #mapContainer {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(5px);
-  display: none; /* Oculto por defecto */
+  display: none;
+  /* Oculto por defecto */
   align-items: center;
   justify-content: center;
   z-index: 1000;
@@ -1354,6 +1535,7 @@ body.wall-drawing-mode #mapContainer {
   margin: 0;
   flex-shrink: 0;
 }
+
 .modal-close-btn:hover {
   background: #a13535;
   transform: scale(1.1);
@@ -1383,6 +1565,7 @@ body.wall-drawing-mode #mapContainer {
   display: flex;
   flex-direction: column;
 }
+
 .scene-card:hover {
   border-color: var(--text-gold);
   transform: translateY(-5px);
@@ -1396,12 +1579,14 @@ body.wall-drawing-mode #mapContainer {
   overflow: hidden;
   background: #000;
 }
+
 .scene-card-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
+
 .scene-card:hover .scene-card-image {
   transform: scale(1.05);
 }
@@ -1416,6 +1601,7 @@ body.wall-drawing-mode #mapContainer {
   color: white;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
 }
+
 .scene-card-name {
   font-family: "IM Fell English SC", serif;
   font-size: 1.4em;
@@ -1425,6 +1611,7 @@ body.wall-drawing-mode #mapContainer {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .scene-card-date {
   font-family: "Cinzel", serif;
   font-size: 0.8em;
@@ -1436,6 +1623,7 @@ body.wall-drawing-mode #mapContainer {
   padding: 15px;
   border-top: 1px solid var(--input-border);
 }
+
 .scene-card-stats {
   display: flex;
   justify-content: space-around;
@@ -1449,11 +1637,16 @@ body.wall-drawing-mode #mapContainer {
   align-items: center;
   gap: 8px;
 }
+
 .scene-card-stat-icon {
-  font-size: 1.2em; /* Mantenemos el tamaño del contenedor */
-  display: inline-block; /* Asegura que el span se comporte como un bloque en línea */
-  width: 1em; /* Ajusta el tamaño del icono */
-  height: 1em; /* Ajusta el tamaño del icono */
+  font-size: 1.2em;
+  /* Mantenemos el tamaño del contenedor */
+  display: inline-block;
+  /* Asegura que el span se comporte como un bloque en línea */
+  width: 1em;
+  /* Ajusta el tamaño del icono */
+  height: 1em;
+  /* Ajusta el tamaño del icono */
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -1464,9 +1657,11 @@ body.wall-drawing-mode #mapContainer {
 .icon-stat-token {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk2826w-6b17b7c5-0f58-4c59-9457-29763234d533.png/v1/fit/w_574,h_759/ficha_icon_by_rafaelalvarez29_dk2826w-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzU5IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI4MjZ3LTZiMTdiN2M1LTBmNTgtNGM1OS05NDU3LTI5NzYzMjM0ZDUzMy5wbmciLCJ3aWR0aCI6Ijw9NTc0In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.ecJ1Y7MbiTskxHcKPmmKWW4a8O6YA67wjxwMoIPZIjU");
 }
+
 .icon-stat-wall {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27xrv-d8c11b91-d059-42e1-922c-39233f7d587f.png/v1/fill/w_884,h_837/muro_icon_by_rafaelalvarez29_dk27xrv-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODM3IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3eHJ2LWQ4YzExYjkxLWQwNTktNDJlMS05MjJjLTM5MjMzZjdkNTg3Zi5wbmciLCJ3aWR0aCI6Ijw9ODg0In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.Gsorh3ss3jCQIFRYym-JjKfx7KIgnU6l3DuI3KM02bw");
 }
+
 .icon-stat-door {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27xzc-36669da6-1875-409f-83e5-61a04b750924.png/v1/fit/w_602,h_848/puerta_icon_by_rafaelalvarez29_dk27xzc-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODQ4IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3eHpjLTM2NjY5ZGE2LTE4NzUtNDA5Zi04M2U1LTYxYTA0Yjc1MDkyNC5wbmciLCJ3aWR0aCI6Ijw9NjAyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.Y989bL2cMG4fX4jmwQvfM2hTQZmPqv1oTh9DEXIIp44");
 }
@@ -1492,10 +1687,12 @@ body.wall-drawing-mode #mapContainer {
   backdrop-filter: blur(3px);
   z-index: 5;
 }
+
 .scene-card:hover .delete-scene-btn {
   opacity: 1;
   transform: scale(1);
 }
+
 .delete-scene-btn:hover {
   background: rgba(161, 53, 53, 1);
   transform: scale(1.1) !important;
@@ -1508,20 +1705,27 @@ body.wall-drawing-mode #mapContainer {
   padding: 60px 20px;
   color: #888;
 }
+
 /* .icon ya tiene estilos base, añadimos la imagen específica */
 .icon-map-large {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk2807e-bf125877-efc8-4136-97d7-e6b8bd53da39.png/v1/fit/w_674,h_707/mapa_icon_by_rafaelalvarez29_dk2807e-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzA3IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI4MDdlLWJmMTI1ODc3LWVmYzgtNDEzNi05N2Q3LWU2YjhiZDUzZGEzOS5wbmciLCJ3aWR0aCI6Ijw9Njc0In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.KFdtHEY3m67t_O4ES74Pr_pH9yK6Oa3n0Yc6MJR3tAA");
-} /* REEMPLAZA LA RUTA */
+}
+
+/* REEMPLAZA LA RUTA */
 
 #no-scenes-message .icon {
-  font-size: 4em; /* Este tamaño ahora define el tamaño del contenedor del icono */
-  color: #666; /* Este color ya no afecta la imagen, puedes quitarlo si quieres */
+  font-size: 4em;
+  /* Este tamaño ahora define el tamaño del contenedor del icono */
+  color: #666;
+  /* Este color ya no afecta la imagen, puedes quitarlo si quieres */
   margin-bottom: 20px;
   opacity: 0.5;
   /* Añadido del CSS de .loading-state .icon */
-  display: inline-block; /* Necesario para width/height */
+  display: inline-block;
+  /* Necesario para width/height */
   width: 1em;
-  height: 1em; /* Usa font-size para definir el tamaño */
+  height: 1em;
+  /* Usa font-size para definir el tamaño */
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -1533,6 +1737,7 @@ body.wall-drawing-mode #mapContainer {
   color: #999;
   margin: 0 0 15px 0;
 }
+
 #no-scenes-message p {
   font-family: "Cinzel", serif;
   font-size: 1.1em;
@@ -1572,7 +1777,8 @@ body.wall-drawing-mode #mapContainer {
 
 /* Ajuste menor para la textarea sin label explícito */
 .token-editor-form h4 + .form-group textarea {
-  width: calc(100% - 20px); /* Ajuste por el padding del form-group */
+  width: calc(100% - 20px);
+  /* Ajuste por el padding del form-group */
 }
 
 /* --- ESTILO PARA MENSAJE DE LISTA DE FICHAS VACÍA (NUEVO) --- */
@@ -1606,7 +1812,8 @@ body.wall-drawing-mode #mapContainer {
 }
 
 .player-token-card {
-  position: relative; /* Necesario para que la capa ::before se posicione correctamente */
+  position: relative;
+  /* Necesario para que la capa ::before se posicione correctamente */
   display: flex;
   align-items: center;
   padding: 12px;
@@ -1650,7 +1857,8 @@ body.wall-drawing-mode #mapContainer {
 
 .player-token-info {
   flex-grow: 1;
-  min-width: 0; /* Permite que los elementos flex se encojan correctamente */
+  min-width: 0;
+  /* Permite que los elementos flex se encojan correctamente */
 }
 
 .player-token-name {
@@ -1687,12 +1895,15 @@ body.wall-drawing-mode #mapContainer {
 .health-bar-fill.health-high {
   background-color: #5dff8b;
 }
+
 .health-bar-fill.health-mid {
   background-color: #ffee5d;
 }
+
 .health-bar-fill.health-low {
   background-color: #ff5d5d;
 }
+
 .health-bar-fill.health-critical {
   background-color: #a93232;
 }
@@ -1705,7 +1916,8 @@ body.wall-drawing-mode #mapContainer {
 }
 
 .player-token-states span {
-  cursor: help; /* Indica que se puede obtener info al pasar el ratón */
+  cursor: help;
+  /* Indica que se puede obtener info al pasar el ratón */
 }
 
 /* --- ESTILOS PARA EDITOR DE ESTADOS (NUEVO) --- */
@@ -1739,10 +1951,12 @@ button.small-btn {
 #editTokenStatesList .state-emoji {
   font-size: 1.3em;
 }
+
 #editTokenStatesList .state-desc {
   flex-grow: 1;
   font-size: 0.9em;
 }
+
 #editTokenStatesList .delete-state-btn {
   background: none;
   border: 1px solid #c65d5d;
@@ -1755,15 +1969,18 @@ button.small-btn {
   line-height: 22px;
   border-radius: 50%;
 }
+
 #editTokenStatesList .delete-state-btn:hover {
   background: #a13535;
   color: white;
 }
+
 /* --- AÑADE ESTO AL FINAL DE style.css --- */
 
 /* Animaciones para las tarjetas de jugador en el tracker (VERSIÓN CON CAMBIO DE FONDO) */
 .player-token-card {
-  position: relative; /* Necesario para que la capa ::before se posicione correctamente */
+  position: relative;
+  /* Necesario para que la capa ::before se posicione correctamente */
   /* NOTA: Asegúrate de que esta línea esté presente en tu regla .player-token-card */
 }
 
@@ -1798,9 +2015,11 @@ button.small-btn {
 .player-token-card.card-damaged {
   animation: token-shake 0.4s ease-out;
 }
+
 /* La capa invisible se encarga del FLASH DE COLOR */
 .player-token-card.card-damaged::before {
-  background-color: rgba(180, 50, 50, 0.7); /* Color del flash de daño */
+  background-color: rgba(180, 50, 50, 0.7);
+  /* Color del flash de daño */
   animation: flash-overlay 0.4s ease-out;
 }
 
@@ -1809,9 +2028,11 @@ button.small-btn {
 .player-token-card.card-healed {
   animation: card-pulse-scale 0.5s ease-out;
 }
+
 /* La capa invisible se encarga del FLASH DE COLOR */
 .player-token-card.card-healed::before {
-  background-color: rgba(50, 180, 80, 0.6); /* Color del flash de curación */
+  background-color: rgba(50, 180, 80, 0.6);
+  /* Color del flash de curación */
   animation: flash-overlay 0.5s ease-out;
 }
 
@@ -1823,15 +2044,18 @@ button.small-btn {
   90% {
     transform: translate3d(-1px, 0, 0);
   }
+
   20%,
   80% {
     transform: translate3d(2px, 0, 0);
   }
+
   30%,
   50%,
   70% {
     transform: translate3d(-4px, 0, 0);
   }
+
   40%,
   60% {
     transform: translate3d(4px, 0, 0);
@@ -1844,6 +2068,7 @@ button.small-btn {
   100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.02);
   }
@@ -1855,6 +2080,7 @@ button.small-btn {
   100% {
     opacity: 0;
   }
+
   50% {
     opacity: 1;
   }
@@ -1864,7 +2090,8 @@ button.small-btn {
 
 .radio-tile-group {
   display: flex;
-  justify-content: space-around; /* Distribuye el espacio entre los tiles */
+  justify-content: space-around;
+  /* Distribuye el espacio entre los tiles */
   gap: 1rem;
   margin-top: 10px;
 }
@@ -1872,8 +2099,10 @@ button.small-btn {
 .radio-tile-group .input-container {
   position: relative;
   height: 90px;
-  flex: 1; /* Hace que ambos tiles ocupen el espacio disponible */
-  max-width: 180px; /* Un ancho máximo para que no se estiren demasiado */
+  flex: 1;
+  /* Hace que ambos tiles ocupen el espacio disponible */
+  max-width: 180px;
+  /* Un ancho máximo para que no se estiren demasiado */
 }
 
 /* El input de radio real, oculto pero funcional */
@@ -1905,13 +2134,16 @@ button.small-btn {
 
 /* El contenedor del icono dentro del tile (ahora será un span vacío con background-image) */
 .radio-tile-group .input-container .radio-tile-icon {
-  font-size: 2.5em; /* Este tamaño define el tamaño del contenedor del icono */
+  font-size: 2.5em;
+  /* Este tamaño define el tamaño del contenedor del icono */
   line-height: 1;
   margin-bottom: 8px;
   /* NUEVO: Estilos para la imagen de fondo */
-  display: inline-block; /* Necesario para width/height */
+  display: inline-block;
+  /* Necesario para width/height */
   width: 1em;
-  height: 1em; /* Usa font-size para definir el tamaño */
+  height: 1em;
+  /* Usa font-size para definir el tamaño */
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -1922,9 +2154,11 @@ button.small-btn {
 .icon-wall-draw {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27xrv-d8c11b91-d059-42e1-922c-39233f7d587f.png/v1/fill/w_884,h_837/muro_icon_by_rafaelalvarez29_dk27xrv-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODM3IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3eHJ2LWQ4YzExYjkxLWQwNTktNDJlMS05MjJjLTM5MjMzZjdkNTg3Zi5wbmciLCJ3aWR0aCI6Ijw9ODg0In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.Gsorh3ss3jCQIFRYym-JjKfx7KIgnU6l3DuI3KM02bw");
 }
+
 .icon-door-draw {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk27xzc-36669da6-1875-409f-83e5-61a04b750924.png/v1/fit/w_602,h_848/puerta_icon_by_rafaelalvarez29_dk27xzc-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODQ4IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI3eHpjLTM2NjY5ZGE2LTE4NzUtNDA5Zi04M2U1LTYxYTA0Yjc1MDkyNC5wbmciLCJ3aWR0aCI6Ijw9NjAyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.Y989bL2cMG4fX4jmwQvfM2hTQZmPqv1oTh9DEXIIp44");
 }
+
 .icon-player-type {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk280pi-d5a22ac5-2d1e-49cf-8950-ea3da33ffb94.png/v1/fit/w_720,h_867/jugador_icon_by_rafaelalvarez29_dk280pi-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODY3IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI4MHBpLWQ1YTIyYWM1LTJkMWUtNDljZi04OTUwLWVhM2RhMzNmZmI5NC5wbmciLCJ3aWR0aCI6Ijw9NzIwIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.xFjM5mMj-NGZYvdFJzsZItT4jz5ZCERid4abqKijNNk");
   filter: drop-shadow(0 0 5px #fffbc8)
@@ -1932,6 +2166,7 @@ button.small-btn {
     drop-shadow(0 0 15px #ffd30e);
   pointer-events: none;
 }
+
 .icon-enemy-type {
   background-image: url("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/465e4532-5430-4be7-b49c-acf81087d8bd/dk280si-23ebfeac-29eb-4e9a-9cf3-af3d666e6828.png/v1/fit/w_679,h_874/enemigo_icon_by_rafaelalvarez29_dk280si-375w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODc0IiwicGF0aCI6IlwvZlwvNDY1ZTQ1MzItNTQzMC00YmU3LWI0OWMtYWNmODEwODdkOGJkXC9kazI4MHNpLTIzZWJmZWFjLTI5ZWItNGU5YS05Y2YzLWFmM2Q2NjZlNjgyOC5wbmciLCJ3aWR0aCI6Ijw9Njc5In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.SEXeiU9RgxFAglrgdhWff-z-FCA_TyOJZ9SGd1CVsWU");
   filter: drop-shadow(0 0 12px rgb(255, 75, 255));
@@ -1953,7 +2188,8 @@ button.small-btn {
 .radio-tile-group .input-container .radio-button:checked + .radio-tile {
   background-color: var(--header-hover);
   border: 2px solid var(--text-gold);
-  color: var(--text-gold); /* Esto cambia el color del texto */
+  color: var(--text-gold);
+  /* Esto cambia el color del texto */
   transform: scale(1.05);
   box-shadow: 0 0 10px rgba(230, 194, 83, 0.3);
 }
@@ -1967,7 +2203,8 @@ button.small-btn {
   + .radio-tile
   .radio-tile-icon {
   /* Si usas SVGs y quieres cambiar su color con CSS, podrías añadir filtros */
-  /* filter: invert(50%) sepia(200%) saturate(2000%) hue-rotate(20deg); */ /* Ejemplo de filtro */
+  /* filter: invert(50%) sepia(200%) saturate(2000%) hue-rotate(20deg); */
+  /* Ejemplo de filtro */
 }
 
 .radio-tile-group
@@ -1988,15 +2225,20 @@ button.small-btn {
   display: grid;
   /* Crea 4 columnas de igual tamaño que ocupan el espacio disponible */
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px; /* Espacio entre los botones */
+  gap: 10px;
+  /* Espacio entre los botones */
 }
 
 /* Estilo para los botones de sonido individuales */
 .sound-btn {
-  margin-top: 0; /* Anula el margen por defecto de los botones */
-  padding: 10px 5px; /* Padding más pequeño para que no sean tan altos */
-  font-size: 0.9em; /* Fuente ligeramente más pequeña */
-  background: var(--header-bg); /* Un color base más sutil */
+  margin-top: 0;
+  /* Anula el margen por defecto de los botones */
+  padding: 10px 5px;
+  /* Padding más pequeño para que no sean tan altos */
+  font-size: 0.9em;
+  /* Fuente ligeramente más pequeña */
+  background: var(--header-bg);
+  /* Un color base más sutil */
   border-color: var(--input-border);
   transition: all 0.2s ease;
 }
@@ -2008,30 +2250,35 @@ button.small-btn {
 
 /* Estilo para el botón que está activo (reproduciendo un loop) */
 .sound-btn.active {
-  background: var(
-    --button-vision-bg
-  ); /* Un color verde para indicar que está activo */
+  background: var(--button-vision-bg);
+  /* Un color verde para indicar que está activo */
   border-color: #5dc66f;
   color: #fff;
   box-shadow: 0 0 8px #5dc66f;
 }
+
 #aoeCanvas {
   position: absolute;
   top: 0;
   left: 0;
-  pointer-events: none; /* ¡Muy importante! Permite que los clics atraviesen el canvas */
-  z-index: 5; /* Por encima de la niebla, pero por debajo de las fichas seleccionadas */
-  opacity: 0.6; /* Hacemos el área semi-transparente */
+  pointer-events: none;
+  /* ¡Muy importante! Permite que los clics atraviesen el canvas */
+  z-index: 5;
+  /* Por encima de la niebla, pero por debajo de las fichas seleccionadas */
+  opacity: 0.6;
+  /* Hacemos el área semi-transparente */
 }
 
 /* Ajustes para el grupo de botones de selección de forma */
 #aoeShapeSelector {
-  grid-template-columns: repeat(5, 1fr); /* 5 botones en la misma fila */
+  grid-template-columns: repeat(5, 1fr);
+  /* 5 botones en la misma fila */
   gap: 5px;
 }
 
 #aoeShapeSelector button {
-  padding: 8px 5px; /* Padding más ajustado */
+  padding: 8px 5px;
+  /* Padding más ajustado */
   font-size: 0.9em;
   margin-top: 0;
 }
@@ -2046,5 +2293,169 @@ button.small-btn {
 
 /* El contenedor de los parámetros de cada forma */
 #aoeParamsContainer .form-group {
-    margin-bottom: 0;
+  margin-bottom: 0;
+}
+
+#tokenList li.selected-in-list {
+  background-color: var(--header-hover);
+  border-left: 4px solid var(--text-gold);
+  padding-left: 6px;
+  /* Ajusta el padding para compensar el borde */
+}
+
+.player-token-card.selected-in-tracker {
+  /* Un resplandor exterior dorado para que destaque */
+  box-shadow: 0 0 12px 2px var(--text-gold);
+
+  /* Hacemos la tarjeta ligeramente más brillante */
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.8),
+    rgba(0, 0, 0, 0.6),
+    rgba(0, 0, 0, 0.4),
+    rgba(0, 0, 0, 0.2)
+  ); /* Usamos un color de fondo del panel para que resalte */
+
+  /* Un borde sutil para definirla mejor */
+  border: 1px solid var(--text-gold);
+  border-left: none;
+
+  /* Un ligero escalado para que "salte" visualmente */
+  transform: scale(1.03);
+}
+* --- Bloque de CSS para los Iconos del Pincel --- */
+/* --- Revisa que tengas TODO esto en tu style.css --- */
+
+.fog-brush-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.checkbox-tile-group {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.checkbox-tile-group .input-container {
+  position: relative;
+  align-items: center;
+  height: 100px;
+  width: 35%;
+}
+
+.checkbox-tile-group .checkbox-button {
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  margin: 0;
+}
+
+.checkbox-tile-group .checkbox-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--input-border);
+  border-radius: 8px;
+  background: var(--content-bg);
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+  padding: 5px;
+}
+
+/* === ESTA ES LA REGLA MÁS IMPORTANTE === */
+/* Asegúrate de que las propiedades width, height y display estén aquí */
+.checkbox-tile-group .checkbox-tile-icon {
+  font-size: 2em;
+  line-height: 1;
+  margin-bottom: 5px;
+  display: inline-block; /* <-- ¡CRUCIAL! Sin esto no se puede dar tamaño */
+  width: 3em; /* <-- ¡CRUCIAL! Le da un ancho */
+  height: 3em; /* <-- ¡CRUCIAL! Le da una altura */
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+/* === FIN DE LA REGLA IMPORTANTE === */
+
+/* Iconos específicos para revelar y ocultar */
+.icon-reveal-fog {
+  background-image: url("assets/images/icons/pincel-no-niebla.png");
+  filter: drop-shadow(0 0 12px rgb(255, 255, 255));
+  pointer-events: none;
+}
+.icon-hide-fog {
+  background-image: url("assets/images/icons/pincel-niebla.png");
+  filter: drop-shadow(0 0 12px rgb(255, 75, 255));
+  pointer-events: none;
+}
+
+.checkbox-tile-group .checkbox-tile-label {
+  text-align: center;
+  font-size: 1em;
+  font-family: "IM Fell English SC", serif;
+  color: var(--text-light);
+  pointer-events: none;
+}
+
+/* Estado seleccionado del checkbox-tile */
+.checkbox-tile-group .checkbox-button:checked + .checkbox-tile {
+  background-color: var(--header-hover);
+  border-color: var(--text-gold);
+}
+
+.checkbox-tile-group
+  .checkbox-button:checked
+  + .checkbox-tile
+  .checkbox-tile-label {
+  color: var(--text-gold);
+}
+
+.brush-size-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+/*CURSOR PINCEL PERSONALIZADO DE NEBLINA*/
+/* Se aplica cuando CUALQUIER modo de pincel (revelar u ocultar) está activo */
+#mapContainer.brush-mode-active {
+  /* La primera ruta es el cursor personalizado. 'auto' es el fallback si no carga. */
+  /* Los números '16 16' son el punto caliente (hotspot) del cursor. */
+  /* Debes ajustarlos para que la punta de tu pincel coincida con el píxel donde haces clic. */
+  /* '0 43' como en tu ejemplo, significa 0px desde la izquierda y 43px desde arriba. */
+  cursor: url("assets/images/icons/cursor-pincel.cur") 0 43, auto;
+}
+
+/* Se aplica cuando el botón del ratón está PRESIONADO mientras se pinta */
+#mapContainer.brush-mode-active:active {
+  cursor: url("assets/images/icons/cursor-pincel-active.cur") 0 43, auto;
+}
+.colorh {
+  width: 50% !important;
+  border: none !important;
+}
+
+#tokenColor,
+#tokenBorderColor {
+  border: none;
+}
+.player-token-health-text {
+  font-size: 0.8em;
+  color: #b0b0b0;
+  margin-top: 5px; /* Pequeño espacio debajo de la barra de vida */
+  padding-left: 2px; /* Alineación fina */
+}
+#aoeColor,
+#editTokenColor,
+#editTokenBorderColor {
+  border: none;
 }
