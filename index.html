@@ -41,8 +41,15 @@
                     <!-- NUEVO BOTÓN PARA VER MAPAS GUARDADOS -->
 
                     <div class="button-group">
-                        <button id="saveStateBtn">Guardar Escena</button>
-                        <button id="loadStateBtn">Cargar Escena</button>
+                        <button id="saveStateBtn">
+                            <span class="btn-icon icon-save-scene"></span>
+                            <span class="btn-text">Guardar Escena</span>
+                        </button>
+                        <button id="loadStateBtn">
+                            <span class="btn-icon icon-load-scene"></span>
+                            <span class="btn-text">Cargar Escena</span>
+                        </button>
+
                     </div>
                 </div>
             </section>
@@ -147,8 +154,18 @@
                     <!-- Botones de control -->
                     <button id="toggleWallModeBtn">Activar Modo Dibujo</button>
                     <div class="button-group">
-                        <button id="undoWallBtn" class="secondary">Deshacer Último</button>
-                        <button id="clearWallsBtn" class="secondary">Limpiar Todo</button>
+                        <button id="undoWallBtn" class="secondary">
+                            <!-- Contenedor para el icono de deshacer -->
+                            <span class="btn-icon icon-undo"></span>
+                            <!-- Contenedor para el texto -->
+                            <span class="btn-text">Deshacer Último</span>
+                        </button>
+                        <button id="clearWallsBtn" class="secondary">
+                            <!-- Contenedor para el icono de limpiar -->
+                            <span class="btn-icon icon-clear-all"></span>
+                            <!-- Contenedor para el texto -->
+                            <span class="btn-text">Limpiar Todo</span>
+                        </button>
                     </div>
                 </div>
             </section>
@@ -218,22 +235,20 @@
                             <div class="radio-tile-group">
                                 <!-- Opción Jugador -->
                                 <div class="input-container">
-                                    <input id="typePlayer" class="radio-button" type="radio" name="tokenType"
+                                    <input id="add_typePlayer" class="radio-button" type="radio" name="add_tokenType"
                                         value="player" checked>
                                     <div class="radio-tile">
-                                        <!-- CAMBIO: span vacío para el icono -->
                                         <span class="radio-tile-icon icon-player-type"></span>
-                                        <label for="typePlayer" class="radio-tile-label">Jugador</label>
+                                        <label for="add_typePlayer" class="radio-tile-label">Jugador</label>
                                     </div>
                                 </div>
                                 <!-- Opción Enemigo -->
                                 <div class="input-container">
-                                    <input id="typeEnemy" class="radio-button" type="radio" name="tokenType"
+                                    <input id="add_typeEnemy" class="radio-button" type="radio" name="add_tokenType"
                                         value="enemy">
                                     <div class="radio-tile">
-                                        <!-- CAMBIO: span vacío para el icono -->
                                         <span class="radio-tile-icon icon-enemy-type"></span>
-                                        <label for="typeEnemy" class="radio-tile-label">Enemigo</label>
+                                        <label for="add_typeEnemy" class="radio-tile-label">Enemigo</label>
                                     </div>
                                 </div>
                             </div>
@@ -250,56 +265,160 @@
                         </div>
                         <div class="form-row">
                             <div class="form-group" style="flex-grow: 1;">
-
                                 <div class="form-group" style="flex-grow: 2;">
-                                    <label for="tokenImageInput">o Imagen de Ficha:</label>
-
+                                    <label for="tokenImageInput">Imagen de Ficha:</label>
                                     <div class="file-upload-wrapper">
-                                        <!-- Input oculto (sin cambios) -->
                                         <input type="file" id="tokenImageInput"
                                             accept="image/png, image/jpeg, image/webp, image/gif"
                                             class="hidden-file-input">
-
-                                        <!-- Label-botón (sin cambios) -->
                                         <label for="tokenImageInput" class="custom-file-upload-btn small-btn">Cargar
                                             Imagen</label>
-
-                                        <!-- ======================================= -->
-                                        <!-- =====        NUEVO CÓDIGO         ===== -->
-                                        <!-- ======================================= -->
-
-                                        <!-- Contenedor para la previsualización de la imagen -->
-
-
-                                        <!-- El span para el nombre del archivo (opcional, pero lo mantenemos por si no hay imagen) -->
                                         <span id="tokenImageName" class="file-name-display">Ningún archivo...</span>
-
-                                        <!-- ======================================= -->
-                                        <!-- ======     FIN NUEVO CÓDIGO      ====== -->
-                                        <!-- ======================================= -->
                                     </div>
-
                                 </div>
                             </div>
-
                         </div>
 
                         <h4>Estadísticas</h4>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="tokenTurn">Iniciativa:</label>
-                                <!-- CORRECCIÓN: Añadido value por defecto -->
-                                <input type="number" id="tokenTurn" value="">
+                        <!-- NUEVO: CARACTERÍSTICAS PRINCIPALES -->
+                        <div class="char-stats-grid" id="add_char_stats_grid">
+                            <!-- FUE -->
+                            <div class="char-stat-card">
+                                <label>FUE</label>
+                                <span class="char-mod" id="add_str_mod">+0</span>
+                                <div class="char-score-capsule">
+                                    <input type="number" id="add_str_score" class="char-score-input nobackgrund"
+                                        value="10">
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="tokenVision">Visión (casillas):*</label>
-                                <!-- CORRECCIÓN: Añadido value por defecto -->
-                                <input type="number" id="tokenVision" value="12" min="0">
+                            <!-- DES -->
+                            <div class="char-stat-card">
+                                <label>DES</label>
+                                <span class="char-mod" id="add_dex_mod">+0</span>
+                                <div class="char-score-capsule">
+                                    <input type="number" id="add_dex_score" class="char-score-input nobackgrund"
+                                        value="10">
+                                </div>
+                            </div>
+                            <!-- CON -->
+                            <div class="char-stat-card">
+                                <label>CON</label>
+                                <span class="char-mod" id="add_con_mod">+0</span>
+                                <div class="char-score-capsule">
+                                    <input type="number" id="add_con_score" class="char-score-input nobackgrund"
+                                        value="10">
+                                </div>
+                            </div>
+                            <!-- INT -->
+                            <div class="char-stat-card">
+                                <label>INT</label>
+                                <span class="char-mod" id="add_int_mod">+0</span>
+                                <div class="char-score-capsule">
+                                    <input type="number" id="add_int_score" class="char-score-input nobackgrund"
+                                        value="10">
+                                </div>
+                            </div>
+                            <!-- SAB -->
+                            <div class="char-stat-card">
+                                <label>SAB</label>
+                                <span class="char-mod" id="add_wis_mod">+0</span>
+                                <div class="char-score-capsule">
+                                    <input type="number" id="add_wis_score" class="char-score-input nobackgrund"
+                                        value="10">
+                                </div>
+                            </div>
+                            <!-- CAR -->
+                            <div class="char-stat-card">
+                                <label>CAR</label>
+                                <span class="char-mod" id="add_car_mod">+0</span>
+                                <div class="char-score-capsule">
+                                    <input type="number" id="add_car_score" class="char-score-input nobackgrund"
+                                        value="10">
+                                </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="tokenHealth">Vida Inicial:</label>
-                            <input type="number" id="tokenHealth" value="">
+
+                        <!-- NUEVO: ESTADÍSTICAS DE COMBATE -->
+                        <div class="combat-stats-grid">
+                            <!-- BONIF. COMPETENCIA -->
+                            <div class="combat-stat-card">
+                                <label class="combat-label-top">BONIF.</label>
+                                <input type="number" class="combat-value-input nobackgrund" id="add_proficiency_bonus"
+                                    value="2">
+                                <label class="combat-label-bottom">COMPETENCIA</label>
+                            </div>
+                            <!-- MOD. INICIATIVA -->
+                            <div class="combat-stat-card">
+                                <label class="combat-label-top">MOD.</label>
+                                <input type="number" class="combat-value-input nobackgrund" id="add_initiative_mod"
+                                    value="0">
+                                <label class="combat-label-bottom">INICIATIVA</label>
+                            </div>
+                            <!-- VELOCIDAD -->
+                            <div class="combat-stat-card">
+                                <label class="combat-label-top">VELOCIDAD</label>
+                                <input type="number" class="combat-value-input nobackgrund" id="add_speed" value="30">
+                                <label class="combat-label-bottom">PIES</label>
+                            </div>
+                            <!-- CLASE DE ARMADURA -->
+                            <div class="combat-stat-card">
+                                <label class="combat-label-top">CLASE DE</label>
+                                <input type="number" class="combat-value-input nobackgrund" id="add_armor_class"
+                                    value="10">
+                                <label class="combat-label-bottom">ARMADURA</label>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tokenVision">👁️Visión (casillas):*</label>
+                                <input type="number" id="tokenVision" value="12" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="tokenHealth">♥️Vida Inicial:</label>
+                                <input type="number" id="tokenHealth" value="">
+                            </div>
+                        </div>
+
+                        <!-- NUEVO: TIRADAS DE SALVACIÓN -->
+                        <h4>Tiradas de Salvación</h4>
+                        <div class="saving-throws-list" id="add_saving_throws_list">
+                            <div class="save-throw-row">
+                                <div class="checkbox-container"><input type="checkbox" id="add_str_save_prof"
+                                        class="save-prof-check"><label for="add_str_save_prof"></label></div> <span
+                                    class="save-name">Fuerza (Fue)</span><span class="save-total"
+                                    id="add_str_save_total">+0</span>
+                            </div>
+                            <div class="save-throw-row">
+                                <div class="checkbox-container"><input type="checkbox" id="add_dex_save_prof"
+                                        class="save-prof-check"><label for="add_dex_save_prof"></label></div> <span
+                                    class="save-name">Destreza (Des)</span><span class="save-total"
+                                    id="add_dex_save_total">+0</span>
+                            </div>
+                            <div class="save-throw-row">
+                                <div class="checkbox-container"><input type="checkbox" id="add_con_save_prof"
+                                        class="save-prof-check"><label for="add_con_save_prof"></label></div> <span
+                                    class="save-name">Constitución (Con)</span><span class="save-total"
+                                    id="add_con_save_total">+0</span>
+                            </div>
+                            <div class="save-throw-row">
+                                <div class="checkbox-container"><input type="checkbox" id="add_int_save_prof"
+                                        class="save-prof-check"><label for="add_int_save_prof"></label></div> <span
+                                    class="save-name">Inteligencia (Int)</span><span class="save-total"
+                                    id="add_int_save_total">+0</span>
+                            </div>
+                            <div class="save-throw-row">
+                                <div class="checkbox-container"><input type="checkbox" id="add_wis_save_prof"
+                                        class="save-prof-check"><label for="add_wis_save_prof"></label></div> <span
+                                    class="save-name">Sabiduría (Sab)</span><span class="save-total"
+                                    id="add_wis_save_total">+0</span>
+                            </div>
+                            <div class="save-throw-row">
+                                <div class="checkbox-container"><input type="checkbox" id="add_car_save_prof"
+                                        class="save-prof-check"><label for="add_car_save_prof"></label></div> <span
+                                    class="save-name">Carisma (Car)</span><span class="save-total"
+                                    id="add_car_save_total">+0</span>
+                            </div>
                         </div>
 
                         <h4>Apariencia</h4>
@@ -335,29 +454,23 @@
                 </div>
             </section>
 
-            <!-- FORMULARIO FICHA SELECCIONADA (Totalmente reconstruido) -->
+            <!-- FORMULARIO FICHA SELECCIONADA -->
             <section id="selectedTokenSection" class="collapsible">
-                <!-- CAMBIO: Añadir span para el icono -->
                 <h3 class="collapsible-header"><span class="header-icon icon-selected-token"></span> Ficha Seleccionada
                 </h3>
                 <div class="collapsible-content">
-                    <p id="noTokenSelected" class="no-tokens-message">Seleccione una ficha para ver su información...</p>
+                    <p id="noTokenSelected" class="no-tokens-message">Seleccione una ficha para ver su información...
+                    </p>
                     <div id="tokenEditor" class="token-editor-form">
 
                         <div id="editTokenImagePreviewContainer">
-                            <!-- Vista previa de la IMAGEN -->
                             <img id="editTokenImagePreview" src="" alt="Imagen de la Ficha">
-                            <!-- Vista previa de la LETRA/COLOR (se mostrará u ocultará con JS) -->
                             <div id="editTokenLetterPreview" class="token-preview-letter"></div>
-
-                            <!-- Botones de acción -->
                             <label for="editTokenImageInput" class="change-image-btn"
                                 title="Cargar/Cambiar imagen">✏️</label>
                             <button id="removeTokenImageBtn" class="remove-image-btn" title="Quitar imagen">X</button>
                             <input type="file" id="editTokenImageInput"
                                 accept="image/png, image/jpeg, image/webp, image/gif" class="hidden-file-input">
-
-
                         </div>
 
                         <div class="form-header">
@@ -373,21 +486,106 @@
                         </div>
 
                         <h4>Estadísticas</h4>
-                        <div class="form-row">
-                            <div class="form-group"><label for="editTokenTurn">Iniciativa</label><input type="number"
-                                    id="editTokenTurn"></div>
-                            <div class="form-group"><label for="editTokenVision">Visión (Casillas)*</label><input
-                                    type="number" id="editTokenVision" min="0"></div>
+                        <!-- NUEVO: CARACTERÍSTICAS PRINCIPALES EN EDITOR -->
+                        <div class="char-stats-grid" id="edit_char_stats_grid">
+                            <!-- FUE -->
+                            <div class="char-stat-card">
+                                <label>FUE</label>
+                                <span class="char-mod" id="edit_str_mod">+0</span>
+                                <div class="char-score-capsule">
+                                    <input type="number" id="edit_str_score" class="char-score-input nobackgrund"
+                                        value="10">
+                                </div>
+                            </div>
+                            <!-- DES -->
+                            <div class="char-stat-card">
+                                <label>DES</label>
+                                <span class="char-mod" id="edit_dex_mod">+0</span>
+                                <div class="char-score-capsule">
+                                    <input type="number" id="edit_dex_score" class="char-score-input nobackgrund"
+                                        value="10">
+                                </div>
+                            </div>
+                            <!-- CON -->
+                            <div class="char-stat-card">
+                                <label>CON</label>
+                                <span class="char-mod" id="edit_con_mod">+0</span>
+                                <div class="char-score-capsule">
+                                    <input type="number" id="edit_con_score" class="char-score-input nobackgrund"
+                                        value="10">
+                                </div>
+                            </div>
+                            <!-- INT -->
+                            <div class="char-stat-card">
+                                <label>INT</label>
+                                <span class="char-mod" id="edit_int_mod">+0</span>
+                                <div class="char-score-capsule">
+                                    <input type="number" id="edit_int_score" class="char-score-input nobackgrund"
+                                        value="10">
+                                </div>
+                            </div>
+                            <!-- SAB -->
+                            <div class="char-stat-card">
+                                <label>SAB</label>
+                                <span class="char-mod" id="edit_wis_mod">+0</span>
+                                <div class="char-score-capsule">
+                                    <input type="number" id="edit_wis_score" class="char-score-input nobackgrund"
+                                        value="10">
+                                </div>
+                            </div>
+                            <!-- CAR -->
+                            <div class="char-stat-card">
+                                <label>CAR</label>
+                                <span class="char-mod" id="edit_car_mod">+0</span>
+                                <div class="char-score-capsule">
+                                    <input type="number" id="edit_car_score" class="char-score-input nobackgrund"
+                                        value="10">
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group"><label for="editTokenHealthMax">Vida Máxima</label><input type="number"
-                                id="editTokenHealthMax" min="0"></div>
 
-                        <!-- NUEVA SECCIÓN DE CONTROLES DE VIDA -->
+                        <!-- NUEVO: ESTADÍSTICAS DE COMBATE EN EDITOR -->
+                        <div class="combat-stats-grid">
+                            <!-- BONIF. COMPETENCIA -->
+                            <div class="combat-stat-card">
+                                <label class="combat-label-top">BONIF.</label>
+                                <input type="number" class="combat-value-input nobackgrund" id="edit_proficiency_bonus"
+                                    value="2">
+                                <label class="combat-label-bottom">COMPETENCIA</label>
+                            </div>
+                            <!-- INICIATIVA FINAL (EL QUE YA EXISTÍA) -->
+                            <div class="combat-stat-card">
+                                <label class="combat-label-top">INICIATIVA</label>
+                                <input type="number" class="combat-value-input nobackgrund" id="editTokenTurn">
+                                <label class="combat-label-bottom">(FINAL)</label>
+                            </div>
+                            <!-- VELOCIDAD -->
+                            <div class="combat-stat-card">
+                                <label class="combat-label-top">VELOCIDAD</label>
+                                <input type="number" class="combat-value-input nobackgrund" id="edit_speed" value="30">
+                                <label class="combat-label-bottom">PIES</label>
+                            </div>
+                            <!-- CLASE DE ARMADURA -->
+                            <div class="combat-stat-card">
+                                <label class="combat-label-top">CLASE DE</label>
+                                <input type="number" class="combat-value-input nobackgrund" id="edit_armor_class"
+                                    value="10">
+                                <label class="combat-label-bottom">ARMADURA</label>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group"><label for="editTokenVision">👁️Visión (Casillas)*</label><input
+                                    type="number" id="editTokenVision" min="0"></div>
+                            <div class="form-group"><label for="editTokenHealthMax">♥️Vida Máxima</label><input
+                                    type="number" id="editTokenHealthMax" min="0"></div>
+                        </div>
+
+                        <!-- SECCIÓN DE CONTROLES DE VIDA -->
                         <div class="health-controls">
                             <label>Puntos de Vida Actuales</label>
                             <div id="healthDisplayContainer" class="health-display-container">
                                 <span id="healthDisplay" class="health-display">100</span>
-                                <!-- Los números flotantes se añadirán aquí con JS -->
                             </div>
                             <div class="health-modifier-row">
                                 <button class="health-modifier-btn negative" data-amount="-10">-10</button>
@@ -401,12 +599,50 @@
                             </div>
                             <p class="help-text">Usa los botones o escribe un número y presiona Enter.</p>
                         </div>
+
+                        <!-- NUEVO: TIRADAS DE SALVACIÓN EN EDITOR -->
+                        <h4>Tiradas de Salvación</h4>
+                        <div class="saving-throws-list" id="edit_saving_throws_list">
+                            <div class="save-throw-row">
+                                <div class="checkbox-container"><input type="checkbox" id="edit_str_save_prof"
+                                        class="save-prof-check"><label for="edit_str_save_prof"></label></div> <span
+                                    class="save-name">Fuerza (Fue)</span><span class="save-total"
+                                    id="edit_str_save_total">+0</span>
+                            </div>
+                            <div class="save-throw-row">
+                                <div class="checkbox-container"><input type="checkbox" id="edit_dex_save_prof"
+                                        class="save-prof-check"><label for="edit_dex_save_prof"></label></div> <span
+                                    class="save-name">Destreza (Des)</span><span class="save-total"
+                                    id="edit_dex_save_total">+0</span>
+                            </div>
+                            <div class="save-throw-row">
+                                <div class="checkbox-container"><input type="checkbox" id="edit_con_save_prof"
+                                        class="save-prof-check"><label for="edit_con_save_prof"></label></div> <span
+                                    class="save-name">Constitución (Con)</span><span class="save-total"
+                                    id="edit_con_save_total">+0</span>
+                            </div>
+                            <div class="save-throw-row">
+                                <div class="checkbox-container"><input type="checkbox" id="edit_int_save_prof"
+                                        class="save-prof-check"><label for="edit_int_save_prof"></label></div> <span
+                                    class="save-name">Inteligencia (Int)</span><span class="save-total"
+                                    id="edit_int_save_total">+0</span>
+                            </div>
+                            <div class="save-throw-row">
+                                <div class="checkbox-container"><input type="checkbox" id="edit_wis_save_prof"
+                                        class="save-prof-check"><label for="edit_wis_save_prof"></label></div> <span
+                                    class="save-name">Sabiduría (Sab)</span><span class="save-total"
+                                    id="edit_wis_save_total">+0</span>
+                            </div>
+                            <div class="save-throw-row">
+                                <div class="checkbox-container"><input type="checkbox" id="edit_car_save_prof"
+                                        class="save-prof-check"><label for="edit_car_save_prof"></label></div> <span
+                                    class="save-name">Carisma (Car)</span><span class="save-total"
+                                    id="edit_car_save_total">+0</span>
+                            </div>
+                        </div>
+
                         <h4 id="aoeHeader">Alcance y Áreas de Efecto</h4>
-
-                        <!-- Contenedor principal para los controles de AoE -->
                         <div id="aoeControlsContainer" style="display: none;">
-
-                            <!-- Botones para seleccionar la forma del área -->
                             <div id="aoeShapeSelector" class="button-group">
                                 <button id="aoeBtnLine" data-shape="line" title="Línea">Línea</button>
                                 <button id="aoeBtnCone" data-shape="cone" title="Cono">Cono</button>
@@ -414,38 +650,31 @@
                                 <button id="aoeBtnSphere" data-shape="sphere" title="Esfera">Esfera</button>
                                 <button id="aoeBtnCylinder" data-shape="cylinder" title="Cilindro">Cilindro</button>
                             </div>
-
-                            <!-- Contenedor para los parámetros (se mostrará el apropiado con JS) -->
                             <div id="aoeParamsContainer" style="margin-top: 15px;">
-                                <!-- Parámetros para Línea -->
                                 <div id="params-line" class="aoe-params" style="display: none;">
                                     <div class="form-group">
                                         <label for="aoeLineWidth">Ancho de la Línea (casillas):</label>
                                         <input type="number" id="aoeLineWidth" value="1" min="1">
                                     </div>
                                 </div>
-                                <!-- Parámetros para Cono -->
                                 <div id="params-cone" class="aoe-params" style="display: none;">
                                     <div class="form-group">
                                         <label for="aoeConeLength">Longitud del Cono (casillas):</label>
                                         <input type="number" id="aoeConeLength" value="6" min="1">
                                     </div>
                                 </div>
-                                <!-- Parámetros para Cubo -->
                                 <div id="params-cube" class="aoe-params" style="display: none;">
                                     <div class="form-group">
                                         <label for="aoeCubeSize">Tamaño del Cubo (casillas):</label>
                                         <input type="number" id="aoeCubeSize" value="3" min="1">
                                     </div>
                                 </div>
-                                <!-- Parámetros para Esfera -->
                                 <div id="params-sphere" class="aoe-params" style="display: none;">
                                     <div class="form-group">
                                         <label for="aoeSphereRadius">Radio de la Esfera (casillas):</label>
                                         <input type="number" id="aoeSphereRadius" value="4" min="1">
                                     </div>
                                 </div>
-                                <!-- Parámetros para Cilindro -->
                                 <div id="params-cylinder" class="aoe-params" style="display: none;">
                                     <div class="form-group">
                                         <label for="aoeCylinderRadius">Radio del Cilindro (casillas):</label>
@@ -453,13 +682,12 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Selector de color para la previsualización -->
                             <div class="form-group">
                                 <label for="aoeColor">Color de Previsualización:</label>
                                 <input type="color" id="aoeColor" value="#ff4500">
                             </div>
                         </div>
+
                         <h4>Apariencia</h4>
                         <div class="form-row">
                             <div class="form-group"><label for="editTokenColor">Relleno*</label><input type="color"
@@ -477,7 +705,6 @@
                                 placeholder="Describe características especiales, habilidades o notas importantes..."></textarea>
                         </div>
 
-                        <!-- NUEVA SECCIÓN PARA GESTIONAR ESTADOS -->
                         <div id="tokenStatesEditor">
                             <h4>Estados y Efectos</h4>
                             <div class="form-row">
@@ -491,12 +718,24 @@
                                 </div>
                             </div>
                             <button id="addStateBtn" class="small-btn">Añadir Estado</button>
-
-                            <ul id="editTokenStatesList">
-                                <!-- La lista de estados se generará aquí -->
-                            </ul>
+                            <ul id="editTokenStatesList"></ul>
+                        </div>
+                        <div id="tokenAbilitiesEditor">
+                            <h4>Habilidades Destacadas</h4>
+                            <div id="editAbilitiesList" class="info-card-list">
+                                <!-- Las tarjetas de habilidades se generarán aquí -->
+                            </div>
+                            <button id="addAbilityBtn" class="small-btn">Añadir Habilidad</button>
                         </div>
 
+                        <!-- === NUEVA SECCIÓN: INVENTARIO === -->
+                        <div id="tokenInventoryEditor">
+                            <h4>Inventario</h4>
+                            <div id="editInventoryList" class="info-card-list">
+                                <!-- Las tarjetas de inventario se generarán aquí -->
+                            </div>
+                            <button id="addInventoryItemBtn" class="small-btn">Añadir Objeto</button>
+                        </div>
                         <div class="form-row button-group">
                             <button id="updateTokenBtn">Actualizar Ficha</button>
                             <button id="deselectTokenBtn" class="secondary">Deseleccionar</button>
@@ -506,7 +745,6 @@
             </section>
 
             <section class="collapsible active"> <!-- Dejamos esta abierta por defecto -->
-                <!-- CAMBIO: Añadir span para el icono -->
                 <h3 class="collapsible-header"><span class="header-icon icon-tokens"></span> Fichas en el Tablero
                     (Turno)</h3>
                 <div class="collapsible-content">
@@ -518,15 +756,17 @@
                 <button id="toggleVisionBtn">Iniciar Visión Dinámica</button>
                 <button id="resetFogBtn" title="Reiniciar toda la niebla de guerra">R</button>
             </div>
+            <button id="openPlayerViewBtn">
+                <span class="btn-icon icon-player-view"></span>
+                <span class="btn-text">Abrir Vista de Jugador</span>
+            </button>
             <br>
             <p class="panel-subtitle leyenda">~ Creado por Rafael Alvarez ~</p>
 
         </div>
 
         <div id="mapContainer">
-            <!-- El mensaje de bienvenida sigue aquí -->
             <div class="loading-state">
-                <!-- CAMBIO: Reemplazar emoji con div para icono de fondo -->
                 <div class="loading-icon icon-dice-large"></div>
                 <h1>Tu Aventura Comienza Aquí</h1>
                 <h2>¡Manos a la obra, DM!</h2>
@@ -536,7 +776,6 @@
                     alt="">
             </div>
 
-            <!-- El NUEVO WRAPPER que contendrá todo el mapa -->
             <div id="mapContentWrapper">
                 <img id="mapImage" src="" alt="Mapa" style="-webkit-user-drag: none;">
                 <canvas id="gridCanvas"></canvas>
@@ -579,16 +818,12 @@
     <!-- MODAL PARA MOSTRAR ESCENAS GUARDADAS -->
     <div id="savedScenesModal" class="modal-overlay">
         <div class="saved-scenes-modal">
-            <!-- Header del modal -->
             <div class="modal-header">
                 <h1 class="modal-title">Mapas Guardados</h1>
                 <button class="modal-close-btn" id="closeSavedScenesBtn">×</button>
             </div>
-            <!-- Contenido scrolleable del modal -->
             <div class="modal-content-body">
                 <div id="sceneListContainer" class="saved-scenes-grid">
-                    <!-- Las tarjetas de escenas se generarán aquí con JavaScript -->
-                    <!-- CAMBIO: El mensaje de no escenas usará el div para el icono -->
                     <div id="no-scenes-message">
                         <div class="icon icon-map-large"></div>
                         <h3>No hay mapas guardados</h3>
@@ -599,14 +834,27 @@
         </div>
     </div>
 
+    <!-- === MODAL PARA AÑADIR HABILIDADES/INVENTARIO === -->
+    <div id="featureInventoryModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modalTitle">Añadir Nuevo Elemento</h3>
+            <div class="form-group">
+                <label for="modalNameInput">Nombre:</label>
+                <input type="text" id="modalNameInput" placeholder="Ej: Furia del Bárbaro">
+            </div>
+            <div class="form-group">
+                <label for="modalDescriptionInput">Descripción:</label>
+                <textarea id="modalDescriptionInput" rows="4" placeholder="Describe los detalles..."></textarea>
+            </div>
+            <div class="button-group">
+                <button id="confirmModalBtn">Guardar</button>
+                <button id="cancelModalBtn" class="secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
     <audio id="damage-sound" src="https://www.myinstants.com/media/sounds/crap-dnd-song.mp3" preload="auto"></audio>
     <audio id="heal-sound" src="https://www.myinstants.com/media/sounds/crap-dnd-song.mp3" preload="auto"></audio>
-
-
-    <!-- ======================================================= -->
-    <!-- ========== NUEVOS AUDIOS DE AMBIENTE ================== -->
-    <!-- ======================================================= -->
     <audio id="sound-tavern" src="https://www.myinstants.com/media/sounds/crapdndsong_ICcww3d.mp3" preload="auto"
         loop></audio>
     <audio id="sound-forest" src="https://www.myinstants.com/media/sounds/forest-night.mp3" preload="auto" loop></audio>
@@ -637,11 +885,7 @@
     <audio id="sound-risasenlatadas" src="https://www.myinstants.com/media/sounds/risas-enlatadas-tv.mp3"
         preload="auto"></audio>
 
-
-
-    <!-- ======================================================= -->
-    <!-- ======================================================= -->
-    <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script> <!--usaremos bd del navegador-->
+    <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script>
     <script src="script.js"></script>
 </body>
 

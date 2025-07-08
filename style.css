@@ -128,7 +128,7 @@ h4.top-margin {
 }
 
 .collapsible.active .collapsible-content {
-  max-height: 1900px;
+  max-height: 2500px;
   /* Valor alto para permitir contenido grande */
   padding: 15px;
 }
@@ -224,6 +224,8 @@ input[type="color"] {
   border: 1px solid var(--input-border);
   cursor: pointer;
   padding: 0;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
 input[type="color"]::-webkit-color-swatch {
@@ -2458,4 +2460,324 @@ button.small-btn {
 #editTokenColor,
 #editTokenBorderColor {
   border: none;
+}
+.button-group button.secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* Espacio entre el icono y el texto */
+}
+
+/* 2. Estilo general para los contenedores de iconos dentro de los botones */
+.btn-icon {
+  display: inline-block; /* Permite darle tamaño */
+  width: 1.2em; /* Ancho del icono */
+  height: 1.2em; /* Alto del icono */
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  flex-shrink: 0; /* Evita que el icono se encoja */
+}
+
+/* 3. Icono específico para el botón "Deshacer" */
+/* REEMPLAZA LA RUTA SI ES NECESARIO */
+.icon-undo {
+  background-image: url("assets/images/icons/deshacer_icon.png");
+}
+
+/* 4. Icono específico para el botón "Limpiar Todo" */
+/* REEMPLAZA LA RUTA SI ES NECESARIO */
+.icon-clear-all {
+  background-image: url("assets/images/icons/limpiartodo_icon.png");
+}
+.button-group button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px; /* Un poco más de espacio para estos botones principales */
+}
+
+/* 2. (Opcional, pero buena práctica) Mantenemos el espaciado original para los secundarios */
+.button-group button.secondary {
+  gap: 8px;
+}
+
+/* 3. Icono específico para "Guardar Escena" (un libro con un sello) */
+.icon-save-scene {
+  background-image: url("assets/images/icons/guardarescena_icon.png");
+}
+
+/* 4. Icono específico para "Cargar Escena" (una carpeta) */
+.icon-load-scene {
+  background-image: url("assets/images/icons/cargarescena_icon.png");
+}
+
+/* 5. Icono específico para "Vista de Jugador" (un ojo) */
+.icon-player-view {
+  background-image: url("assets/images/icons/jugadores_icon.png");
+}
+.icon-player-view {
+  width: 100%;
+  height: 75px;
+}
+
+/* === NUEVOS ESTILOS PARA LA HOJA DE PERSONAJE (AÑADIR AL FINAL) === */
+
+/* Grid para las 6 características principales */
+.char-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
+.char-stat-card {
+  background-color: var(--header-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  padding: 8px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.char-stat-card label {
+  font-family: "IM Fell English SC", serif;
+  font-size: 0.9em;
+  color: var(--text-gold);
+  margin: 0;
+  font-weight: bold;
+}
+
+.char-mod {
+  font-size: 1.6em;
+  font-weight: bold;
+  color: var(--text-light);
+  line-height: 1;
+}
+
+.char-score-capsule {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  width: 100%;
+}
+
+.char-score-input {
+  width: 100%;
+  padding: 2px;
+  margin: 0;
+  text-align: center;
+  background: transparent;
+  border: none;
+  color: var(--text-light);
+  font-family: "Cinzel", serif;
+  font-size: 1em;
+  -moz-appearance: textfield; /* Para Firefox */
+}
+.nofondo{
+  border: none;
+}
+.char-score-input::-webkit-outer-spin-button,
+.char-score-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.char-score-input:focus {
+  outline: none;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Grid para las estadísticas de combate (Bono, AC, etc.) */
+.combat-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
+.combat-stat-card {
+  background-color: var(--header-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  padding: 8px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+}
+
+.combat-value-input {
+  font-size: 2em;
+  font-weight: bold;
+  color: var(--text-light);
+  line-height: 1;
+  width: 100%;
+  text-align: center;
+  background: transparent;
+  border: none;
+  padding: 5px 0;
+  margin: 0;
+  -moz-appearance: textfield;
+}
+.combat-value-input::-webkit-outer-spin-button,
+.combat-value-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.combat-value-input:focus {
+  outline: none;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+}
+
+.combat-label-top,
+.combat-label-bottom {
+  font-size: 0.7em;
+  text-transform: uppercase;
+  color: #a0a0a0;
+  line-height: 1;
+  font-family: "Cinzel", serif;
+}
+.combat-stat-card label.combat-label-top,
+.combat-stat-card label.combat-label-bottom {
+  margin: 0;
+}
+
+/* Lista de Tiradas de Salvación */
+.saving-throws-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--input-border);
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.save-throw-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px;
+  border-radius: 3px;
+}
+.save-throw-row:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.save-throw-row .checkbox-container {
+  padding-left: 20px;
+  flex-shrink: 0;
+}
+
+/* Ajuste al checkbox para este contexto */
+.save-throw-row .checkbox-container label::before {
+  width: 16px;
+  height: 16px;
+}
+.save-throw-row .checkbox-container label::after {
+  width: 4px;
+  height: 9px;
+  left: 6px;
+  top: 45%;
+}
+input.save-prof-check:checked + label::before {
+  background-color: var(--text-gold);
+  border-color: var(--text-gold);
+}
+input.save-prof-check:checked + label::after {
+  border-color: var(--panel-bg);
+}
+
+.save-name {
+  flex-grow: 1;
+  color: var(--text-light);
+  font-size: 0.9em;
+}
+
+.save-total {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: var(--text-light);
+  background-color: var(--header-bg);
+  padding: 2px 10px;
+  border-radius: 10px;
+  min-width: 40px;
+  text-align: center;
+  border: 1px solid var(--input-border);
+}
+.nobackgrund{
+  border-radius: 50% !important;
+    border: none !important; 
+    background: none !important;
+}
+#tokenAbilitiesEditor,
+#tokenInventoryEditor {
+  margin-top: 20px;
+}
+
+.info-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+  max-height: 250px; /* Altura máxima para la lista */
+  overflow-y: auto;   /* Scroll si hay muchos elementos */
+  padding-right: 5px; /* Espacio para la barra de scroll */
+}
+
+.info-card {
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--text-gold);
+  border-left: 3px solid var(--text-gold);
+  border-radius: 4px;
+  padding: 10px 15px;
+  padding-right: 40px; /* Espacio para el botón de borrar */
+}
+
+.info-card-title {
+  font-family: "IM Fell English SC", serif;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: var(--text-light);
+  margin: 0 0 5px 0;
+}
+
+.info-card-desc {
+  font-size: 0.9em;
+  color: #c0c0c0;
+  white-space: pre-wrap; /* Respeta saltos de línea y espacios */
+  line-height: 1.4;
+}
+
+.delete-info-btn {
+  position: absolute;
+ top: 8px;        /* Cambio: de 50% a 8px */
+  right: 8px;      /* Mantiene la misma distancia del borde derecho */
+  transform: none;
+  background: none;
+  border: 1px solid #c65d5d;
+  color: #c65d5d;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  margin: 0;
+  font-size: 1.1em;
+  line-height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.delete-info-btn:hover {
+  background: #a13535;
+  color: white;
+}
+
+#featureInventoryModal textarea {
+    min-height: 80px; /* Asegura que el textarea tenga una altura mínima */
 }
